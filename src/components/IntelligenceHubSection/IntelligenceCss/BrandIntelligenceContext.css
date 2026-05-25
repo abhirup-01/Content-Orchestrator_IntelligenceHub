@@ -1,0 +1,547 @@
+/* Author: Abhirup Nandi — 2026-05-20
+ * Summary: Styles for the Brand Intelligence "scope by context" card.
+ * Scoped under .bic-ctx-* to prevent bleed into the connectors card.
+ *
+ * Modified by Abhirup Nandi — 2026-05-20: Added Veeva panel styles,
+ * NL hint line, spin animation, and Apply-button loading state.
+ *
+ * Modified by Abhirup Nandi — 2026-05-20: Replaced pill-button filter rows
+ * with custom dropdown styles (.bic-ctx-dropdown-*). Pill styles removed.
+ */
+
+.bic-ctx-section {
+  margin: 18px 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+.bic-ctx-section-label {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 24px 2px 12px;
+}
+
+/* Added by Abhirup Nandi — 2026-05-25
+ * Embedded mode — this component now renders inside the BrandIntelligence
+ * "Ingested documents" card as a continuation, so it should not draw its
+ * own card frame. The parent .bic-card supplies the border/padding; we
+ * just add a divider line and breathing room above the Scope-by-context
+ * heading so the two sections read as one continuous card. */
+.bic-ctx-embedded {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+.bic-ctx-embedded-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 18px 0;
+}
+
+/* ===== Form card ===== */
+.bic-ctx-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Header */
+.bic-ctx-head { margin-bottom: 18px; }
+.bic-ctx-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bic-ctx-head-icon {
+  width: 18px;
+  height: 18px;
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+.bic-ctx-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.bic-ctx-sub {
+  margin: 4px 0 0 28px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ===== Natural-language input ===== */
+.bic-ctx-nl { margin-bottom: 18px; }
+.bic-ctx-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #475569;
+  margin-bottom: 8px;
+}
+.bic-ctx-textarea {
+  width: 100%;
+  min-height: 80px;
+  font: inherit;
+  font-size: 14px;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+.bic-ctx-textarea::placeholder { color: #94a3b8; }
+.bic-ctx-textarea:focus {
+  border-color: #7c3aed;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+/* NL hint line */
+.bic-ctx-nl-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.bic-ctx-nl-hint svg { flex-shrink: 0; opacity: 0.7; }
+
+/* ===== Structured filters grid ===== */
+.bic-ctx-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+  margin-bottom: 18px;
+}
+.bic-ctx-filter {
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.bic-ctx-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1e293b;
+  margin-bottom: 6px;
+  padding: 0;
+}
+/* Modified by Abhirup Nandi — 2026-05-25: filter-label icon picks up the
+   same purple accent used by the section head icon so the four filters
+   read as a clear group. */
+.bic-ctx-filter-label-icon {
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+/* ===== Custom dropdown ===== */
+.bic-ctx-dropdown {
+  position: relative;
+}
+
+/* Trigger button */
+.bic-ctx-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  gap: 6px;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
+  text-align: left;
+}
+.bic-ctx-dropdown-trigger:hover {
+  border-color: #c4b5fd;
+  background: #faf5ff;
+}
+.bic-ctx-dropdown.is-open .bic-ctx-dropdown-trigger {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  background: #ffffff;
+}
+.bic-ctx-dropdown-trigger.has-value {
+  color: #0f172a;
+  border-color: #c4b5fd;
+  background: #faf5ff;
+}
+
+.bic-ctx-dropdown-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bic-ctx-dropdown-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: #94a3b8;
+}
+
+/* Clear × inside trigger */
+.bic-ctx-dropdown-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.bic-ctx-dropdown-clear:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Chevron — rotates when open */
+.bic-ctx-dropdown-chevron {
+  transition: transform 0.18s;
+}
+.bic-ctx-dropdown.is-open .bic-ctx-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+/* Invisible backdrop to close on outside click */
+.bic-ctx-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+
+/* Dropdown menu */
+.bic-ctx-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.06);
+  animation: bic-ctx-menu-in 0.12s ease;
+}
+
+@keyframes bic-ctx-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Option rows */
+.bic-ctx-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+.bic-ctx-dropdown-option:hover {
+  background: #f5f3ff;
+  color: #0f172a;
+}
+.bic-ctx-dropdown-option.is-selected {
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+/* Check icon slot for multi-select */
+.bic-ctx-dropdown-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #7c3aed;
+}
+.bic-ctx-dropdown-check:not(.is-checked) {
+  /* empty placeholder to keep alignment */
+  color: transparent;
+}
+
+/* ===== Action row ===== */
+.bic-ctx-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+.bic-ctx-dirty-hint {
+  margin-right: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b45309;
+}
+.bic-ctx-btn-secondary,
+.bic-ctx-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.bic-ctx-btn-secondary {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #0f172a;
+}
+.bic-ctx-btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+.bic-ctx-btn-primary {
+  background: #7c3aed;
+  border: 1px solid #7c3aed;
+  color: #ffffff;
+}
+.bic-ctx-btn-primary:hover:not(:disabled) {
+  background: #6d28d9;
+  border-color: #6d28d9;
+}
+.bic-ctx-btn-secondary:disabled,
+.bic-ctx-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spin animation */
+@keyframes bic-ctx-spin { to { transform: rotate(360deg); } }
+.bic-ctx-spin { animation: bic-ctx-spin 0.8s linear infinite; }
+
+/* ===== Applied-scope audit panel ===== */
+.bic-ctx-applied {
+  margin-top: 12px;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.bic-ctx-applied-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.bic-ctx-applied-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bic-ctx-applied-icon {
+  width: 18px;
+  height: 18px;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+.bic-ctx-applied-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.bic-ctx-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #ddd6fe;
+  color: #6d28d9;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.bic-ctx-edit-btn:hover {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+}
+.bic-ctx-applied-intro {
+  margin: 0 0 10px 28px;
+  font-size: 13px;
+  color: #475569;
+}
+.bic-ctx-applied-list {
+  list-style: none;
+  margin: 0 0 14px 28px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bic-ctx-applied-row {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  flex-wrap: wrap;
+}
+.bic-ctx-applied-key {
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.bic-ctx-applied-value { color: #475569; }
+.bic-ctx-applied-result {
+  margin: 0 0 8px 28px;
+  font-size: 13px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #ddd6fe;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+.bic-ctx-applied-result strong { color: #0f172a; }
+.bic-ctx-applied-meta {
+  margin-left: 28px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* ===== Veeva Vault results panel ===== */
+.bic-ctx-veeva-panel {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #ddd6fe;
+}
+.bic-ctx-veeva-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.bic-ctx-veeva-icon { color: #6d28d9; flex-shrink: 0; }
+.bic-ctx-veeva-title {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bic-ctx-veeva-meta { font-size: 11px; color: #94a3b8; }
+
+.bic-ctx-veeva-loading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #94a3b8;
+  padding: 6px 0;
+}
+.bic-ctx-veeva-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 9px 12px;
+  line-height: 1.45;
+}
+.bic-ctx-veeva-error svg { flex-shrink: 0; margin-top: 1px; }
+.bic-ctx-veeva-empty {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 6px 0;
+}
+.bic-ctx-veeva-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bic-ctx-veeva-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: #ffffff;
+  border: 1px solid #ede9fe;
+  transition: background 0.12s, border-color 0.12s;
+}
+.bic-ctx-veeva-row:hover {
+  background: #faf5ff;
+  border-color: #ddd6fe;
+}
+.bic-ctx-veeva-file-icon { color: #94a3b8; flex-shrink: 0; }
+.bic-ctx-veeva-name {
+  flex: 1;
+  font-size: 12px;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bic-ctx-veeva-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ede9fe;
+  color: #6d28d9;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 700px) {
+  .bic-ctx-filters { grid-template-columns: 1fr; }
+  .bic-ctx-applied-intro,
+  .bic-ctx-applied-list,
+  .bic-ctx-applied-result,
+  .bic-ctx-applied-meta { margin-left: 0; }
+  .bic-ctx-veeva-panel { margin-top: 14px; padding-top: 12px; }
+}

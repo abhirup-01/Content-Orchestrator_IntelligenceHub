@@ -1,3 +1,7 @@
+/* Author: Abhirup Nandi — 2026-05-20
+ * Summary: Removed four conflicting .ihub-kpi redeclarations; added clean .ihub-kpi-grid with colored .box-* themes.
+ */
+
 /* softer pill for right-side metric on Subject Lines */
 
 .ihub-pillState.soft {
@@ -170,144 +174,67 @@
   border: 1px solid #ABEFC6;
 }
 
-.ihub-kpi {
+/* ===== KPI Grid (mirrors WebsiteIntelligence pattern) ===== */
+.ihub-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ihub-kpi-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 120px; /* Adjust based on your layout */
-  padding: 10px;
-  background-color: #f0fdf4; /* Very light green background */
-  border: 1px solid #bbf7d0; /* Soft green border */
-  border-radius: 12px;
+  padding: 14px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  min-width: 0;
   text-align: center;
 }
 
-.ihub-kpiIcon {
-  color: #166534; /* Darker green for the icon */
-  margin-bottom: 10px;
+.ihub-kpi-box .kpi-icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 8px;
 }
 
-.ihub-kpiValue {
-  font-size: 1.5rem;
-  font-weight: 650;
-  color: #064e3b; /* Deep green for the percentage */
-  line-height: 1;
-  margin-bottom: 4px;
+.ihub-kpi-box .kpi-val {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
 }
 
-.ihub-kpiLabel {
-  font-size: 1.1rem;
+.ihub-kpi-box .kpi-label {
+  font-size: 12px;
   font-weight: 500;
-  color: #15803d; /* Mid-tone green for the label */
-}
-
-.ihub-kpi {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 20px;
-  background-color: #f0f7ff; /* Very light blue background */
-  border: 1px solid #cce3ff; /* Soft blue border */
-  border-radius: 12px;
+  white-space: nowrap;
   text-align: center;
 }
 
-/* Specific styling for the Blue/Info theme */
-.ihub-kpiIcon.info {
-  color: #2563eb; /* Primary blue icon color */
-  margin-bottom: 12px;
-}
+/* Color themes — green / blue / purple / orange */
+.ihub-kpi-box.box-green  { background: #f0fdf4; border-color: #dcfce7; }
+.ihub-kpi-box.box-green  .kpi-icon,
+.ihub-kpi-box.box-green  .kpi-val   { color: #16a34a; }
+.ihub-kpi-box.box-green  .kpi-label { color: #4ade80; }
 
-.ihub-kpiValue.info {
-  font-size: 1.5rem;
-  font-weight: 6500;
-  color: #1e40af; /* Deep blue for value */
-  line-height: 1;
-  margin-bottom: 4px;
-}
+.ihub-kpi-box.box-blue   { background: #f0f6ff; border-color: #dbeafe; }
+.ihub-kpi-box.box-blue   .kpi-icon,
+.ihub-kpi-box.box-blue   .kpi-val   { color: #2563eb; }
+.ihub-kpi-box.box-blue   .kpi-label { color: #60a5fa; }
 
-.ihub-kpiLabel {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #80cc79; /* Neutral gray for the label */
-}
+.ihub-kpi-box.box-purple { background: #faf5ff; border-color: #f3e8ff; }
+.ihub-kpi-box.box-purple .kpi-icon,
+.ihub-kpi-box.box-purple .kpi-val   { color: #9333ea; }
+.ihub-kpi-box.box-purple .kpi-label { color: #c084fc; }
 
-/* Base KPI styles (reused) */
-.ihub-kpi {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 24px 12px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-/* Specific Purple Theme for Campaigns */
-.ihub-kpi.purple {
-  background-color: #f9f5ff; /* Very light purple/lavender */
-  border: 1px solid #e9d7fe; /* Soft purple border */
-}
-
-.ihub-kpi.purple .ihub-kpiIcon {
-  color: #7f56d9; /* Medium purple icon */
-  margin-bottom: 12px;
-}
-
-.ihub-kpi.purple .ihub-kpiValue {
-  font-size: 1.5rem;
-  font-weight: 650;
-  color: #6941c6; /* Deep purple value */
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.ihub-kpi.purple .ihub-kpiLabel {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #7f56d9; /* Purple label text */
-}
-
-/* Base KPI styles (ensure these are present) */
-.ihub-kpi {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 24px 12px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-/* Specific Orange/Warn Theme for Conversion Rate */
-.ihub-kpi.warn {
-  background-color: #fff7ed; /* Very light orange background */
-  border: 1px solid #ffedd5; /* Soft orange border */
-}
-
-.ihub-kpi.warn .ihub-kpiIcon {
-  color: #f97316; /* Bright orange icon */
-  margin-bottom: 12px;
-}
-
-.ihub-kpi.warn .ihub-kpiValue {
-  font-size: 1.5rem;
-  font-weight: 6500;
-  color: #9a3412; /* Deep orange/brown for readability */
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.ihub-kpi.warn .ihub-kpiLabel {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #ea580c; /* Orange label text */
-}
+.ihub-kpi-box.box-orange { background: #fff7ed; border-color: #ffedd5; }
+.ihub-kpi-box.box-orange .kpi-icon,
+.ihub-kpi-box.box-orange .kpi-val   { color: #d97706; }
+.ihub-kpi-box.box-orange .kpi-label { color: #fb923c; }
 
 .ihub-ciTitle {
   display: flex;

@@ -1,3 +1,7 @@
+/* Author: Abhirup Nandi — 2026-05-20
+ * Summary: Extracted Cross-Channel + Additional Intelligence CSS to separate files; fixed Content Opportunities padding (bullet & button no longer touch the border); bumped .ihub-divider for visible card gap.
+ */
+
 :root{
   --bg: #f7f9fc;
   --card: #ffffff;
@@ -438,145 +442,6 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   .ihub-sentRow{ grid-template-columns: 70px 1fr 42px; }
 }
 
-/* ===== Cross-Channel Insights ===== */
-.ihub-sectionLabel{
-  margin:18px 2px 8px;
-  font-weight:800;
-  color:#111827;
-}
-
-.ihub-ccCard{ padding:14px; }
-
-.ihub-ccTop{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px; margin-bottom:10px;
-}
-.ihub-ccTitle{ display:flex; align-items:center; gap:10px; }
-
-.ihub-pillAction{
-  font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
-  color:#065f46; background:#ecfdf5; border:1px solid #bbf7d0; cursor:pointer;
-}
-
-/* Tabs bar flush with card edges */
-.ihub-tabs--flush{
-  margin:0 -6px 10px -6px;
-  padding:6px 6px 8px;
-  background:#f8fafc;
-  border:1px solid var(--border);
-  border-radius:10px;
-}
-
-/* Callout banner */
-.ihub-callout{
-  background:#eef6ff;
-  border:1px solid #dbeafe;
-  color:#1e3a8a;
-  border-radius:10px;
-  padding:10px 12px;
-  margin-bottom:10px;
-}
-.ihub-calloutTitle{ font-weight:800; }
-.ihub-calloutText{ font-size:12px; color:#475569; }
-
-/* Journey list */
-.ihub-journeyList{ display:flex; flex-direction:column; gap:10px; }
-.ihub-journeyRow{
-  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-  border:1px solid var(--border); border-radius:12px; padding:12px;
-  background:#fff;
-}
-.ihub-journeyMain{ min-width:0; }
-.ihub-flow{
-  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
-  margin-bottom:6px;
-}
-.ihub-flowChip{
-  font-size:12px; padding:6px 10px; border-radius:999px;
-  background:#fff; color:#111827; border:1px solid var(--border);
-}
-.ihub-flowSep{ color:#94a3b8; font-weight:700; }
-
-.ihub-journeySub{
-  font-size:12px; color:#6b7280;
-}
-
-.ihub-pillRate{
-  align-self:flex-start;
-  font-size:12px; font-weight:800; white-space:nowrap;
-  color:#065f46; background:#ecfdf5; border:1px solid #bbf7d0;
-  padding:6px 10px; border-radius:999px;
-}
-
-/* Responsive */
-@media (max-width: 640px){
-  .ihub-journeyRow{ flex-direction:column; align-items:stretch; }
-  .ihub-pillRate{ align-self:flex-end; }
-}
-
-/* ===== Additional Intelligence ===== */
-
-/* Use existing tabs look, but a lighter strip (no framed box) */
-.ihub-tabs--plain{
-  margin-top: 6px;
-  margin-bottom: 10px;
-  padding: 0;
-  background: transparent;
-  border: none;
-}
-.ihub-tabs--plain .ihub-tab{
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-.ihub-tabs--plain .ihub-tab.active{
-  background: #eef2ff; border-color: #dbeafe; color:#1e40af;
-}
-
-.ihub-addlCard{ padding: 14px; }
-.ihub-addlHead{
-  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
-}
-.ihub-addlTitle{ display:flex; align-items:center; gap:10px; }
-
-.ihub-pillData{
-  font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
-  background:#10b9811a; /* faint green */
-  color:#065f46; border:1px solid #bbf7d0; white-space:nowrap;
-}
-
-/* Metric */
-.ihub-metricBlock{ margin: 8px 0 10px 26px; }
-.ihub-metricValue{
-  font-weight:800; font-size:32px; color:#0f172a; line-height:1;
-}
-.ihub-metricHint{
-  font-size:12px; color:#6b7280; margin-top:6px;
-}
-
-/* Soft callout line within the card */
-.ihub-callout.soft{
-  background:#f5f7ff; border-color:#e5e7ff; color:#334155;
-}
-.ihub-calloutRow{ display:flex; align-items:center; gap:8px; }
-.ihub-calloutIcon{ font-size:12px; }
-
-/* Concerns */
-.ihub-concernList{
-  margin-top:8px; display:flex; flex-direction:column; gap:8px;
-}
-.ihub-concernRow{
-  background:#f7f8fb; border:1px solid #eef0f4; border-radius:10px;
-  padding:12px; 
-}
-.ihub-concernTitle{ font-weight:700; color:#0f172a; }
-.ihub-concernSub{ font-size:12px; color:#6b7280; margin-top:4px; }
-
-/* Responsive */
-@media (max-width: 560px){
-  .ihub-metricBlock{ margin-left: 0; }
-}
-
 /* --- Content Opportunities Add-ons --- */
 
 .ihub-card--soft {
@@ -589,7 +454,8 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 24px 0;
+  gap: 24px;            /* breathing room between content and the right-side button */
+  padding: 20px 24px;   /* was 24px 0 — restore horizontal padding so the bullet and button don't touch the card border */
 }
 
 .ihub-opCard-titleRow {
@@ -689,8 +555,8 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 }
 
 .ihub-divider {
-  height: 1px;
-  background-color: #f2f4f7;
+  height: 12px;            /* gap between stacked opportunity cards */
+  background-color: transparent;
   width: 100%;
 }
 

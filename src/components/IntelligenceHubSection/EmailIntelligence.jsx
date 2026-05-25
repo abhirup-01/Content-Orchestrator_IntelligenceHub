@@ -1,3 +1,6 @@
+// Author: Abhirup Nandi — 2026-05-20
+// Summary: Replaced emoji KPI icons with lucide (Mail / MousePointerClick / BarChart3 / TrendingUp); aligned markup with the shared .ihub-kpi-grid pattern.
+
 import React, { useState } from "react";
 import "./IntelligenceCss/IntelligenceDashboard.css";
 import "./IntelligenceCss/EmailIntelligence.css";
@@ -212,26 +215,33 @@ export default function EmailIntelligence() {
   </div>
 </div>
 
-      <div className="ihub-kpiRow">
-  <div className="ihub-kpi">
-    <Mail className="ihub-kpiIcon" size={30} strokeWidth={0.7} />
-    <div className="ihub-kpiValue success">31.1%</div>
-    <div className="ihub-kpiLabel">Avg Open Rate</div>
-  </div>
-        <div className="ihub-kpi">
-          <MousePointerClick className="ihub-kpiIcon info" size={24} />
-  <div className="ihub-kpiValue info">6.9%</div>
-  <div className="ihub-kpiLabel">Avg Click Rate</div>
+      <div className="ihub-kpi-grid">
+        {/* Green Card — Avg Open Rate */}
+        <div className="ihub-kpi-box box-green">
+          <Mail className="kpi-icon" strokeWidth={2} />
+          <div className="kpi-val">31.1%</div>
+          <div className="kpi-label">Avg Open Rate</div>
         </div>
-        <div className="ihub-kpi purple">
-  <BarChart3 className="ihub-kpiIcon" size={24} />
-  <div className="ihub-kpiValue">10</div>
-  <div className="ihub-kpiLabel">Campaigns</div>
+
+        {/* Blue Card — Avg Click Rate */}
+        <div className="ihub-kpi-box box-blue">
+          <MousePointerClick className="kpi-icon" strokeWidth={2} />
+          <div className="kpi-val">6.9%</div>
+          <div className="kpi-label">Avg Click Rate</div>
         </div>
-        <div className="ihub-kpi warn">
-  <TrendingUp className="ihub-kpiIcon" size={24} />
-  <div className="ihub-kpiValue">9.3%</div>
-  <div className="ihub-kpiLabel">Top Conv. Rate</div>
+
+        {/* Purple Card — Campaigns */}
+        <div className="ihub-kpi-box box-purple">
+          <BarChart3 className="kpi-icon" strokeWidth={2} />
+          <div className="kpi-val">10</div>
+          <div className="kpi-label">Campaigns</div>
+        </div>
+
+        {/* Orange Card — Top Conv. Rate */}
+        <div className="ihub-kpi-box box-orange">
+          <TrendingUp className="kpi-icon" strokeWidth={2} />
+          <div className="kpi-val">9.3%</div>
+          <div className="kpi-label">Top Conv. Rate</div>
         </div>
       </div>
 

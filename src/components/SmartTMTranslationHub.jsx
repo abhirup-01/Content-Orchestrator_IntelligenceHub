@@ -12,6 +12,11 @@ import {
 } from 'lucide-react';
 import { getProject, updateProjectMeta, markPhaseComplete, setP2DraftGenerated, computeProgress } from '../lib/progressStore';
 import { usePhaseNavigation } from "./PhaseNav.jsx";
+import { buildTranslationPrompt } from '../prompts/translationPrompt';
+import {
+  SINGLE_SEGMENT_TRANSLATION_SYSTEM_MESSAGE,
+  buildSingleSegmentTranslationUserPrompt,
+} from '../prompts/singleSegmentTranslationPrompt';
 
 // --- Import the new component (Ensure file is created as TMLeverageOverview.jsx) ---
 import TMLeverageOverview from "./TMLeverageOverview";
@@ -94,7 +99,8 @@ const getEnv = () => {
   return { ...we, ...pe };
 };
 const ENV = getEnv();
-
+const api_key = process.env.REACT_APP_API_KEY;
+ 
 /** Use .env or hardcode during test */
 // const N8N_WEBHOOK_URL = ENV.REACT_APP_N8N_WEBHOOK_URL || ENV.VITE_N8N_WEBHOOK_URL || "";
 // const N8N_BULK_WEBHOOK_URL = ENV.REACT_APP_N8N_BULK_WEBHOOK_URL || ENV.VITE_N8N_BULK_WEBHOOK_URL || "";
@@ -108,7 +114,8 @@ const saveTranslationToDb = async (source, target, sLang, tLang, docName) => {
       "https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod/api/translated-content",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-API-Key": api_key },
         body: JSON.stringify({
           document_name: docName,
           source_text: source,
@@ -130,8 +137,8 @@ const saveTranslationToDb = async (source, target, sLang, tLang, docName) => {
 };
 
 // For quick test you can uncomment and set directly:
-const N8N_WEBHOOK_URL = "http://172.16.4.237:8031/webhook/csv_upload";
-const N8N_BULK_WEBHOOK_URL = "http://172.16.4.237:8031/webhook/csv_upload_bulk";
+const N8N_WEBHOOK_URL = "http://172.16.4.237:8016/webhook/csv_upload";
+const N8N_BULK_WEBHOOK_URL = "http://172.16.4.237:8016/webhook/csv_upload_bulk";
 
 // const N8N_WEBHOOK_URL = "http://172.16.4.237:8015/webhook-test/csv_upload";
 // const N8N_BULK_WEBHOOK_URL = "http://172.16.4.237:8015/webhook-test/csv_upload_bulk";
@@ -179,6 +186,61 @@ const extractTranslated = async (res) => {
   return "";
 };
 
+/**
+ * Post a single segment to Azure OpenAI for translation (replaces the n8n
+ * /csv_upload webhook). Returns a Response-like object whose .json() yields
+ * `[{ output: "translated text" }]` so the existing extractTranslated() helper
+ * works without any change at the call site.
+ */
+async function callAzureSingleSegmentTranslate(payload) {
+  const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+  const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+  const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+  const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+
+  const res = await fetch(azureUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
+    },
+    body: JSON.stringify({
+      max_completion_tokens: 4096,
+      messages: [
+        { role: "system", content: SINGLE_SEGMENT_TRANSLATION_SYSTEM_MESSAGE },
+        { role: "user", content: buildSingleSegmentTranslationUserPrompt(payload) },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    let errBody = "";
+    try { errBody = await res.text(); } catch (_) {}
+    console.error("[Azure single-translate non-OK]", res.status, errBody);
+    throw new Error(`AI translation failed (HTTP ${res.status})`);
+  }
+
+  const data = await res.json();
+  const choice = data.choices?.[0];
+  const finishReason = choice?.finish_reason;
+  const translated = (choice?.message?.content || "").trim();
+
+  if (finishReason === "content_filter") {
+    console.error("[Azure content filter on single-translate]", choice?.content_filter_results);
+    throw new Error("Azure content filter blocked the translation. Check console.");
+  }
+  if (!translated) {
+    throw new Error(`Translation returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+  }
+
+  // Return a Response-like object so extractTranslated() works unchanged
+  return {
+    ok: true,
+    status: 200,
+    json: async () => [{ output: translated }],
+  };
+}
+
 /* ===== Helpers to normalize n8n bulk output ===== */
 
 /** Normalize the "output" object: alias keys like "segment 1" -> "1", "segment_1", etc. */
@@ -189,22 +251,29 @@ function normalizeOutputMap(outputObj) {
     const val = rawVal.trim();
     const key = String(rawKey).trim();
 
-    // Keep original
+    // Store original key exactly as-is (e.g. "segment 2")
     byKey[key] = val;
 
-    // If key looks like "segment 1", alias to multiple variants
-    const m = key.match(/segment[\s_-]*([0-9]+)/i);
+    // Also store sanitized version (strips brackets)
+    const sanitizedKey = key
+      .replace(/[\[\]{}]/g, "")
+      .replace(/\s+/g, "_")
+      .toLowerCase();
+    byKey[sanitizedKey] = val;
+
+    // If key matches any segment pattern, add all lookup aliases
+    const m = key.match(/segment[\s_\-]*([0-9]+)/i);
     if (m) {
-      const ix = m[1]; // "1"
-      byKey[ix] = val;                     // "1"
-      byKey[`segment ${ix}`] = val;        // "segment 1"
-      byKey[`Segment ${ix}`] = val;        // case variant
-      byKey[`segment_${ix}`] = val;        // "segment_1"
-      byKey[`segment-${ix}`] = val;        // "segment-1"
-      byKey[`seg ${ix}`] = val;            // "seg 1"
-      byKey[`Seg ${ix}`] = val;            // "Seg 1"
-      byKey[`segment${ix}`] = val;   // no-space
-      byKey[`Segment${ix}`] = val;   // no-space PascalCase
+      const ix = m[1];
+      byKey[ix] = val;                  // "2"
+      byKey[`segment ${ix}`] = val;     // "segment 2"  ← your n8n output format
+      byKey[`Segment ${ix}`] = val;     // "Segment 2"
+      byKey[`segment_${ix}`] = val;     // "segment_2"
+      byKey[`segment-${ix}`] = val;     // "segment-2"
+      byKey[`segment${ix}`] = val;      // "segment2"
+      byKey[`Segment${ix}`] = val;      // "Segment2"
+      byKey[`seg ${ix}`] = val;         // "seg 2"
+      byKey[`Seg ${ix}`] = val;         // "Seg 2"
     }
   }
   return byKey;
@@ -214,19 +283,30 @@ function normalizeOutputMap(outputObj) {
 function keyVariantsForSegment(seg) {
   const ix = String(seg.index);
   const id = String(seg.id);
+
+  // Sanitized version of id (strips brackets like segment_2_[body] → segment_2_body)
+  const sanitizedId = id
+    .replace(/[\[\]{}]/g, "")
+    .replace(/\s+/g, "_")
+    .toLowerCase();
+
   return [
-    id,
-    ix,
+    // ✅ "segment N" with space — matches n8n output format exactly
     `segment ${ix}`,
     `Segment ${ix}`,
+    // Underscore variants
     `segment_${ix}`,
     `segment-${ix}`,
-    `seg ${ix}`,
-    `Seg ${ix}`,
-    `segment${ix}`,
-    `Segment${ix}`,
+    // Numeric only
+    ix,
+    // Original and sanitized IDs
+    id,
+    sanitizedId,
     id.toLowerCase(),
-    ix.toLowerCase(),
+    // No-space variants
+    `segment${ix}`,
+    `Seg ${ix}`,
+    `seg ${ix}`,
   ];
 }
 
@@ -341,12 +421,30 @@ async function extractBulkTranslations(res, pending) {
     const body = await res.json();
 
     // CASE A: Array with an item containing { output: { "segment 1": "...", ... } }
-    if (Array.isArray(body) && body.length > 0) {
-      const first = body[0];
-      if (first && typeof first === "object" && first.output && typeof first.output === "object") {
-        return normalizeOutputMap(first.output);
+   // CASE A: Array with an item containing { output: "{ \"segment 2\": \"...\" }" }
+// Handles BOTH stringified JSON and already-parsed object
+if (Array.isArray(body) && body.length > 0) {
+  const first = body[0];
+  if (first && typeof first === "object" && first.output !== undefined) {
+    
+    let outputObj = first.output;
+
+    // If output is a JSON string, parse it first
+    if (typeof outputObj === "string") {
+      try {
+        outputObj = JSON.parse(outputObj);
+      } catch (e) {
+        console.warn("CASE A: output string parse failed →", e.message);
+        outputObj = null;
       }
     }
+
+    if (outputObj && typeof outputObj === "object" && !Array.isArray(outputObj)) {
+      console.log("✅ CASE A matched. Keys:", Object.keys(outputObj));
+      return normalizeOutputMap(outputObj);
+    }
+  }
+}
 
     // CASE B: Object with output
     if (body && typeof body === "object" && body.output && typeof body.output === "object") {
@@ -554,6 +652,112 @@ function DraftPanel({
     URL.revokeObjectURL(url);
   };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Added by Abhirup Nandi - 2026-05-14
+  // Download as Excel (.xls) — column-wise structured export.
+  // Implementation note: Excel opens an HTML <table> with MIME
+  // application/vnd.ms-excel as a real workbook. This avoids adding a heavy
+  // dependency (xlsx/exceljs) and keeps every segment in tidy columns:
+  // Section #, Source, Translated, Language, Words, TM Score %, Status.
+  // BOM + meta charset ensure Unicode (translated text) renders correctly.
+  // ═══════════════════════════════════════════════════════════════════════════
+  const handleDownloadAsExcel = () => {
+    const esc = (v) =>
+      String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/\n/g, "<br/>");
+
+    const headers = [
+      "Section #",
+      "Source Text",
+      "Translated Text",
+      "Language",
+      "Words",
+      "TM Score (%)",
+      "Status",
+    ];
+
+    const headerHtml = headers
+      .map(
+        (h) =>
+          `<th style="background:#1f7aec;color:#fff;font-weight:700;padding:8px 10px;border:1px solid #1864c9;text-align:left;">${esc(h)}</th>`
+      )
+      .join("");
+
+    const rowsHtml = normalized
+      .map((s, i) => {
+        const stripe = i % 2 === 0 ? "#ffffff" : "#f7fafc";
+        const cellStyle = `padding:6px 10px;border:1px solid #e2e8f0;vertical-align:top;background:${stripe};`;
+        return (
+          `<tr>` +
+          `<td style="${cellStyle};text-align:center;font-weight:600;">${esc(s.index)}</td>` +
+          `<td style="${cellStyle}">${esc(s.source)}</td>` +
+          `<td style="${cellStyle}">${esc(s.translated || "[No translation]")}</td>` +
+          `<td style="${cellStyle};text-align:center;">${esc(s.lang)}</td>` +
+          `<td style="${cellStyle};text-align:center;">${esc(s.words || 0)}</td>` +
+          `<td style="${cellStyle};text-align:center;">${esc(getSegScore(s))}</td>` +
+          `<td style="${cellStyle};text-align:center;">${esc(s.status || "")}</td>` +
+          `</tr>`
+        );
+      })
+      .join("");
+
+    const summaryRow =
+      `<tr>` +
+      `<td colspan="3" style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;background:#eef2ff;">` +
+      `Project: ${esc(projectName || "")} · Therapy: ${esc(therapyArea || "")} · Target Lang: ${esc(inboundLang || "")}` +
+      `</td>` +
+      `<td colspan="2" style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;background:#eef2ff;text-align:right;">Total Words:</td>` +
+      `<td colspan="2" style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;background:#eef2ff;">${esc(totalWords)} (TM ${esc(tmLeveragePct)}%)</td>` +
+      `</tr>`;
+
+    const html =
+      `﻿` + // UTF-8 BOM so Excel detects Unicode
+      `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">` +
+      `<head>` +
+      `<meta charset="UTF-8"/>` +
+      `<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Draft Translation</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->` +
+      `</head>` +
+      `<body>` +
+      `<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:11pt;">` +
+      `<thead><tr>${headerHtml}</tr></thead>` +
+      `<tbody>${rowsHtml}${summaryRow}</tbody>` +
+      `</table>` +
+      `</body></html>`;
+
+    const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+    a.href = url;
+    a.download = `DraftTranslation-${date}.xls`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Added by Abhirup Nandi - 2026-05-14: dropdown state + outside-click + Escape handlers
+  const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!isDownloadMenuOpen) return undefined;
+    const onDocClick = (e) => {
+      if (!e.target.closest || !e.target.closest(".dt-download-dropdown")) {
+        setIsDownloadMenuOpen(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") setIsDownloadMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isDownloadMenuOpen]);
+
   const generatedAt = useMemo(() => {
     const d = new Date();
     const hh = d.getHours().toString().padStart(2, "0");
@@ -579,7 +783,39 @@ function DraftPanel({
         </div>
         <div className="dt-header-actions">
           <button className="dt-btn outline py-2 px-4" onClick={handleCopyToClipboard}>Copy to Clipboard</button>
-          <button className="dt-btn outline py-2 px-4" onClick={handleDownloadAsText}>Download as Text</button>
+          {/* Modified by Abhirup Nandi - 2026-05-14: split-dropdown lets user choose Text (.txt) or Excel (.xls) */}
+          <div className="dt-download-dropdown">
+            <button
+              type="button"
+              className="dt-btn outline py-2 px-4 dt-download-trigger"
+              onClick={() => setIsDownloadMenuOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={isDownloadMenuOpen}
+            >
+              Download
+              <span className={`dt-caret ${isDownloadMenuOpen ? "open" : ""}`} aria-hidden="true">▾</span>
+            </button>
+            {isDownloadMenuOpen && (
+              <ul className="dt-download-menu" role="menu">
+                <li
+                  role="menuitem"
+                  className="dt-download-item"
+                  onClick={() => { setIsDownloadMenuOpen(false); handleDownloadAsText(); }}
+                >
+                  <span className="dt-download-item-title">As Text</span>
+                  <span className="dt-download-item-sub">.txt — plain compiled draft</span>
+                </li>
+                <li
+                  role="menuitem"
+                  className="dt-download-item"
+                  onClick={() => { setIsDownloadMenuOpen(false); handleDownloadAsExcel(); }}
+                >
+                  <span className="dt-download-item-title">As Excel</span>
+                  <span className="dt-download-item-sub">.xls — column-wise structured</span>
+                </li>
+              </ul>
+            )}
+          </div>
           <button className="dt-btn primary" onClick={() => onSendToCI(normalized)}>
           <ArrowRight size={15} className="h-4 w-4 mr-2" />Send to Cultural Intelligence</button>
         </div>
@@ -1155,22 +1391,23 @@ const [isDraftUnlocked, setIsDraftUnlocked] = useState(false);
   //Hari
  /** Are ALL segments completed (has real text or explicit status=Completed)? */
  //Hari
+// Shared completion predicate — keeps progress bar, Complete Phase 2 gate,
+// and remaining-count in sync so a 100% progress bar truly means done.
+const isSegmentRealCompleted = (s) => {
+  const o = segOverrides[s.id];
+  const translated = (o?.translated ?? s.translated ?? "").trim();
+  const rawStatus = (o?.status ?? s.status) || (translated ? "Completed" : "Pending");
+  const isPlaceholder =
+    translated === "— Awaiting translation —" ||
+    translated === "— Analyzing TM & Glossary —" ||
+    translated === "— Failed —";
+  if (isPlaceholder) return false;
+  return translated.length > 0 || rawStatus === "Completed";
+};
+
 const allSegmentsCompleted = useMemo(() => {
   if (segments.length === 0) return false;
-  return segments.every((s) => {
-    const o = segOverrides[s.id];
-    const translated = (o?.translated ?? s.translated ?? "").trim();
-    const status = (o?.status ?? s.status) || (translated ? "Completed" : "Pending");
-    
-    // ✅ FIXED: Explicitly ignore ALL loading and error placeholders
-    const isPlaceholder = 
-      translated === "— Awaiting translation —" || 
-      translated === "— Analyzing TM & Glossary —" || 
-      translated === "— Failed —";
-
-    // treat only real (non-placeholder) translations as completed
-    return (translated.length > 0 && !isPlaceholder) || status === "Completed";
-  });
+  return segments.every(isSegmentRealCompleted);
 }, [segments, segOverrides]);
   useEffect(() => {
     if (!allSegmentsCompleted) {
@@ -1308,14 +1545,13 @@ useEffect(() => {
   /** When switching segments, keep detail disabled until translation exists */
   
 
-  /** Progress respects overrides */
+  /** Progress respects overrides — uses isSegmentRealCompleted so placeholders
+   * ("— Awaiting translation —", "— Analyzing TM & Glossary —", "— Failed —")
+   * don't inflate the bar to 100% while Complete Phase 2 stays disabled. */
   const progressWords = useMemo(() => {
     const total = segments.reduce((acc, s) => acc + (s.words || 0), 0);
     const done = segments.reduce((acc, s) => {
-      const o = segOverrides[s.id];
-      const translated = (o?.translated ?? s.translated ?? "").trim();
-      const status = o?.status ?? s.status;
-      if (translated.length > 0 || status === "Completed") acc += (s.words || 0);
+      if (isSegmentRealCompleted(s)) acc += (s.words || 0);
       return acc;
     }, 0);
     return total > 0 ? { done, total } : progressWordsProp;
@@ -1329,14 +1565,9 @@ useEffect(() => {
   /** ===== Phase‑2 Complete gate (same UX as Cultural page) ===== 10_03*/
  
   // Count how many segments still missing a real translation (or explicit Completed status)
+  // Uses the shared predicate so this stays in lockstep with allSegmentsCompleted.
   const remainingP2Segments = useMemo(() => {
-    return segments.filter((s) => {
-      const o = segOverrides[s.id];
-      const translated = (o?.translated ?? s.translated ?? "").trim();
-      const status = (o?.status ?? s.status) || (translated ? "Completed" : "Pending");
-      const hasReal = translated.length > 0 && translated !== "— Awaiting translation —";
-      return !(hasReal || status === "Completed");
-    }).length;
+    return segments.filter((s) => !isSegmentRealCompleted(s)).length;
   }, [segments, segOverrides]);
  
   // Reuse your existing allSegmentsCompleted + not bulk translating
@@ -1420,45 +1651,87 @@ useEffect(() => {
   //   });
   // };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Modified by Abhirup Nandi - 2026-05-14
+  // ── Complete Smart TM Translation phase (P2) — TICK-NOT-SHOWING BUG FIX ────
+  // Root cause: markPhaseComplete previously ignored HTTP failure and reported
+  // success even when the server didn't add P2 to completed[]. The sidebar
+  // tick is driven by completedSet derived from that array, so it never lit.
+  // Fix here:
+  //   1) Sequence the writes (meta first → mark P2) — already correct.
+  //   2) After marking, READ THE PROJECT BACK and confirm P2 is in completed[].
+  //   3) If not present (race / silent server failure), RETRY ONCE.
+  //   4) If still missing, surface a real error instead of navigating to P3
+  //      with the tick unset.
+  // ═══════════════════════════════════════════════════════════════════════════
   //Hari
   const handleCompletePhase = async () => {
     if (!allSegmentsCompleted) {
       alert("Please translate all segments before completing this phase.");
       return;
     }
-   
+
     const mergedSegments = mergeSegmentsWithOverrides(segments, segOverrides).map(s => ({
       ...s,
       tmStatus: (s.translated?.trim() ? "Completed" : "Pending"),
       ciStatus: "Pending", // always start P3 as pending
     }));
- 
-    // 1. Persist P2 outputs
-    await updateProjectMeta(projectId, {
-      segmentsP2: mergedSegments,
-    });
- 
-    // 2. Mark Phase Complete (Updates storage and dispatches event)
-    await markPhaseComplete(projectId, 'P2');
- 
-    // ✅ FIX: Micro-delay to ensure the Sidebar receives the "50%" update event
-    // before the navigation clears the current component state.
-    await new Promise(resolve => setTimeout(resolve, 50));
- 
-    const db = JSON.parse(localStorage.getItem('glocal_progress_v1') || '{}');
-    console.log('DB meta.segmentsP2 after markPhaseComplete:', db[projectId]?.meta?.segmentsP2);
-   
-    // 3. Navigate to Phase 3
-    navigate("/culturalAdaptationWorkspace", {
-      state: {
-        projectId,
-        projectName,
-        segments: mergedSegments,
-        lang: inboundLang,
-        forceRefresh: true, // Hint for the next page to fetch fresh data
-        country
-      },
-    });
+
+    try {
+      // 1. Persist P2 outputs
+      await updateProjectMeta(projectId, {
+        segmentsP2: mergedSegments,
+      });
+
+      // 2. Mark Phase Complete (Updates storage and dispatches event)
+      await markPhaseComplete(projectId, 'P2');
+
+      // Added by Abhirup Nandi - 2026-05-14: verify P2 actually landed in completed[]
+      // (defends against silent server failures / write races).
+      const verifyAfterMark = async () => {
+        const fresh = await getProject(projectId);
+        const completedNorm = (fresh?.completed || []).map(c => String(c || '').trim().toUpperCase());
+        return completedNorm.includes('P2');
+      };
+
+      let confirmed = await verifyAfterMark();
+      if (!confirmed) {
+        console.warn('P2 not in completed[] after first mark — retrying once');
+        await new Promise(r => setTimeout(r, 200)); // brief settle before retry
+        await markPhaseComplete(projectId, 'P2');
+        confirmed = await verifyAfterMark();
+      }
+
+      if (!confirmed) {
+        // Modified by Abhirup Nandi - 2026-05-14: don't navigate forward if the
+        // tick won't show — make the failure visible to the user.
+        throw new Error('Smart TM Translation could not be marked complete on the server. Please try again.');
+      }
+
+      // ✅ FIX: Micro-delay to ensure the Sidebar receives the "50%" update event
+      // before the navigation clears the current component state.
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      const db = JSON.parse(localStorage.getItem('glocal_progress_v1') || '{}');
+      console.log('DB meta.segmentsP2 after markPhaseComplete:', db[projectId]?.meta?.segmentsP2);
+
+      // 3. Navigate to Phase 3
+      navigate("/culturalAdaptationWorkspace", {
+        state: {
+          projectId,
+          projectName,
+          segments: mergedSegments,
+          lang: inboundLang,
+          forceRefresh: true, // Hint for the next page to fetch fresh data
+          country
+        },
+      });
+    } catch (err) {
+      // Added by Abhirup Nandi - 2026-05-14: surface the actual error so user
+      // doesn't end up on the next page wondering why the tick is missing.
+      console.error('Complete Phase 2 failed:', err);
+      alert(`Could not complete Smart TM Translation phase.\n\n${err?.message || err}`);
+    }
   };
  
  
@@ -1552,7 +1825,8 @@ useEffect(() => {
         "https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod/api/smart-tm-lookup",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          // headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-API-Key": api_key },
           body: JSON.stringify({
             source_text: selected.source,
             target_lang: targetLang,
@@ -1606,16 +1880,7 @@ useEffect(() => {
           },
         };
 
-        const aiRes = await fetch(N8N_WEBHOOK_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!aiRes.ok) throw new Error(`n8n Error: ${aiRes.status}`);
+        const aiRes = await callAzureSingleSegmentTranslate(payload);
         finalTranslation = (await extractTranslated(aiRes)).trim();
       }
 
@@ -1637,16 +1902,7 @@ useEffect(() => {
           meta: { tm_score: 0 },
         };
 
-        const aiRes = await fetch(N8N_WEBHOOK_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (!aiRes.ok) throw new Error(`n8n Error: ${aiRes.status}`);
+        const aiRes = await callAzureSingleSegmentTranslate(payload);
         finalTranslation = (await extractTranslated(aiRes)).trim();
       }
 
@@ -1792,20 +2048,7 @@ useEffect(() => {
       },
     };
 
-    const res = await fetch(N8N_WEBHOOK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(`n8n responded with ${res.status}: ${txt}`);
-    }
-
+    const res = await callAzureSingleSegmentTranslate(payload);
     const translated = (await extractTranslated(res)).trim();
     return translated;
   }
@@ -2027,7 +2270,8 @@ useEffect(() => {
       
       const lookupRes = await fetch("https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod/api/smart-tm-lookup-bulk", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-API-Key": api_key },
         body: JSON.stringify({
           source_texts: pendingSegments.map(s => s.source),
           target_lang: inboundLang
@@ -2110,19 +2354,70 @@ useEffect(() => {
           glossaryHints: segmentsToGenerate.flatMap(s => s.glossary)
         };
 
-        const n8nRes = await fetch(N8N_BULK_WEBHOOK_URL, {
+        // ── Azure OpenAI call (replaces n8n /csv_upload_bulk webhook) ───────
+        // Posts the same payload shape, but goes directly to Azure with the
+        // prompt assembled by buildTranslationPrompt. Response is wrapped in
+        // the n8n-shape `[{ output: {...} }]` so extractBulkTranslations works
+        // unchanged.
+        const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+        const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+        const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+        const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+
+        const azureRes = await fetch(azureUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
+            "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            max_completion_tokens: 16384,
+            response_format: { type: "json_object" },
+            messages: [{ role: "user", content: buildTranslationPrompt(payload) }],
+          }),
         });
 
-        if (!n8nRes.ok) throw new Error("AI Generation failed");
+        if (!azureRes.ok) {
+          let errBody = "";
+          try { errBody = await azureRes.text(); } catch (_) {}
+          console.error("[Azure translate non-OK]", azureRes.status, errBody);
+          throw new Error(`AI Generation failed (HTTP ${azureRes.status})`);
+        }
 
-        // ✅ KEY FIX: Use your existing, bulletproof extraction logic
-        const byKey = await extractBulkTranslations(n8nRes, segmentsToGenerate);
+        const azureData = await azureRes.json();
+        const choice = azureData.choices?.[0];
+        const finishReason = choice?.finish_reason;
+        const rawText = choice?.message?.content;
+
+        if (finishReason === "content_filter") {
+          console.error("[Azure content filter triggered on translate]", choice?.content_filter_results);
+          throw new Error("Azure content filter blocked the translation. Check console.");
+        }
+        if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
+          throw new Error(`Translation returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+        }
+
+        let parsedTranslations;
+        try {
+          parsedTranslations = JSON.parse(rawText.trim());
+        } catch (e) {
+          const match = rawText.match(/\{[\s\S]*\}/);
+          if (match) {
+            parsedTranslations = JSON.parse(match[0]);
+          } else {
+            console.error("[Translation: no JSON object found]", rawText);
+            throw new Error("Translation response was not valid JSON");
+          }
+        }
+
+        // Wrap in the n8n response shape so extractBulkTranslations handles it
+        const wrappedRes = {
+          ok: true,
+          status: 200,
+          json: async () => [{ output: parsedTranslations }],
+        };
+
+        const byKey = await extractBulkTranslations(wrappedRes, segmentsToGenerate);
         
         // Merge AI results into updates
         for (const s of segmentsToGenerate) {
@@ -2180,7 +2475,8 @@ useEffect(() => {
         // Non-blocking DB save
         fetch("https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod/api/translated-content/bulk", {
              method: "POST",
-             headers: { "Content-Type": "application/json" },
+            //  headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "X-API-Key": api_key },
              body: JSON.stringify({ items: itemsToSave })
         }).catch(err => console.warn("Background DB save failed", err));
       }
@@ -2273,54 +2569,86 @@ const handleGenerateDraftTranslation = () => {
   //     });
   //   };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Modified by Abhirup Nandi - 2026-05-14
+  // ── Send to CI (also marks P2 complete) — same tick-not-showing fix ───────
+  // Same root cause as handleCompletePhase: silent markPhaseComplete failure
+  // meant P2 was never recorded in completed[]. Added verify-and-retry so the
+  // sidebar tick is guaranteed before navigation.
+  // ═══════════════════════════════════════════════════════════════════════════
   //Hari-25/3
   const handleSendToCI = async (normalizedDraftSegments) => {
 
-    // 1. Persist P2 and the draft flag (Updates metadata)
+    try {
 
-    // This helper from progressStore.js already calls updateProjectMeta
+      // 1. Persist P2 and the draft flag (Updates metadata)
 
-    await setP2DraftGenerated(projectId, true, { segmentsP2: normalizedDraftSegments });
+      // This helper from progressStore.js already calls updateProjectMeta
 
-    // 2. Local fallback flag
+      await setP2DraftGenerated(projectId, true, { segmentsP2: normalizedDraftSegments });
 
-    localStorage.setItem(`p2_draft_generated_${projectId}`, "true");
+      // 2. Local fallback flag
 
-    // 3. Mark Phase Complete (Updates storage and dispatches 'glocal_progress_updated')
+      localStorage.setItem(`p2_draft_generated_${projectId}`, "true");
 
-    await markPhaseComplete(projectId, 'P2');
- 
-    // ✅ FIX: Micro-delay to ensure the Sidebar and Progress logic 
+      // 3. Mark Phase Complete (Updates storage and dispatches 'glocal_progress_updated')
 
-    // "catch" the P2 completion event before the current page unmounts.
+      await markPhaseComplete(projectId, 'P2');
 
-    await new Promise(resolve => setTimeout(resolve, 50));
- 
-    // 4. Navigate to Cultural Intelligence
+      // Added by Abhirup Nandi - 2026-05-14: verify P2 in completed[]; retry once if missing.
+      const verifyAfterMark = async () => {
+        const fresh = await getProject(projectId);
+        const completedNorm = (fresh?.completed || []).map(c => String(c || '').trim().toUpperCase());
+        return completedNorm.includes('P2');
+      };
+      let confirmed = await verifyAfterMark();
+      if (!confirmed) {
+        console.warn('P2 not in completed[] after first mark (Send to CI path) — retrying once');
+        await new Promise(r => setTimeout(r, 200));
+        await markPhaseComplete(projectId, 'P2');
+        confirmed = await verifyAfterMark();
+      }
+      if (!confirmed) {
+        throw new Error('Smart TM Translation could not be marked complete on the server. Please try again.');
+      }
 
-    navigate("/culturalAdaptationWorkspace", {
+      // ✅ FIX: Micro-delay to ensure the Sidebar and Progress logic
 
-      state: {
+      // "catch" the P2 completion event before the current page unmounts.
 
-        projectId,
+      await new Promise(resolve => setTimeout(resolve, 50));
 
-        projectName,
+      // 4. Navigate to Cultural Intelligence
 
-        segments: normalizedDraftSegments,
+      navigate("/culturalAdaptationWorkspace", {
 
-        lang: inboundLang,
+        state: {
 
-        therapyArea,
+          projectId,
 
-        country,
+          projectName,
 
-        fromDraft: true,
+          segments: normalizedDraftSegments,
 
-        forceRefresh: true // Hint for the next page to fetch fresh data
+          lang: inboundLang,
 
-      },
+          therapyArea,
 
-    });
+          country,
+
+          fromDraft: true,
+
+          forceRefresh: true // Hint for the next page to fetch fresh data
+
+        },
+
+      });
+
+    } catch (err) {
+      // Added by Abhirup Nandi - 2026-05-14: surface actual error instead of silently moving on with no tick
+      console.error('Send to CI / Complete P2 failed:', err);
+      alert(`Could not complete Smart TM Translation phase.\n\n${err?.message || err}`);
+    }
 
   };
  
@@ -2598,14 +2926,14 @@ const handleGenerateDraftTranslation = () => {
     </div>
   ) : (
   <section className="tm-workspace">
-          {/* Left card: Segments list (unchanged) */}
+          {/* Left card: Segments list (scrollable) */}
           <div className="tm-card tm-left">
             <div className="tm-card-header">
               <h3 className="tm-card-title">Segments</h3>
               <span className="tm-light">{segments.length} items</span>
             </div>
 
-            <div className="tm-seg-list">
+            <div className="tm-seg-list" style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto" }}>
               {segments.map((seg) => {
                 const isSelected = seg.id === selectedId;
                 

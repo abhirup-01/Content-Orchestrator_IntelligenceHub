@@ -1,3 +1,7 @@
+/* Author: Abhirup Nandi — 2026-05-20
+ * Summary: KPI grid switched to repeat(4, minmax(0,1fr)) + white-space:nowrap on labels so cards survive narrow containers.
+ */
+
 /* =========================================================
    EXACT REPLICA - WEBSITE INTELLIGENCE
    ========================================================= */
@@ -41,8 +45,8 @@
 /* KPI Cards Grid */
 .ihub-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
   margin-bottom: 24px;
 }
 .ihub-kpi-box {
@@ -50,9 +54,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 14px 8px;
   border-radius: 8px;
   border: 1px solid;
+  min-width: 0;
 }
 .kpi-icon {
   width: 20px;
@@ -60,14 +65,17 @@
   margin-bottom: 8px;
 }
 .kpi-val {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   margin-bottom: 2px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 .kpi-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* Exact KPI Colors */

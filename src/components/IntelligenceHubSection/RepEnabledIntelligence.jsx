@@ -1,3 +1,6 @@
+// Author: Abhirup Nandi — 2026-05-20
+// Summary: Added lucide icons throughout (Users / BarChart3 / FileText / Target / MapPin / Sparkles / TrendingUp); restructured Content and Next Best Actions tabs.
+
 // import React from "react";
 //   import "./IntelligenceCss/IntelligenceDashboard.css";
   
@@ -142,7 +145,7 @@
 import React, { useState } from "react";
 import "./IntelligenceCss/IntelligenceDashboard.css";
 import "./IntelligenceCss/RepEnabled.css";
-import { Users } from 'lucide-react';
+import { Users, BarChart3, FileText, Target, MapPin, Sparkles, TrendingUp } from 'lucide-react';
 
 export default function WebsiteIntelligence() {
   const [activeTab, setActiveTab] = useState("Activity Heatmap");
@@ -162,22 +165,22 @@ export default function WebsiteIntelligence() {
       {/* mini stats */}
       <div className="ihub-miniRow">
         <div className="ihub-mini peach">
-          <div className="ihub-miniIcon">👤</div>
+          <Users className="ihub-miniIcon" strokeWidth={2} />
           <div className="ihub-miniValue">1,000</div>
           <div className="ihub-miniLabel">Total Calls</div>
         </div>
         <div className="ihub-mini sky">
-          <div className="ihub-miniIcon">📊</div>
+          <BarChart3 className="ihub-miniIcon" strokeWidth={2} />
           <div className="ihub-miniValue">5.4</div>
           <div className="ihub-miniLabel">Avg Engagement</div>
         </div>
         <div className="ihub-mini mint">
-          <div className="ihub-miniIcon">📄</div>
+          <FileText className="ihub-miniIcon" strokeWidth={2} />
           <div className="ihub-miniValue">0</div>
           <div className="ihub-miniLabel">Content Pieces</div>
         </div>
         <div className="ihub-mini purple">
-          <div className="ihub-miniIcon">🎯</div>
+          <Target className="ihub-miniIcon" strokeWidth={2} />
           <div className="ihub-miniValue">4</div>
           <div className="ihub-miniLabel">Active NBAs</div>
         </div>
@@ -205,7 +208,7 @@ export default function WebsiteIntelligence() {
         {activeTab === "Activity Heatmap" && (
           <>
             <div className="ihub-softHeader">
-              <span className="ihub-loc-icon">📍</span> Activity by Specialty &amp; Region
+              <MapPin className="ihub-loc-icon" strokeWidth={2.2} /> Activity by Specialty &amp; Region
             </div>
             <div className="ihub-activityList">
               {[
@@ -238,12 +241,12 @@ export default function WebsiteIntelligence() {
           <>
             <div className="ihub-banner mint-banner">
               <div className="ihub-banner-title">
-                <span className="ihub-banner-icon">📄</span> Content Effectiveness
+                <FileText className="ihub-banner-icon" strokeWidth={2} /> Content Effectiveness
               </div>
               <div className="ihub-banner-sub">See which content pieces drive the highest HCP engagement.</div>
             </div>
             <button className="ihub-action-bar">
-               <span className="ihub-magic-icon">✨</span> Generate Sales Aid
+              <Sparkles className="ihub-magic-icon" strokeWidth={2} /> Generate Sales Aid
             </button>
           </>
         )}
@@ -251,27 +254,27 @@ export default function WebsiteIntelligence() {
         {/* --- NEXT BEST ACTIONS TAB --- */}
         {activeTab === "Next Best Actions" && (
           <>
-            <div className="ihub-banner purple-banner">
-              <div className="ihub-banner-title">
-                <span className="ihub-banner-icon">🎯</span> Next Best Actions
+            <div className="ihub-nbaHeader">
+              <div className="ihub-nbaHeaderRow">
+                <Target className="ihub-nbaIcon" strokeWidth={2.2} />
+                <span className="ihub-nbaTitle">Next Best Actions</span>
               </div>
-              <div className="ihub-banner-sub">Most effective follow-up actions from field visits.</div>
+              <div className="ihub-nbaSubtitle">Most effective follow-up actions from field visits.</div>
             </div>
-            <div className="ihub-activityList">
+
+            <div className="ihub-nbaList">
               {[
                 { name: "Follow-up", sub: "Recommended 254 times", conv: "30%" },
                 { name: "Sample Request", sub: "Recommended 253 times", conv: "35%" },
                 { name: "Educational Material", sub: "Recommended 248 times", conv: "40%" },
                 { name: "Clinical Discussion", sub: "Recommended 245 times", conv: "36%" },
               ].map((item, idx) => (
-                <div className="ihub-activityRow" key={idx}>
-                  <div className="ihub-activityMain">
-                    <div className="ihub-activityName">{item.name}</div>
-                    <div className="ihub-activitySub">{item.sub}</div>
+                <div className="ihub-nbaRow" key={idx}>
+                  <div className="ihub-nbaMain">
+                    <div className="ihub-nbaName">{item.name}</div>
+                    <div className="ihub-nbaSub">{item.sub}</div>
                   </div>
-                  <div className="ihub-activityRight">
-                    <span className="ihub-conversion-chip">{item.conv} conversion</span>
-                  </div>
+                  <div className="ihub-nbaConv">{item.conv} conversion</div>
                 </div>
               ))}
             </div>
@@ -283,7 +286,7 @@ export default function WebsiteIntelligence() {
           <>
             <div className="ihub-banner sky-banner">
               <div className="ihub-banner-title">
-                <span className="ihub-banner-icon">📈</span> Engagement Trends
+                <TrendingUp className="ihub-banner-icon" strokeWidth={2} /> Engagement Trends
               </div>
             </div>
             <div className="ihub-activityList">

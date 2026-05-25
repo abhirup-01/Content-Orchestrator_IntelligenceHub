@@ -1201,8 +1201,10 @@ border-bottom: 1px solid var(--border);
   color: #374151;
   border-radius: 10px;
   padding: 16px 14px;
-  line-height: 1;
+  line-height: 1.65;          /* readable spacing — critical for CJK (Chinese/Japanese/Korean) */
   white-space: pre-wrap;
+  word-break: break-word;     /* allow long unbroken strings to wrap */
+  overflow-wrap: anywhere;
 }
 
 /* Editable textarea style (only when isEditingTranslation === true) */
@@ -1216,8 +1218,8 @@ border-bottom: 1px solid var(--border);
   padding: 12px 14px;
   resize: vertical;
   outline: none;
-  font: inherit;                                      /* inherit font family/size */
-  line-height: 1;
+  font: inherit;              /* inherit font family/size */
+  line-height: 1.65;          /* match the read-only block so editing looks the same */
 }
 
 /* Optional: tighten icon spacing in chips */
@@ -1377,6 +1379,74 @@ border-radius: 8px;
 }
 
 .dt-btn.primary:hover { background: #1863bf; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Added by Abhirup Nandi - 2026-05-14
+   Split dropdown for Draft Translation "Download" button (Text / Excel).
+   Sits inside .dt-header-actions next to "Copy to Clipboard".
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dt-download-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dt-download-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dt-caret {
+  display: inline-block;
+  transition: transform 0.15s ease;
+  font-size: 0.85rem;
+  color: #475569;
+}
+.dt-caret.open { transform: rotate(-180deg); }
+
+.dt-download-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 240px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.06);
+  z-index: 50;
+  animation: dt-menu-fade 0.12s ease-out;
+}
+@keyframes dt-menu-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dt-download-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.dt-download-item:hover,
+.dt-download-item:focus-visible {
+  background: #f1f5f9;
+  outline: none;
+}
+.dt-download-item-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.dt-download-item-sub {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+}
 
 /* Body 2-column */
 .dt-body {

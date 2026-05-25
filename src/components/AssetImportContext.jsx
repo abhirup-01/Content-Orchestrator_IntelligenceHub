@@ -303,6 +303,8 @@ import {
 } from "@mui/icons-material";
 import Badge from 'react-bootstrap/Badge';
 import { CheckCircle, Edit2 } from "lucide-react";
+// Added by Abhirup Nandi - 2026-05-14: multi-color chip styles for Target Market + Coming Soon
+import "./css/Importcontent.css";
 const Label = InputLabel;
 
 // Primary Market Data
@@ -323,14 +325,15 @@ const MARKET_DATA = [
 //   { name: "Australia", flag: "🇦🇺" },
 // ];
 
+// Modified by Abhirup Nandi - 2026-05-14: added ISO code + CSS-class keys for multi-colored chips
 const COMING_SOON_DATA = [
-  { name: "France", flag: "🇫🇷", color: "#E3F2FD" },
-  { name: "Spain", flag: "🇪🇸", color: "#FFF3E0" },
-  { name: "Italy", flag: "🇮🇹", color: "#F1F8E9" },
-  { name: "Brazil", flag: "🇧🇷", color: "#E8F5E9" },
-  { name: "Mexico", flag: "🇲🇽", color: "#FCE4EC" },
-  { name: "Canada", flag: "🇨🇦", color: "#FFEBEE" },
-  { name: "Australia", flag: "🇦🇺", color: "#F3E5F5" },
+  { name: "France",    flag: "🇫🇷", code: "FR", cssCode: "fr", color: "#E3F2FD" },
+  { name: "Spain",     flag: "🇪🇸", code: "ES", cssCode: "es", color: "#FFF3E0" },
+  { name: "Italy",     flag: "🇮🇹", code: "IT", cssCode: "it", color: "#F1F8E9" },
+  { name: "Brazil",    flag: "🇧🇷", code: "BR", cssCode: "br", color: "#FFFDE7" },
+  { name: "Mexico",    flag: "🇲🇽", code: "MX", cssCode: "mx", color: "#FCE4EC" },
+  { name: "Canada",    flag: "🇨🇦", code: "CA", cssCode: "ca", color: "#FFEBEE" },
+  { name: "Australia", flag: "🇦🇺", code: "AU", cssCode: "au", color: "#F3E5F5" },
 ];
 
 const blueHighlight = { bgcolor: "#E3F2FD", color: "#1976D2", fontWeight: "bold", border: "1px solid #BBDEFB" };
@@ -592,10 +595,13 @@ console.log(uniqueLangs,firstLang)
             value={market.id}
             control={<Radio color="primary" />}
             label={
+              /* Modified by Abhirup Nandi - 2026-05-14: language now wrapped in a coloured pill (aic-lang-*) for visual hierarchy */
               <Typography className="ms-2 d-flex align-items-center">
                 <span className="me-2" style={{ fontSize: "1.2rem" }}>{market.flag}</span>
                 <strong>{market.name}</strong>
-                <span className="text-secondary ms-1">({market.lang})</span>
+                <span className={`aic-lang-pill aic-lang-${(market.code || '').toLowerCase()}`}>
+                  {market.lang}
+                </span>
               </Typography>
             }
           />
@@ -619,30 +625,24 @@ console.log(uniqueLangs,firstLang)
 
 
         {/* Coming Soon Section */}
+        {/* Modified by Abhirup Nandi - 2026-05-14: replaced flat inline colours with per-country chip classes for a professional multi-coloured look (see Importcontent.css → .aic-cs-*) */}
         <Box className="mt-4 pt-2">
           <Typography variant="caption" color="textSecondary" className="d-block mb-2">
             Coming Soon:
           </Typography>
-          <Box className="d-flex flex-wrap gap-3">
+          <div className="aic-coming-soon-row">
             {COMING_SOON_DATA.map((item) => (
-              <Box key={item.name} className="d-flex align-items-center" style={{ opacity: 0.6 }}>
-                <span className="me-1" style={{ fontSize: "0.9rem" }}>{item.flag}</span>
-                <Typography variant="caption" color="textSecondary" sx={{ fontSize: "0.75rem",
-                 bgcolor: item.color, 
-          //        border: "1px solid rgba(0,0,0,0.05)",
-          //        fontWeight: 500,
-          // px: 1, 
-          // height: "36px",
-          // "& .MuiChip-label": { 
-          //   paddingLeft: "8px",
-          //   paddingRight: "8px"
-          // } 
-          }}>
-                  {item.name}
-                </Typography>
-              </Box>
+              <span
+                key={item.name}
+                className={`aic-cs-chip aic-cs-${item.cssCode}`}
+                title={`${item.name} — Coming Soon`}
+              >
+                <span className="aic-cs-chip-code">{item.code}</span>
+                <span className="aic-cs-chip-flag" aria-hidden="true">{item.flag}</span>
+                <span className="aic-cs-chip-label">{item.name}</span>
+              </span>
             ))}
-          </Box>
+          </div>
         </Box>
       </Paper>
 
@@ -664,10 +664,11 @@ console.log(uniqueLangs,firstLang)
                 />
               ))} */}     
 {selectedMarket ? (
+   /* Modified by Abhirup Nandi - 2026-05-14: highlight selected-market chip in the same blue as "From Source Asset" */
    <Chip
      label={`${selectedMarket.flag} ${selectedMarket.name}`}
      size="small"
-     sx={{ bgcolor: "white", border: "1px solid #c8e6c9" }}
+     sx={{ ...blueHighlight, borderRadius: "16px" }}
    />
  ) : null}
             </Box>
@@ -689,10 +690,11 @@ console.log(uniqueLangs,firstLang)
               ))} */}
               
 {selectedMarket && (
+   /* Modified by Abhirup Nandi - 2026-05-14: highlight auto-selected language chip in the same blue as "From Source Asset" */
    <Chip
      label={selectedMarket.lang}
      size="small"
-     sx={{ bgcolor: "white", border: "1px solid #c8e6c9" }}
+     sx={{ ...blueHighlight, borderRadius: "16px" }}
   />
  )}
 

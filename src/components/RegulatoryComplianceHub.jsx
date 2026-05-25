@@ -2205,6 +2205,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
 import { getProject, updateProjectMeta, markPhaseComplete, computeProgress } from '../lib/progressStore';
 import { usePhaseNavigation } from "./PhaseNav.jsx";
+import { buildRegulatoryCompliancePrompt } from '../prompts/regulatoryCompliancePrompt';
 import "./css/Regulatory.css";
 import {
   ArrowLeft, Save, ArrowRight, Flag, Upload, FileText, CheckCircle2, Maximize2, BarChart3, FileDown,
@@ -2700,6 +2701,11 @@ const isAcceptGroup = decisionGroup === "accept";
   /* ================= MAIN TABS (Top) ================= */
   const [mainTab, setMainTab] = useState("review"); // review | report | intel
 
+  /* ================= REPORT PAGINATION (display-only) ================= */
+  const RC_REPORT_PAGE_SIZE = 10;
+  const [rcReportPage, setRcReportPage] = useState(1);
+  const [rcReportShowAll, setRcReportShowAll] = useState(false);
+
   /* ================= ANALYSIS MODAL (n8n renders-only under Critical Issues & Recommendations) ================= */
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("issues"); // issues | pre | templates
@@ -2928,20 +2934,64 @@ const isAcceptGroup = decisionGroup === "accept";
     });
 
     try {
-      const res = await fetch(N8N_COMPLIANCE_URL, {
+      // ── Azure OpenAI call (replaces n8n /regulatory webhook) ──────────────
+      // Posts the same conceptual payload to Azure with the regulatory prompt.
+      // Response is wrapped as `[{ output: { critical_issue, recommendation1,
+      // recommendation2 } }]` so the existing parseN8nShape_CritAndRecs parser
+      // works unchanged.
+      const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+      const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+      const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+      const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+
+      const azureRes = await fetch(azureUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
+        },
+        body: JSON.stringify({
+          max_completion_tokens: 4096,
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: buildRegulatoryCompliancePrompt(payload) }],
+        }),
       });
 
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(
-          `n8n responded with ${res.status}${txt ? ` - ${txt.slice(0, 180)}` : ""}`
-        );
+      if (!azureRes.ok) {
+        let errBody = "";
+        try { errBody = await azureRes.text(); } catch (_) {}
+        console.error("[Azure regulatory non-OK]", azureRes.status, errBody);
+        throw new Error(`Regulatory analysis failed (HTTP ${azureRes.status})`);
       }
 
-      const raw = await res.json().catch(() => null);
+      const azureData = await azureRes.json();
+      const choice = azureData.choices?.[0];
+      const finishReason = choice?.finish_reason;
+      const rawText = choice?.message?.content;
+
+      if (finishReason === "content_filter") {
+        console.error("[Azure content filter on regulatory]", choice?.content_filter_results);
+        throw new Error("Azure content filter blocked the regulatory analysis. Check console.");
+      }
+      if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
+        throw new Error(`Regulatory analysis returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+      }
+
+      let parsedRegulatory;
+      try {
+        parsedRegulatory = JSON.parse(rawText.trim());
+      } catch (e) {
+        const match = rawText.match(/\{[\s\S]*\}/);
+        if (match) {
+          parsedRegulatory = JSON.parse(match[0]);
+        } else {
+          console.error("[Regulatory: no JSON found]", rawText);
+          throw new Error("Regulatory analysis response was not valid JSON");
+        }
+      }
+
+      // Wrap in the n8n response shape so parseN8nShape_CritAndRecs handles it
+      const raw = [{ output: parsedRegulatory }];
 
       // Prefer the specific shape (critical_issue, recommendation1, recommendation2, score?, risk?)
       const { crit, recs, score, risk } = parseN8nShape_CritAndRecs(raw);
@@ -3601,7 +3651,7 @@ const overallComplianceScoreFromModal = analysisData?.score ?? null; // number |
                   <span className="tm-light">{segments.length} segments to review</span>
                 </div>
 
-                <div className="tm-seg-list">
+                <div className="tm-seg-list" style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto" }}>
                   {segments.map((seg) => {
                     const isSelected = seg.id === selectedId;
                     return (
@@ -3762,30 +3812,73 @@ const overallComplianceScoreFromModal = analysisData?.score ?? null; // number |
                 </div>
               </div>
 
-              <div className="rc-report-items">
-                {segments.length === 0 && (
+              {segments.length === 0 ? (
+                <div className="rc-report-items">
                   <div className="rc-empty">No segments found.</div>
-                )}
+                </div>
+              ) : (() => {
+                const rcTotalPages = Math.max(1, Math.ceil(segments.length / RC_REPORT_PAGE_SIZE));
+                const rcSafePage = Math.min(rcReportPage, rcTotalPages);
+                const firstIdx = (rcSafePage - 1) * RC_REPORT_PAGE_SIZE + 1;
+                const lastIdx = Math.min(rcSafePage * RC_REPORT_PAGE_SIZE, segments.length);
+                const visible = rcReportShowAll
+                  ? segments
+                  : segments.slice((rcSafePage - 1) * RC_REPORT_PAGE_SIZE, rcSafePage * RC_REPORT_PAGE_SIZE);
+                const goPrev = () => setRcReportPage((p) => Math.max(1, p - 1));
+                const goNext = () => setRcReportPage((p) => Math.min(rcTotalPages, p + 1));
+                const toggleShowAll = () => { setRcReportShowAll((v) => !v); setRcReportPage(1); };
 
-                {segments.map((seg) => {
-       //sanju_01_04          
-const finalCompliantText =
-    (seg.compliantText && seg.compliantText.trim()) ||
-    (seg.compliant && seg.compliant.trim()) ||
-    "— No regulatory compliant text —";
-
-                  return (
-                    <div className="rc-report-item" key={`rep-${seg.id}`}>
-                      <div className="rc-report-item-head">
-                        <span className="rc-report-item-index">Segment {seg.index}</span>
+                return (
+                  <>
+                    <div className="d-flex align-items-center justify-content-between flex-wrap" style={{ gap: 8, padding: "10px 14px", borderBottom: "1px solid #eef2f7" }}>
+                      <div className="text-muted small">
+                        {rcReportShowAll
+                          ? `Showing all ${segments.length} segments`
+                          : `Showing ${firstIdx}–${lastIdx} of ${segments.length} segments`}
                       </div>
-                      <div className="rc-report-item-body">
-                        <pre className="rc-pre">{finalCompliantText}</pre>
+                      <div className="d-flex align-items-center" style={{ gap: 6 }}>
+                        {!rcReportShowAll && (
+                          <>
+                            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={goPrev} disabled={rcSafePage <= 1}>← Prev</button>
+                            <span className="small">Page {rcSafePage} of {rcTotalPages}</span>
+                            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={goNext} disabled={rcSafePage >= rcTotalPages}>Next →</button>
+                          </>
+                        )}
+                        <button type="button" className="btn btn-sm btn-outline-primary" onClick={toggleShowAll}>
+                          {rcReportShowAll ? "Paginate" : "Show all"}
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    <div className="rc-report-items">
+                      {visible.map((seg) => {
+                        const finalCompliantText =
+                          (seg.compliantText && seg.compliantText.trim()) ||
+                          (seg.compliant && seg.compliant.trim()) ||
+                          "— No regulatory compliant text —";
+                        return (
+                          <div className="rc-report-item" key={`rep-${seg.id}`}>
+                            <div className="rc-report-item-head">
+                              <span className="rc-report-item-index">Segment {seg.index}</span>
+                            </div>
+                            <div className="rc-report-item-body">
+                              <pre className="rc-pre">{finalCompliantText}</pre>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {!rcReportShowAll && rcTotalPages > 1 && (
+                      <div className="d-flex justify-content-center align-items-center" style={{ gap: 8, padding: "12px 14px", borderTop: "1px solid #eef2f7" }}>
+                        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={goPrev} disabled={rcSafePage <= 1}>← Prev</button>
+                        <span className="small">Page {rcSafePage} of {rcTotalPages}</span>
+                        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={goNext} disabled={rcSafePage >= rcTotalPages}>Next →</button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}

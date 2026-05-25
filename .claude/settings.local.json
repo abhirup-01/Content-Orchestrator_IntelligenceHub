@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"mint-banner\\\\|\\\\\\\\.ihub-banner\" \"src/\" --include=\"*.css\")"
+    ]
+  }
+}

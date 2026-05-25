@@ -928,6 +928,109 @@ button:focus-visible {
   display: inline-block;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Added by Abhirup Nandi - 2026-05-14
+   Multi-color professional styling for Target Market (Japan / China / Germany)
+   and Coming Soon (FR / ES / IT / BR / MX / CA / AU) chips.
+   - Each country gets its own tint, border, and accent text colour.
+   - Coming Soon chips are pill-shaped with code badge + country name + hover lift.
+   - Active market language badges are coloured per locale for visual hierarchy.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Active market language pill (used inside the radio rows: "(Japanese)" etc.) */
+.aic-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  margin-left: 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.aic-lang-pill:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(15,23,42,0.10); }
+
+.aic-lang-jp { background: #FFEBEE; color: #C62828; border-color: #FFCDD2; }   /* Japan red */
+.aic-lang-cn { background: #FFF3E0; color: #E65100; border-color: #FFE0B2; }   /* China gold */
+.aic-lang-de { background: #FFFDE7; color: #6D4C00; border-color: #FFF59D; }   /* Germany gold-black */
+
+/* Coming Soon row + chip */
+.aic-coming-soon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.aic-cs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.6;
+  border: 1px solid transparent;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  opacity: 0.85;
+  cursor: default;
+  user-select: none;
+}
+.aic-cs-chip:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15,23,42,0.10);
+}
+
+/* The 2-letter ISO badge sitting on the left of each chip */
+.aic-cs-chip-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+/* Per-country palettes (tint background + accent code badge + label colour) */
+.aic-cs-fr { background: #E3F2FD; border-color: #BBDEFB; color: #1565C0; }      /* France — blue */
+.aic-cs-fr .aic-cs-chip-code { background: #1E88E5; }
+
+.aic-cs-es { background: #FFF3E0; border-color: #FFE0B2; color: #E65100; }      /* Spain — orange */
+.aic-cs-es .aic-cs-chip-code { background: #FB8C00; }
+
+.aic-cs-it { background: #E8F5E9; border-color: #C8E6C9; color: #2E7D32; }      /* Italy — green */
+.aic-cs-it .aic-cs-chip-code { background: #43A047; }
+
+.aic-cs-br { background: #FFFDE7; border-color: #FFF59D; color: #827717; }      /* Brazil — yellow-olive */
+.aic-cs-br .aic-cs-chip-code { background: #9E9D24; }
+
+.aic-cs-mx { background: #FCE4EC; border-color: #F8BBD0; color: #AD1457; }      /* Mexico — pink */
+.aic-cs-mx .aic-cs-chip-code { background: #D81B60; }
+
+.aic-cs-ca { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }      /* Canada — red */
+.aic-cs-ca .aic-cs-chip-code { background: #E53935; }
+
+.aic-cs-au { background: #F3E5F5; border-color: #E1BEE7; color: #6A1B9A; }      /* Australia — purple */
+.aic-cs-au .aic-cs-chip-code { background: #8E24AA; }
+
+.aic-cs-chip-flag {
+  font-size: 0.95rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.08));
+}
+
 .btn {
   display: inline-flex;
   align-items: center;     /* vertical centering */

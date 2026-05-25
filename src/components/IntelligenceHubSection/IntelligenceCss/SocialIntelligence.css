@@ -1,0 +1,258 @@
+/* Author: Abhirup Nandi — 2026-05-20
+ * Summary: New file — scoped .ihub-social-card styles, color-themed mini cards, Topics + Top Mentions layouts.
+ */
+
+/* =========================================================
+   SOCIAL INTELLIGENCE — scoped to .ihub-social-card
+   ========================================================= */
+
+/* Header icon (replaces the old pink dot) */
+.ihub-social-card .ihub-header-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.ihub-social-card .ihub-header-icon.social-purple {
+  color: #7c3aed;
+}
+
+/* Mini stats row — 4 equal columns that shrink without overflow */
+.ihub-social-card .ihub-miniRow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.ihub-social-card .ihub-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  text-align: center;
+  min-width: 0;
+}
+
+.ihub-social-card .ihub-miniIcon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 8px;
+}
+
+.ihub-social-card .ihub-miniValue {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+
+/* Allow labels to wrap (target screenshot shows "Positive Sentiment" on two lines) */
+.ihub-social-card .ihub-miniLabel {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+/* Color themes — icon, value and label all inherit per card */
+.ihub-social-card .ihub-mini.violet {
+  background: #f5f3ff;
+  border-color: #e9d5ff;
+}
+.ihub-social-card .ihub-mini.violet .ihub-miniIcon,
+.ihub-social-card .ihub-mini.violet .ihub-miniValue {
+  color: #7c3aed;
+}
+.ihub-social-card .ihub-mini.violet .ihub-miniLabel {
+  color: #a78bfa;
+}
+
+.ihub-social-card .ihub-mini.green {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+.ihub-social-card .ihub-mini.green .ihub-miniIcon,
+.ihub-social-card .ihub-mini.green .ihub-miniValue {
+  color: #16a34a;
+}
+.ihub-social-card .ihub-mini.green .ihub-miniLabel {
+  color: #4ade80;
+}
+
+.ihub-social-card .ihub-mini.blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+.ihub-social-card .ihub-mini.blue .ihub-miniIcon,
+.ihub-social-card .ihub-mini.blue .ihub-miniValue {
+  color: #2563eb;
+}
+.ihub-social-card .ihub-mini.blue .ihub-miniLabel {
+  color: #60a5fa;
+}
+
+.ihub-social-card .ihub-mini.orange {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+.ihub-social-card .ihub-mini.orange .ihub-miniIcon,
+.ihub-social-card .ihub-mini.orange .ihub-miniValue {
+  color: #d97706;
+}
+.ihub-social-card .ihub-mini.orange .ihub-miniLabel {
+  color: #fb923c;
+}
+
+/* =========================================================
+   Topics tab
+   ========================================================= */
+.ihub-social-card .ihub-topicList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+.ihub-social-card .ihub-topicRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef0f4;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.ihub-social-card .ihub-topicMain {
+  min-width: 0;
+}
+.ihub-social-card .ihub-topicName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+.ihub-social-card .ihub-topicSub {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ihub-social-card .ihub-topicPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ihub-social-card .ihub-topicPill.positive {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+.ihub-social-card .ihub-topicEmoji {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* Generate Social Content button */
+.ihub-social-card .ihub-genSocialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ihub-social-card .ihub-genSocialBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+.ihub-social-card .ihub-genSocialIcon {
+  width: 16px;
+  height: 16px;
+  color: #0f172a;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Top Mentions tab
+   ========================================================= */
+.ihub-social-card .ihub-mentionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.ihub-social-card .ihub-mentionRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef0f4;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.ihub-social-card .ihub-mentionMain {
+  min-width: 0;
+  flex: 1;
+}
+.ihub-social-card .ihub-mentionPlatform {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 3px 12px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.ihub-social-card .ihub-mentionQuote {
+  font-size: 13px;
+  color: #1e3a8a;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.ihub-social-card .ihub-mentionReach {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.ihub-social-card .ihub-mentionSentiment {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: lowercase;
+}
+.ihub-social-card .ihub-mentionSentiment.positive {
+  background: #1f2937;     /* near-black pill from screenshot */
+  color: #ffffff;
+}
+.ihub-social-card .ihub-mentionSentiment.negative {
+  background: #f97316;     /* orange pill from screenshot */
+  color: #ffffff;
+}
+.ihub-social-card .ihub-mentionSentiment.neutral {
+  background: #94a3b8;
+  color: #ffffff;
+}

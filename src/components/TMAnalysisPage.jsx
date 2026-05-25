@@ -304,7 +304,7 @@ const TMAnalysis = () => {
             {isAccordionOpen && (
                 <div className="tm-accordion-content">
                     {/* Glossary Table */}
-                    <div className="tm-detail-block">
+                    {/*<div className="tm-detail-block">
                         <h4>📚 Glossary Term Adherence</h4>
                         {glossaryCount > 0 ? (
                             <table className="tm-glossary-table">
@@ -328,12 +328,12 @@ const TMAnalysis = () => {
                         ) : (
                             <div className="tm-empty-text">No glossary terms detected in this segment.</div>
                         )}
-                    </div>
+                    </div>*/}
 
-                    <div className="tm-divider"></div>
+                    {/*<div className="tm-divider"></div>
 
                     {/* Tone & Back Trans */}
-                    <div className="tm-detail-grid">
+                    {/*<div className="tm-detail-grid">
                         <div className="tm-detail-item">
                             <h4>🗣️ Tone Analysis</h4>
                             <p>The translation maintains a <strong>{qualityData.tone}</strong> tone consistent with the medical domain requirements.</p>
@@ -345,7 +345,7 @@ const TMAnalysis = () => {
                             </div>
                             <span className="tm-caption">Reverse translation to verify meaning accuracy.</span>
                         </div>
-                    </div>
+                    </div>*/}
                 </div>
             )}
           </div>

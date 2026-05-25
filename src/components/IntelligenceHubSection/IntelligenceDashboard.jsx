@@ -1,3 +1,6 @@
+// Author: Abhirup Nandi — 2026-05-20
+// Summary: Added Layers / Users header icons; wired useNavigate for "Back to Dashboard"; extracted Cross-Channel + Additional Intelligence into child components; mounted <BrandIntelligence /> and <BrandIntelligenceContext />.
+
 // import React from "react";
 // import "./IntelligenceCss/IntelligenceDashboard.css";
 // import WebsiteIntelligence from "./WebsiteIntelligence";
@@ -525,11 +528,18 @@
 // }
 
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./IntelligenceCss/IntelligenceDashboard.css";
 import WebsiteIntelligence from "./WebsiteIntelligence";
 import EmailIntelligence from "./EmailIntelligence";
 import SocialIntelligence from "./SocialIntelligence";
 import RepEnabledIntelligence  from "./RepEnabledIntelligence";
+import CrossChannelInsights from "./CrossChannelInsights";
+import AdditionalIntelligence from "./AdditionalIntelligence";
+import BrandIntelligence from "./BrandIntelligence";
+// Modified by Abhirup Nandi — 2026-05-25: BrandIntelligenceContext is now
+// rendered inside <BrandIntelligence /> as a continuation of the Ingested
+// Documents card, so it is no longer mounted separately here.
 
 const IconCheck = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -687,11 +697,13 @@ const Select = ({ label, options = [], initialValue = "All" }) => {
 // --------------------------------
 
 export default function IntelligenceDashboard() {
+  const navigate = useNavigate();
+
   return (
     <div className="ihub-wrap">
       {/* top bar */}
       <div className="ihub-toprow">
-        <button className="ihub-back">
+        <button className="ihub-back" onClick={() => navigate("/")}>
           <IconBack />
           <span>Back to Dashboard</span>
         </button>
@@ -882,6 +894,11 @@ export default function IntelligenceDashboard() {
         </div>
       </section>
 
+      {/* --- Brand Intelligence Connectors (data sources) + Context (scoping)
+             merged into one card. The Context content lives inside the
+             Ingested Documents card; see <BrandIntelligence />. --- */}
+      <BrandIntelligence />
+
       {/* --- Channel Intelligence --- */}
       <section className="ihub-card">
         <div className="ihub-card-title">
@@ -903,158 +920,10 @@ export default function IntelligenceDashboard() {
       </section>
 
       {/* ===== Cross-Channel Insights ===== */}
-      <h3 className="ihub-sectionLabel">Cross-Channel Insights</h3>
-
-      <section className="ihub-card ihub-ccCard">
-        <div className="ihub-ccTop">
-          <div className="ihub-ccTitle">
-            <span className="ihub-dot indigo"></span>
-            <div>
-              <div className="ihub-intelName">Cross-Channel Intelligence</div>
-              <div className="ihub-intelSubtitle">
-                Understand how channels work together to drive conversions
-              </div>
-            </div>
-          </div>
-
-          <button className="ihub-pillAction">Multi-Touch Analysis</button>
-        </div>
-
-        {/* Tabs */}
-        <div className="ihub-tabs ihub-tabs--flush">
-          <button className="ihub-tab active">Customer Journeys</button>
-          <button className="ihub-tab">Attribution</button>
-          <button className="ihub-tab">Multi-Touch Insights</button>
-        </div>
-
-        {/* Top converting journeys callout */}
-        <div className="ihub-callout">
-          <div className="ihub-calloutTitle">Top Converting Journeys</div>
-          <div className="ihub-calloutText">
-            These channel combinations drive the highest conversion rates.
-          </div>
-        </div>
-
-        {/* Journeys list */}
-        <div className="ihub-journeyList">
-          {/* Row 1 */}
-          <div className="ihub-journeyRow">
-            <div className="ihub-journeyMain">
-              <div className="ihub-flow">
-                <span className="ihub-flowChip">Email</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Website</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Resource Download</span>
-              </div>
-              <div className="ihub-journeySub">855 conversions</div>
-            </div>
-            <span className="ihub-pillRate">24.1% conversion rate</span>
-          </div>
-
-          {/* Row 2 */}
-          <div className="ihub-journeyRow">
-            <div className="ihub-journeyMain">
-              <div className="ihub-flow">
-                <span className="ihub-flowChip">Rep Visit</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Website</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Prescription</span>
-              </div>
-              <div className="ihub-journeySub">150 conversions</div>
-            </div>
-            <span className="ihub-pillRate">18.7% conversion rate</span>
-          </div>
-
-          {/* Row 3 */}
-          <div className="ihub-journeyRow">
-            <div className="ihub-journeyMain">
-              <div className="ihub-flow">
-                <span className="ihub-flowChip">Website</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Email Signup</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Sample Request</span>
-              </div>
-              <div className="ihub-journeySub">120 conversions</div>
-            </div>
-            <span className="ihub-pillRate">12.3% conversion rate</span>
-          </div>
-
-          {/* Row 4 */}
-          <div className="ihub-journeyRow">
-            <div className="ihub-journeyMain">
-              <div className="ihub-flow">
-                <span className="ihub-flowChip">Social</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Website</span>
-                <span className="ihub-flowSep">→</span>
-                <span className="ihub-flowChip">Email Signup</span>
-              </div>
-              <div className="ihub-journeySub">90 conversions</div>
-            </div>
-            <span className="ihub-pillRate">10.1% conversion rate</span>
-          </div>
-        </div>
-      </section>
+      <CrossChannelInsights />
 
       {/* ===== Additional Intelligence ===== */}
-      <h3 className="ihub-sectionLabel">Additional Intelligence</h3>
-
-      <div className="ihub-tabs ihub-tabs--plain">
-        <button className="ihub-tab active">Audience Insights</button>
-        <button className="ihub-tab">Competitive</button>
-        <button className="ihub-tab">Success Patterns</button>
-      </div>
-
-      <section className="ihub-card ihub-addlCard">
-        <div className="ihub-addlHead">
-          <div className="ihub-addlTitle">
-            <span className="ihub-dot indigo"></span>
-            <div>
-              <div className="ihub-intelName">Who You’re Writing For</div>
-              <div className="ihub-intelSubtitle">Audience Size</div>
-            </div>
-          </div>
-
-          <span className="ihub-pillData">100% data quality</span>
-        </div>
-
-        {/* Audience size big metric */}
-        <div className="ihub-metricBlock">
-          <div className="ihub-metricValue">232,052</div>
-          <div className="ihub-metricHint">across all indications</div>
-        </div>
-
-        {/* Callout: Top concerns */}
-        <div className="ihub-callout soft">
-          <div className="ihub-calloutRow">
-            <span className="ihub-calloutIcon">🟡</span>
-            <div>
-              <div className="ihub-calloutTitle">Top 3 Concerns They Have Right Now</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Concern rows */}
-        <div className="ihub-concernList">
-          <div className="ihub-concernRow">
-            <div className="ihub-concernTitle">Patient adherence challenges</div>
-            <div className="ihub-concernSub">Mentioned 353 times • neutral sentiment</div>
-          </div>
-
-          <div className="ihub-concernRow">
-            <div className="ihub-concernTitle">Safety profile concerns</div>
-            <div className="ihub-concernSub">Mentioned 343 times • positive sentiment</div>
-          </div>
-
-          <div className="ihub-concernRow">
-            <div className="ihub-concernTitle">Dosing regimen preferences</div>
-            <div className="ihub-concernSub">Mentioned 320 times • positive sentiment</div>
-          </div>
-        </div>
-      </section>
+      <AdditionalIntelligence />
     </div>
   );
 }

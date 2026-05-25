@@ -1,0 +1,36 @@
+{
+  "_README": "Cultural translation rules grouped by target-language code. Replace these baseline rules with the authoritative set from the cultural_translation_rules database table when available. The active cultural prompt looks up rules by the targetLang field on the segment (e.g. 'DE', 'de', 'German' all match the German bucket).",
+
+  "German": [
+    {
+      "category": "Tone",
+      "rule": "Remove unsubstantiated superlatives",
+      "description": "German B2B/B2C marketing is direct, fact-led, and restrained. Avoid 'best', 'world-class', 'unmatched', 'revolutionary' unless backed by specific cited data."
+    },
+    {
+      "category": "Idioms",
+      "rule": "Replace English idioms with natural German equivalents",
+      "description": "Replace English metaphors, sports analogies, or American cultural references with natural German equivalents or plain rephrasing. Do not translate idioms literally."
+    },
+    {
+      "category": "Date Format",
+      "rule": "Use DD.MM.YYYY",
+      "description": "Dates must be DD.MM.YYYY format (e.g. 24.10.2025). Thousands separator is '.', decimal separator is ',' (e.g. 1.500,75 not 1,500.75)."
+    },
+    {
+      "category": "Units",
+      "rule": "Convert Imperial to Metric",
+      "description": "Convert any Imperial units to Metric: inches→cm, miles→km, lbs→kg, oz→g, °F→°C. Keep dosing units (mg, mL) as-is."
+    },
+    {
+      "category": "CTA",
+      "rule": "Use German direct-response norms",
+      "description": "Use natural German call-to-action phrases like 'Jetzt anfragen', 'Mehr erfahren', 'Jetzt starten' instead of literal translations of 'Get started today' or 'Click here now'."
+    },
+    {
+      "category": "Brand Voice",
+      "rule": "Formal register (Sie-form)",
+      "description": "Maintain a formal register using the 'Sie' form (not 'du') aligned with German market expectations for professional B2B/B2C communication in pharma."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { jsPDF } from "jspdf";
+// import { jsPDF } from "jspdf";
 // import "../App.css"; 
 import "./css/Cultural.css";
 import {  ArrowLeft,
@@ -9,6 +9,9 @@ import {  ArrowLeft,
  , TrendingUp, Languages, Loader2, Sparkles, Lock } from 'lucide-react';
 import { getProject, updateProjectMeta, markPhaseComplete, computeProgress } from '../lib/progressStore';
 import { usePhaseNavigation } from "./PhaseNav.jsx";
+import { buildCulturalAdaptationPrompt } from '../prompts/culturalAdaptationPrompt';
+import { buildSingleSegmentCulturalPrompt } from '../prompts/singleSegmentCulturalPrompt';
+import { buildCulturalGermanRulesPrompt } from '../prompts/culturalGermanRulesPrompt';
 
 /**
  * Cultural Intelligence Hub
@@ -203,13 +206,13 @@ console.log('Cultural: rec.meta.segmentsP2 length', rec?.meta?.segmentsP2?.lengt
   const N8N_CULTURAL_WEBHOOK_URL =
     ENV.REACT_APP_N8N_CULTURAL_WEBHOOK_URL ||
     ENV.VITE_N8N_CULTURAL_WEBHOOK_URL ||
-    "http://172.16.4.237:8031/webhook/cultural";
+    "http://172.16.4.237:8016/webhook/cultural";
 
   /** Batch webhook URL */
   const N8N_CULTURAL_BATCH_WEBHOOK_URL =
     ENV.REACT_APP_N8N_CULTURAL_BATCH_WEBHOOK_URL ||
     ENV.VITE_N8N_CULTURAL_BATCH_WEBHOOK_URL ||
-    "http://172.16.4.237:8031/webhook/culturalTranslateAll";
+    "http://172.16.4.237:8016/webhook/culturalTranslateAll";
 
   /** Token for n8n (optional) */
   const N8N_AUTH = ENV.REACT_APP_N8N_TOKEN || ENV.VITE_N8N_TOKEN || "";
@@ -1252,25 +1255,83 @@ const handleDismissAlternative = (altIndex = 0) => {
     // setIsAnalysisOpen(true);
 
     try {
-      if (!N8N_CULTURAL_WEBHOOK_URL) {
-        throw new Error("N8N_CULTURAL_WEBHOOK_URL is not configured.");
-      }
-
       const payload = buildCulturalPayload(selectedResolved);
 
-      const res = await fetch(N8N_CULTURAL_WEBHOOK_URL, {
+      // ── Azure OpenAI call (replaces n8n /cultural webhook) ─────────────────
+      // Posts the same conceptual payload; returns a Response-like object the
+      // existing extractTPSFromResponse / extractExtrasFromResponse /
+      // extractCulturalTranslated helpers can consume unchanged via .clone().
+      const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+      const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+      const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+      const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+
+      // Pick the right cultural prompt for the target language.
+      // German targets use the rules-aware variant (rules loaded from
+      // src/data/culturalTranslationRules.json). Everything else uses the
+      // generic cultural agent prompt.
+      const isGerman = /^(de|german|deutsch)/i.test(String(payload?.targetLang || ""));
+      const culturalPromptContent = isGerman
+        ? buildCulturalGermanRulesPrompt(payload)
+        : buildSingleSegmentCulturalPrompt(payload);
+
+      const azureRes = await fetch(azureUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
+          "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          max_completion_tokens: 4096,
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: culturalPromptContent }],
+        }),
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`n8n responded with ${res.status}: ${txt}`);
+      if (!azureRes.ok) {
+        let errBody = "";
+        try { errBody = await azureRes.text(); } catch (_) {}
+        console.error("[Azure cultural-single non-OK]", azureRes.status, errBody);
+        throw new Error(`Cultural analysis failed (HTTP ${azureRes.status})`);
       }
+
+      const azureData = await azureRes.json();
+      const choice = azureData.choices?.[0];
+      const finishReason = choice?.finish_reason;
+      const rawText = choice?.message?.content;
+
+      if (finishReason === "content_filter") {
+        console.error("[Azure content filter on cultural-single]", choice?.content_filter_results);
+        throw new Error("Azure content filter blocked the cultural analysis. Check console.");
+      }
+      if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
+        throw new Error(`Cultural analysis returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+      }
+
+      let parsedCultural;
+      try {
+        parsedCultural = JSON.parse(rawText.trim());
+      } catch (e) {
+        const match = rawText.match(/\{[\s\S]*\}/);
+        if (match) {
+          parsedCultural = JSON.parse(match[0]);
+        } else {
+          console.error("[Cultural-single: no JSON found]", rawText);
+          throw new Error("Cultural analysis response was not valid JSON");
+        }
+      }
+
+      // Wrap in the n8n response shape so the existing extractors work,
+      // including .clone() since the call site reads the body 3 times.
+      const wrappedBody = [{ output: parsedCultural }];
+      const makeMockRes = () => ({
+        ok: true,
+        status: 200,
+        json: async () => wrappedBody,
+        text: async () => JSON.stringify(wrappedBody),
+        clone: () => makeMockRes(),
+      });
+      const res = makeMockRes();
 
       // 1) Existing TPS
       const resForTPS = res.clone();
@@ -1597,20 +1658,22 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
    /** ====================== NEW: BATCH HELPERS ======================= */
 
   // Parse {"segment 1": "...", "segment 2": "..."} into [{index, text}, ...]
-  const parseSegmentKeyMap = (obj) => {
-    const out = [];
-    if (!obj || typeof obj !== "object") return out;
-    for (const [key, value] of Object.entries(obj)) {
-      const m = String(key).match(/segment\s*(\d+)/i);
-      if (m && m[1] && typeof value === "string") {
-        const index = parseInt(m[1], 10);
-        if (Number.isFinite(index)) {
-          out.push({ index, text: value.trim() });
-        }
+ const parseSegmentKeyMap = (obj) => {
+  const out = [];
+  if (!obj || typeof obj !== "object") return out;
+  for (const [key, value] of Object.entries(obj)) {
+    // Matches: "segment 1", "segment_1", "segment-1", "Segment 1", "segment1"
+    const m = String(key).match(/segment[\s_\-]?(\d+)/i);
+    if (m && m[1] && typeof value === "string" && value.trim().length > 0) {
+      const index = parseInt(m[1], 10);
+      if (Number.isFinite(index)) {
+        out.push({ index, text: value.trim() });
+        console.log(`parseSegmentKeyMap: key="${key}" → index=${index}, text="${value.trim().slice(0, 50)}"`);
       }
     }
-    return out.sort((a, b) => a.index - b.index);
-  };
+  }
+  return out.sort((a, b) => a.index - b.index);
+};
 
   // Extract best "adapted/translated" text from an item for non-segment-keyed shapes
   const extractAdaptedTextFromItem = (item) => {
@@ -1692,18 +1755,34 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
       (Array.isArray(body?.items) ? body.items : null);
 
     if (Array.isArray(arr) && arr.length > 0) {
-      arr.forEach((item, idx) => {
-        // 🔹 SPECIAL CASE: {"output": {"segment 1": "...", "segment 2": "..."}}
-        if (item && item.output && typeof item.output === "object") {
-          const pairs = parseSegmentKeyMap(item.output);
-          pairs.forEach(({ index, text }) => {
-            const orig = originalPayloadList.find((p) => p.index === index);
-            if (orig?.segmentId && text) {
-              byId[String(orig.segmentId)] = text;
-            }
-          });
-          return; // handled
+  arr.forEach((item, idx) => {
+    // 🔹 SPECIAL CASE: {"output": "{ \"segment 1\": \"...\" }"} 
+    // Handles BOTH stringified JSON string AND already-parsed object
+    if (item && item.output !== undefined) {
+      let outputObj = item.output;
+
+      // Parse if output is a JSON string
+      if (typeof outputObj === "string") {
+        try {
+          outputObj = JSON.parse(outputObj);
+        } catch (e) {
+          console.warn("extractBatchMap: output string parse failed →", e.message);
+          outputObj = null;
         }
+      }
+
+      if (outputObj && typeof outputObj === "object" && !Array.isArray(outputObj)) {
+        console.log("✅ extractBatchMap: parsed output keys:", Object.keys(outputObj));
+        const pairs = parseSegmentKeyMap(outputObj);
+        pairs.forEach(({ index, text }) => {
+          const orig = originalPayloadList.find((p) => p.index === index);
+          if (orig?.segmentId && text) {
+            byId[String(orig.segmentId)] = text;
+          }
+        });
+        return; // handled
+      }
+    }
 
         // Usual shapes: segmentId/index present in item
         const segId =
@@ -1742,9 +1821,16 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
     }
 
     // Non-array shapes: maybe { output: { "segment 1": "..." } } at top-level
-    if (body && typeof body === "object") {
-      if (body.output && typeof body.output === "object") {
-        const pairs = parseSegmentKeyMap(body.output);
+   if (body && typeof body === "object") {
+  let topOutput = body.output;
+
+  // Handle stringified output at top level too
+  if (typeof topOutput === "string") {
+    try { topOutput = JSON.parse(topOutput); } catch (e) { topOutput = null; }
+  }
+
+  if (topOutput && typeof topOutput === "object") {
+    const pairs = parseSegmentKeyMap(topOutput);
         pairs.forEach(({ index, text }) => {
           const orig = originalPayloadList.find((p) => p.index === index);
           if (orig?.segmentId && text) {
@@ -1775,10 +1861,6 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
     setIsAnalyzingAll(true);
 
     try {
-      if (!N8N_CULTURAL_BATCH_WEBHOOK_URL) {
-        throw new Error("N8N_CULTURAL_BATCH_WEBHOOK_URL is not configured.");
-      }
-
       // Send all segments (or only those with translation; adjust as needed)
       const payloadList = segments
         .filter((s) => s?.translated?.trim()?.length) // can relax if needed
@@ -1788,27 +1870,64 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
         throw new Error("No segments with translated text found to analyze.");
       }
 
-      const res = await fetch(N8N_CULTURAL_BATCH_WEBHOOK_URL, {
+      // ── Azure OpenAI call (replaces n8n /culturalTranslateAll webhook) ────
+      // Posts the same payloadList shape conceptually, but goes directly to
+      // Azure with the prompt assembled by buildCulturalAdaptationPrompt.
+      // Response is wrapped in the n8n-shape `[{ output: {...} }]` so the
+      // existing extractBatchMap parser handles it unchanged.
+      const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+      const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+      const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+      const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+
+      const azureRes = await fetch(azureUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(N8N_AUTH ? { Authorization: N8N_AUTH } : {}),
+          "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
         },
-        body: JSON.stringify(payloadList),
+        body: JSON.stringify({
+          max_completion_tokens: 16384,
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: buildCulturalAdaptationPrompt(payloadList) }],
+        }),
       });
 
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`n8n batch responded with ${res.status}: ${txt}`);
+      if (!azureRes.ok) {
+        let errBody = "";
+        try { errBody = await azureRes.text(); } catch (_) {}
+        console.error("[Azure cultural-batch non-OK]", azureRes.status, errBody);
+        throw new Error(`Cultural adaptation failed (HTTP ${azureRes.status})`);
       }
 
-      let body;
-      try {
-        body = await res.json();
-      } catch {
-        const txt = await res.text();
-        body = tryParseJSON(txt) ?? { output: txt };
+      const azureData = await azureRes.json();
+      const choice = azureData.choices?.[0];
+      const finishReason = choice?.finish_reason;
+      const rawText = choice?.message?.content;
+
+      if (finishReason === "content_filter") {
+        console.error("[Azure content filter triggered on cultural batch]", choice?.content_filter_results);
+        throw new Error("Azure content filter blocked the cultural adaptation. Check console.");
       }
+      if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
+        throw new Error(`Cultural adaptation returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+      }
+
+      let parsedCultural;
+      try {
+        parsedCultural = JSON.parse(rawText.trim());
+      } catch (e) {
+        const match = rawText.match(/\{[\s\S]*\}/);
+        if (match) {
+          parsedCultural = JSON.parse(match[0]);
+        } else {
+          console.error("[Cultural adaptation: no JSON object found]", rawText);
+          throw new Error("Cultural adaptation response was not valid JSON");
+        }
+      }
+
+      // Wrap in the n8n response shape so extractBatchMap handles it unchanged
+      const body = [{ output: parsedCultural }];
 
       // Build { segmentId -> adaptedText } using special "segment N" mapping
       const mapById = extractBatchMap(body, payloadList);
@@ -1976,6 +2095,22 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
   //   doc.save(`Cultural-Intelligence-Playbook-${safeLang.toUpperCase()}-${isoDate}.pdf`);
   // };
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Modified by Abhirup Nandi - 2026-05-14
+  // ── Generate Agency Handoff PDF (CORRUPT-PDF BUG FIX) ──────────────────────
+  // Root causes of "Failed to load PDF document":
+  //  1) Trailing space in the fetch URL → encoded as %20, routed wrong by API GW.
+  //  2) No PDF magic-byte validation → error JSON/HTML was being saved as .pdf.
+  //  3) API Gateway / Lambda binary handling: when application/pdf is NOT set as
+  //     a Binary Media Type, Lambda's base64 body reaches the client as a literal
+  //     base64 string. Reading it as a Blob produced ASCII text inside a .pdf
+  //     wrapper → corrupt file.
+  //  4) Missing Accept: application/pdf header.
+  // Fix: trim URL, send Accept header, read ArrayBuffer, sniff %PDF magic, and
+  // if the body is base64 (raw or wrapped in a {body: "..."} Lambda envelope)
+  // decode it before wrapping in a Blob. Surface the real server message on
+  // failure instead of the generic "Python server" alert.
+  // ═══════════════════════════════════════════════════════════════════════════
   const handleGeneratePDF = async () => {
 
   try {
@@ -1987,13 +2122,13 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
     let scoredItems = 0;
 
     let adaptedCount = 0;
- 
+
     const processedSegments = segments.map((s) => {
 
       const analysis = analysisBySegment[s.id];
 
       const adaptedText = segOverrides[s.id]?.adapted;
- 
+
       if (analysis && typeof analysis.overallScore === 'number') {
 
         totalScore += analysis.overallScore;
@@ -2003,7 +2138,7 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
       }
 
       if (adaptedText) adaptedCount++;
- 
+
       return {
 
         id: s.id,
@@ -2017,18 +2152,24 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
       };
 
     });
- 
+
     const avgScore = scoredItems > 0 ? Math.round(totalScore / scoredItems) : 0;
 
     const safeLang = state?.lang || getTargetLang(therapyArea) || "DE";
- 
+
     // --- 2. SEND TO PYTHON ---
 
-    const response = await fetch('https://dtp6ldhkce.execute-api.us-east-1.amazonaws.com/generate-pdf', {
+    // Modified by Abhirup Nandi - 2026-05-14: trimmed trailing space in URL (was '/generate-pdf '),
+    // added Accept header so the backend knows to send PDF binary.
+    const PDF_ENDPOINT = 'https://dtp6ldhkce.execute-api.us-east-1.amazonaws.com/generate-pdf'.trim();
+    const response = await fetch(PDF_ENDPOINT, {
 
       method: 'POST',
 
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/pdf' // Added by Abhirup Nandi - 2026-05-14
+      },
 
       body: JSON.stringify({
 
@@ -2055,10 +2196,79 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
       }),
 
     });
- 
-    if (!response.ok) throw new Error("Backend error");
- 
-    const blob = await response.blob();
+
+    // Modified by Abhirup Nandi - 2026-05-14: surface real server error so we
+    // don't write an error body to disk with a .pdf extension.
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => '');
+      throw new Error(`Backend ${response.status} ${response.statusText}: ${errBody.slice(0, 300)}`);
+    }
+
+    // Modified by Abhirup Nandi - 2026-05-14: read as ArrayBuffer (not Blob) so
+    // we can sniff the PDF magic bytes and detect/decode base64 envelopes.
+    const arrayBuffer = await response.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+
+    // PDF magic: 0x25 0x50 0x44 0x46  =  '%PDF'
+    const isPDF =
+      bytes.length >= 4 &&
+      bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+
+    let pdfBytes;
+
+    if (isPDF) {
+      // Added by Abhirup Nandi - 2026-05-14: happy path — server returned binary PDF
+      pdfBytes = arrayBuffer;
+    } else {
+      // Added by Abhirup Nandi - 2026-05-14: try to recover from base64-encoded body
+      // (common when API Gateway's Binary Media Types is not set to application/pdf,
+      // so Lambda's base64-encoded response is delivered as a literal string).
+      const asText = new TextDecoder('utf-8').decode(bytes).trim();
+
+      let candidate = asText;
+
+      // Unwrap if the server sent a JSON envelope like {"body":"JVBERi0..."}
+      try {
+        const parsed = JSON.parse(asText);
+        candidate =
+          (typeof parsed === 'string' ? parsed : null) ||
+          parsed?.body ||
+          parsed?.pdf ||
+          parsed?.data ||
+          parsed?.file ||
+          asText;
+      } catch (_) {
+        // not JSON — treat as raw base64 candidate
+      }
+
+      // Strip any data URL prefix
+      candidate = String(candidate).replace(/^data:application\/pdf;base64,/, '').trim();
+
+      // 'JVBERi0' is the base64 prefix for '%PDF-' — strong signature of a base64 PDF
+      const looksLikeBase64PDF = /^JVBERi0/.test(candidate);
+
+      if (!looksLikeBase64PDF) {
+        throw new Error(
+          `Server did not return a PDF. Content-Type: ${response.headers.get('content-type') || 'unknown'}. ` +
+          `First 200 chars of response: ${asText.slice(0, 200)}`
+        );
+      }
+
+      const binary = atob(candidate);
+      const decoded = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) decoded[i] = binary.charCodeAt(i);
+
+      // Re-validate the decoded payload starts with %PDF
+      const ok =
+        decoded.length >= 4 &&
+        decoded[0] === 0x25 && decoded[1] === 0x50 && decoded[2] === 0x44 && decoded[3] === 0x46;
+      if (!ok) throw new Error('Base64-decoded payload is not a valid PDF (missing %PDF header).');
+
+      pdfBytes = decoded;
+    }
+
+    // Modified by Abhirup Nandi - 2026-05-14: explicit application/pdf MIME on the blob.
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
 
     const url = window.URL.createObjectURL(blob);
 
@@ -2075,12 +2285,16 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
     link.click();
 
     document.body.removeChild(link);
- 
+
+    // Added by Abhirup Nandi - 2026-05-14: release object URL to prevent memory leak
+    window.URL.revokeObjectURL(url);
+
   } catch (error) {
 
     console.error("PDF Error:", error);
 
-    alert("Could not generate PDF. Please ensure the Python server is running.");
+    // Modified by Abhirup Nandi - 2026-05-14: show the real cause to aid debugging
+    alert(`Could not generate PDF.\n\n${error?.message || error}`);
 
   }
 
@@ -2423,7 +2637,7 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
  </div>
 
 
-            <div className="tm-seg-list">
+            <div className="tm-seg-list" style={{ maxHeight: "calc(100vh - 280px)", overflowY: "auto" }}>
               {segments.map((seg) => {
                 const isSelected = seg.id === selectedId;
                 // Use overlays for adapted status if present
@@ -2903,8 +3117,14 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
               <div className="tm-progress-fill" style={{ width: `${progressPct}%` }} />
             </div>
 
-            <div className="draft-gate-actions">
-              {/* To allow "Proceed anyway", enable a button here if needed */}
+            <div className="draft-gate-actions" style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
+              <button
+                type="button"
+                className="tm-btn outline"
+                onClick={() => setIsDraftGateOpen(false)}
+              >
+                Close
+              </button>
             </div>
           </div>
         </Modal>
@@ -3148,10 +3368,10 @@ const canMarkReviewed = !!adaptedTextForSelected && !isReviewedForSelected && !i
   <div className="tm-modal-footer">
 <div className="ai-footer-actions">
 
-    {/* <button className="tm-btn outline" onClick={() => setIsAnalysisOpen(false)}>
+    <button className="tm-btn outline" onClick={() => setIsAnalysisOpen(false)}>
 
       Close
-</button> */}
+</button> 
 
 {/* //23_03_sanju  RE-Analyze button*/}
 <button
@@ -3283,11 +3503,6 @@ function Modal({ open, onClose, children, ariaLabel = "Dialog" }) {
     >
       <div className="tm-modal">
         <div className="tm-modal-body">{children}</div>
-        <div className="tm-modal-footer">
-          <button className="tm-btn outline" onClick={onClose}>
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );

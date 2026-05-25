@@ -194,7 +194,7 @@
 // src/lib/progressStore.js
 
 // const API_URL = "http://localhost:8000"; // Ensure this matches your Python port
-const API_URL = "https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod/";
+const API_URL = "https://9hrpycs3g5.execute-api.us-east-1.amazonaws.com/Prod";
 
 export const PHASES = [
   { id: 'P1', label: 'P1', display: 'Global Context Capture', route: '/globalAssetCapture' },
@@ -202,6 +202,11 @@ export const PHASES = [
   { id: 'P3', label: 'P3', display: 'Cultural Intelligence', route: '/culturalAdaptationWorkspace' },
   { id: 'P4', label: 'P4', display: 'Regulatory Compliance', route: '/regulatoryCompliance' },
 ];
+const getAuthHeaders = (extraHeaders = {}) => ({
+  'Content-Type': 'application/json',
+  'X-API-Key': process.env.REACT_APP_API_KEY,
+  ...extraHeaders
+});
 
 function normPhaseId(id) {
   return String(id || '').trim().toUpperCase();
@@ -217,7 +222,7 @@ function emitProgressUpdated() {
 
 export async function getAllProjects() {
   try {
-    const res = await fetch(`${API_URL}/api/simple-projects`);
+    const res = await fetch(`${API_URL}/api/simple-projects`, { headers: getAuthHeaders() });
     if (!res.ok) throw new Error('Failed to fetch');
     const data = await res.json();
     
@@ -262,7 +267,7 @@ export async function upsertProject(project) {
   try {
     await fetch(`${API_URL}/api/simple-projects`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
     emitProgressUpdated();
@@ -285,21 +290,40 @@ export async function updateProjectMeta(projectId, metaPatch) {
   });
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// Modified by Abhirup Nandi - 2026-05-14
+// Bug fix: previously this swallowed all errors — HTTP 4xx/5xx returned silently
+// because fetch() does not reject on non-2xx responses and we never checked
+// res.ok. That caused phases (e.g. P2 Smart TM) to appear "completed" in the
+// UI flow but never persist on the server, so the sidebar tick never appeared.
+// Now we validate the response, log the real status + body, and re-throw so
+// the caller can verify / retry.
+// ════════════════════════════════════════════════════════════════════════════
 export async function markPhaseComplete(projectId, phaseId) {
+  const norm = normPhaseId(phaseId);
   try {
-    const norm = normPhaseId(phaseId);
-    await fetch(`${API_URL}/api/simple-projects/${projectId}/phase/${norm}`, {
-      method: 'PATCH'
+    const res = await fetch(`${API_URL}/api/simple-projects/${projectId}/phase/${norm}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders()
     });
+    // Added by Abhirup Nandi - 2026-05-14: enforce response.ok and surface server body on failure
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      const errMsg = `markPhaseComplete(${projectId}, ${norm}) failed: HTTP ${res.status} ${res.statusText} — ${body.slice(0, 300)}`;
+      console.error(errMsg);
+      throw new Error(errMsg);
+    }
     emitProgressUpdated();
+    return true; // Added by Abhirup Nandi - 2026-05-14: explicit success signal
   } catch (err) {
     console.error("Mark phase failed:", err);
+    throw err; // Modified by Abhirup Nandi - 2026-05-14: re-throw so callers can react instead of silently succeeding
   }
 }
 
 export async function deleteProject(projectId) {
   try {
-    await fetch(`${API_URL}/api/simple-projects/${projectId}`, { method: 'DELETE' });
+    await fetch(`${API_URL}/api/simple-projects/${projectId}`, { method: 'DELETE' ,headers: getAuthHeaders()});
     emitProgressUpdated();
   } catch (err) {
     console.error("Delete failed:", err);
