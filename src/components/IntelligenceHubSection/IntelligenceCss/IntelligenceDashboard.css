@@ -1,7 +1,3 @@
-/* Author: Abhirup Nandi — 2026-05-20
- * Summary: Extracted Cross-Channel + Additional Intelligence CSS to separate files; fixed Content Opportunities padding (bullet & button no longer touch the border); bumped .ihub-divider for visible card gap.
- */
-
 :root{
   --bg: #f7f9fc;
   --card: #ffffff;
@@ -23,7 +19,7 @@ html, body, #root{ height:100%; }
 body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"; color:var(--text); background:var(--bg); }
 
 .ihub-wrap{
-  max-width: 1120px;
+  max-width: 1325px;
   margin: 28px auto 60px;
   padding: 0 20px;
 }
@@ -36,9 +32,18 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   margin-bottom: 8px;
 }
 .ihub-back{
-  display:flex; align-items:center; gap:8px;
-  color:var(--muted); background:transparent; border:none; cursor:pointer;
-  padding:6px 4px; border-radius:8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #202123;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.985rem;
+  line-height: 1.25rem;
 }
 .ihub-back:hover{ color:var(--text); background:#eef2ff; }
 
@@ -47,9 +52,16 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 .ihub-actions{ display:flex; gap:10px; }
 .ihub-btn{
   display:inline-flex; align-items:center; gap:8px;
-  font-weight:600; border-radius:10px; border:1px solid var(--border);
-  padding:10px 14px; background:var(--card); color:var(--text); box-shadow: var(--shadow);
+  font-weight:600; border-radius:10px; border:1px solid #c4c6c9;
+  padding:10px 14px;
+   background:var(--card); 
+   color:var(--text); 
+  /* box-shadow: var(--shadow); */
   transition: all .18s ease;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  /* background: #0ea5e9;
+  border-color: #0ea5e9; */
 }
 .ihub-btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 18px rgba(16,24,40,.10); }
 .ihub-btn.ghost{ background:#fff; }
@@ -66,9 +78,10 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   margin:0; font-size:28px; letter-spacing:.2px; 
   background: linear-gradient(90deg, #1e40af, #6366f1);
   -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding-bottom: 6px;
 }
 .ihub-title-accent{ filter:brightness(1.05); }
-.ihub-subtitle{ margin:6px 0 0; color:var(--muted); font-size:14px; }
+.ihub-subtitle{ margin:2px 0 0; color:var(--muted); font-size:14px; }
 
 /* Cards */
 .ihub-card{
@@ -76,16 +89,32 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   padding: 18px; box-shadow: var(--shadow); margin-top: 16px;
 }
 .ihub-card-title{
-  font-weight:700; color:#0f172a; display:flex; align-items:center; gap:10px;
+  font-weight:600; color:#0f172a; display:flex; align-items:center; gap:1px;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
+
+.ihub-card-title1{
+  font-weight:600; color:#0f172a; display:flex; align-items:center; gap:10px;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
 .ihub-card-title .dot{
   width:10px; height:10px; border-radius:50%; background:#60a5fa; display:inline-block;
 }
-.bulb{ font-size:18px; }
+.bulb{ font-size:21px; }
 .ihub-card-head{ display:flex; align-items:center; justify-content:space-between; }
 
 .ihub-pill{
-  font-size:12px; color:#0f172a; background:#e8f0ff; padding:6px 10px; border-radius:999px; border:1px solid #dbeafe;
+  color: #0f172a;
+  background: #e8f0ff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #dbeafe;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 /* Channel grid */
@@ -103,23 +132,29 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 .ihub-channel:hover{ box-shadow: var(--shadow); transform: translateY(-1px); }
 .ihub-channel.active{ border-color:#a5b4fc; background:#f8fafc; }
 .ihub-channel-icon{
-  color:#2563eb; background:#eff6ff; width:36px; height:36px; border-radius:10px; display:grid; place-items:center;
+  color:#2563eb; 
+  /* background:#eff6ff;  */
+  width:36px; height:36px; border-radius:10px; display:grid; place-items:center;
 }
-.ihub-channel-title{ font-weight:700; font-size:14px; color:#111827; }
+.ihub-channel-title{ font-weight:600; font-size:16px; color:#111827; }
 .ihub-channel-desc{ color:var(--muted); font-size:12px; line-height:1.2; margin-top:4px; }
 
 /* Filters */
 .ihub-filters{
   margin-top:16px; display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;
 }
-.ihub-field{}
-.ihub-label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
-.ihub-select{
+/* .ihub-field{} */
+.ihub-label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827; }
+/* .ihub-select{
   display:flex; align-items:center; justify-content:space-between;
   border:1px solid var(--border); border-radius:10px; padding:10px 12px; background:#fff; color:#111827;
-}
+} */
 .ihub-select span{ font-size:14px; }
-.ihub-muted{ color:var(--muted); font-size:12px; margin: 8px 0 10px; }
+.ihub-muted{ color:var(--muted); font-size: 14px;
+  margin: 3px 8px 11px; }
 
 /* Opportunities row */
 .ihub-opportunity{
@@ -174,20 +209,38 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 .ihub-opBullet.success{ border-color:#22c55e; background:#dcfce7; }
 
 .ihub-opCard-title{
-  margin:0; font-size:14px; font-weight:700; color:#0f172a;
+  margin:0; font-size: 15.5px;
+  font-weight: 500;
+  color: #0f172a;
 }
 .ihub-opCard-subtext{
-  margin:2px 0 8px; color:#6b7280; font-size:12px;
+  margin: 10px 0 10px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 400;
+  font-size: 0.860rem;
+  line-height: 1.25rem;
 }
 .ihub-opCard-tagsRow{
   display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;
+  margin-top: 15px;
 }
 .ihub-tag{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid var(--border);
-  background:#fff; color:#111827;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
-.ihub-tag.light{ background:#f8fafc; }
+
+.ihub-tag.light{ background: #fff7f7; }
 .ihub-tag .ico{ font-weight:700; color:#6b7280; }
 
 .ihub-opCard-recoRow{
@@ -204,141 +257,151 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 .ihub-chip.violet{ background:#f1e8ff; border-color:#e0d4ff; color:#6d28d9; }
 .ihub-chip.indigo{ background:#e9ecff; border-color:#d9ddff; color:#3730a3; }
 
- /* --- Channel Intelligence --- */
-  .ihub-ciGrid{
-    margin-top:14px;
-    display:grid; grid-template-columns: repeat(2, 1fr); gap:22px;
-  }
-  .ihub-ciCard{
-    border:1px solid var(--border); background:#fff; border-radius:12px; padding:16px;
-    box-shadow: var(--shadow);
-  }
-  .ihub-ciHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  .ihub-ciTitle{ display:flex; align-items:center; gap:10px; }
-  .ihub-ciIcon{
-    display:inline-grid; place-items:center; width:32px; height:32px; border-radius:10px; font-size:16px;
-    background:#eef2ff; color:#1e40af;
-  }
-  .ihub-ciIcon.mail{ background:#ecfdf5; color:#065f46; }
-  .ihub-ciName{ font-weight:700; color:#0f172a; }
-  .ihub-ciSubtitle{ font-size:12px; color:#6b7280; }
-  
-  .ihub-kpiRow{
-    display:flex; align-items:stretch; gap:12px; flex-wrap:wrap;
-  }
-  .ihub-kpi{
-    flex:1 1 120px; min-width:120px; background:#f8fafc; border:1px solid var(--border);
-    border-radius:12px; padding:14px; text-align:center;
-  }
-  .ihub-kpiValue{
-    font-weight:800; font-size:20px; margin-bottom:6px; color:#111827;
-  }
-  .ihub-kpiValue.primary{ color:#2563eb; }
-  .ihub-kpiValue.success{ color:#16a34a; }
-  .ihub-kpiValue.info{ color:#0ea5e9; }
-  .ihub-kpiValue.warn{ color:#f97316; }
-  .ihub-kpiLabel{
-    font-size:12px; color:#6b7280;
-  }
-  
-  /* Responsive for new sections */
-  @media (max-width: 900px){
-    .ihub-ciGrid{ grid-template-columns: 1fr; }
-  }
-  @media (max-width: 560px){
-    .ihub-opCard{ flex-direction:column; }
-    .ihub-opCard-right{ justify-content:flex-start; }
-  }
-  
-  /* --- Two column section matching screenshot --- */
-  .ihub-twoCol{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:16px;
-    margin-top:16px;
-  }
-  
-  /* Panels with tabs */
-  .ihub-panel{ padding:0; }
-  .ihub-tabs{
-    display:flex; gap:8px; align-items:center;
-    padding:10px 12px;
-    border-bottom:1px solid var(--border);
-    background:#f8fafc;
-    border-top-left-radius:12px;
-    border-top-right-radius:12px;
-  }
-  .ihub-tab{
-    appearance:none; border:none; background:#fff; color:#374151; 
-    padding:8px 12px; border-radius:10px; font-weight:600; font-size:13px;
-    border:1px solid var(--border); cursor:pointer;
-  }
-  .ihub-tab.active{
-    background:#eef2ff; border-color:#dbeafe; color:#1e40af;
-  }
-  .ihub-panelBody{
-    min-height:220px;
-    padding:14px;
-    border-bottom-left-radius:12px;
-    border-bottom-right-radius:12px;
-  }
-  .ihub-panelBody.empty{
-    background:#fff;
-    border-top: none;
-  }
-  
-  /* List on right */
-  .ihub-list{
-    padding:8px 12px 14px;
-  }
-  .ihub-row{
-    display:flex; align-items:flex-start; justify-content:space-between;
-    gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px;
-    background:#fff; margin-top:8px;
-  }
-  .ihub-row:first-child{ margin-top:12px; }
-  
-  .ihub-rowMain{ flex:1; min-width:0; }
-  .ihub-rowTitle{
-    font-size:14px; font-weight:700; color:#0f172a; margin:0 0 2px 0;
-  }
-  .ihub-rowSub{
-    font-size:12px; color:#6b7280; margin-bottom:6px;
-  }
-  .ihub-rowMeta{
-    display:flex; flex-wrap:wrap; gap:14px; color:#374151; font-size:12px;
-  }
-  .ihub-rowMeta b{ font-weight:700; }
-  
-  /* State pill (Above/Below avg) */
-  .ihub-pillState{
-    align-self:flex-start;
-    font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
-    border:1px solid; white-space:nowrap;
-  }
-  .ihub-pillState.up{
-    color:#065f46; background:#ecfdf5; border-color:#bbf7d0;
-  }
-  .ihub-pillState.down{
-    color:#1f2937; background:#f0fdf4; border-color:#bbf7d0;
-    /* tweak to a lighter green with darker text to match “Below avg” chip look;
-       swap to red if you want stronger contrast:
-       color:#991b1b; background:#fee2e2; border-color:#fecaca; */
-  }
-  
-  /* Responsive */
-  @media (max-width: 980px){
-    .ihub-twoCol{ grid-template-columns: 1fr; }
-  }
-  
+/* --- Channel Intelligence --- */
+.ihub-ciGrid{
+  margin-top:14px;
+  display:grid; grid-template-columns: repeat(2, 1fr); gap:22px;
+}
+.ihub-ciCard{
+  border:1px solid var(--border); background:#fff; border-radius:12px; padding:16px;
+  box-shadow: var(--shadow);
+}
+.ihub-ciHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.ihub-ciTitle{ display:flex; align-items:center; gap:10px; }
+.ihub-ciIcon{
+  display:inline-grid; place-items:center; width:32px; height:32px; border-radius:10px; font-size:16px;
+  background:#eef2ff; color:#1e40af;
+}
+.ihub-ciIcon.mail{ background:#ecfdf5; color:#065f46; }
+.ihub-ciName{ font-weight:700; color:#0f172a; }
+.ihub-ciSubtitle{ font-size:12px; color:#6b7280; }
+
+.ihub-kpiRow{
+  display:flex; align-items:stretch; gap:12px; flex-wrap:wrap;
+}
+.ihub-kpi{
+  flex:1 1 120px; min-width:120px; background:#f8fafc; border:1px solid var(--border);
+  border-radius:12px; padding:14px; text-align:center;
+}
+.ihub-kpiValue{
+  font-weight:800; font-size:20px; margin-bottom:6px; color:#111827;
+}
+.ihub-kpiValue.primary{ color:#2563eb; }
+.ihub-kpiValue.success{ color:#16a34a; }
+.ihub-kpiValue.info{ color:#0ea5e9; }
+.ihub-kpiValue.warn{ color:#f97316; }
+.ihub-kpiLabel{
+  font-size:12px; color:#6b7280;
+}
+
+/* Responsive for new sections */
+@media (max-width: 900px){
+  .ihub-ciGrid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 560px){
+  .ihub-opCard{ flex-direction:column; }
+  .ihub-opCard-right{ justify-content:flex-start; }
+}
+
+/* --- Two column section matching screenshot --- */
+.ihub-twoCol{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  margin-top:16px;
+}
+
+/* Panels with tabs */
+.ihub-panel{ padding:0; }
+.ihub-tabs{
+  display:flex; gap:8px; align-items:center;
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+  background:#f8fafc;
+  border-top-left-radius:12px;
+  border-top-right-radius:12px;
+}
+.ihub-tab{
+  appearance:none; border:none; background:#fff; color:#374151; 
+  padding:8px 12px; border-radius:10px; font-weight:600; font-size:13px;
+  border:1px solid var(--border); cursor:pointer;
+}
+.ihub-tab.active{
+  background:#eef2ff; border-color:#dbeafe; color:#1e40af;
+}
+.ihub-panelBody{
+  min-height:220px;
+  padding:14px;
+  border-bottom-left-radius:12px;
+  border-bottom-right-radius:12px;
+}
+.ihub-panelBody.empty{
+  background:#fff;
+  border-top: none;
+}
+
+/* List on right */
+.ihub-list{
+  padding:12px 0px 14px;
+}
+.ihub-row{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px;
+  background:#fff; margin-top:8px;
+}
+.ihub-row:first-child{ margin-top:12px; }
+
+.ihub-rowMain{ flex:1; min-width:0; }
+.ihub-rowTitle{
+  font-size:14px; font-weight:700; color:#0f172a; margin:0 0 2px 0;
+}
+.ihub-rowSub{
+  font-size:12px; color:#6b7280; margin-bottom:6px;
+}
+.ihub-rowMeta{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 57px;
+  color: #374151;
+  font-size: 12.5px;
+}
+.ihub-rowMeta b{ font-weight:700; }
+
+/* State pill (Above/Below avg) */
+.ihub-pillState{
+  align-self:flex-start;
+  font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
+  border:1px solid; white-space:nowrap;
+}
+.ihub-pillState.up{
+  color:#fff; background:#ecfdf5; border-color:#bbf7d0; font-weight: 600; font-size: 0.75rem;
+  line-height: 1rem; padding-top: 0.125rem;
+  padding-bottom: 0.125rem;padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  background-color: #13b9ec;
+  border-width: 1px;
+}
+.ihub-pillState.down{
+  color:#020817; background:#66ccb8; border-color: transparent; font-weight: 600; font-size: 0.75rem;
+  line-height: 1rem; padding-top: 0.125rem;
+  padding-bottom: 0.125rem;padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  background-color: #66ccb8;
+  border-width: 1px;
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .ihub-twoCol{ grid-template-columns: 1fr; }
+}
 
 /* ===== Social & Rep-Enabled Intelligence ===== */
 
 .ihub-intelGrid{
-  margin-top:16px;
+  margin-top:6px;
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:16px;
+  gap:22px;
 }
 
 /* Card head */
@@ -381,17 +444,39 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 /* Social platforms list */
 .ihub-platform{
   border:1px solid var(--border); border-radius:12px; padding:12px; background:#fff; margin-top:10px;
+  background-color: #f1f5f94d;
 }
 .ihub-platformHead{
   display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;
 }
-.ihub-platformName{ font-weight:700; color:#0f172a; }
+.ihub-platformName{ font-weight:500; color:#0f172a; }
 .ihub-pillLite{
   font-size:12px; padding:6px 10px; border-radius:999px; background:#eef2ff; color:#1e40af; border:1px solid #dbeafe;
 }
 
 .ihub-sentRow{
-  display:grid; grid-template-columns: 80px 1fr 50px; gap:10px; align-items:center; margin:6px 0;
+  display:grid; grid-template-columns: 160px 1fr 60px; gap:5px; align-items:center; margin:6px 0;
+}
+
+/* Left group holds icon + label inline */
+.ihub-sentLeft{
+display: inline-flex;
+align-items: center;
+gap: 8px;
+min-width: 0;
+}
+
+
+.ihub-sentIcon-pos{
+color: #22c55e; /* green like Positive; override per row if needed */
+}
+
+.ihub-sentIcon-neu{
+color: #6b7280; 
+}
+
+.ihub-sentIcon-neg{
+color: #ef4444; 
 }
 .ihub-sentLabel{ font-size:12px; color:#6b7280; }
 .ihub-sentLabel.pos{ color:#065f46; }
@@ -399,18 +484,32 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
 .ihub-sentLabel.neg{ color:#b91c1c; }
 
 .ihub-barTrack{
-  position:relative; height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden;
+  position:relative; height:10px; background:#f3f4f6; border-radius:999px; overflow:hidden;
   border:1px solid #e5e7eb;
+  margin-left: -67px;
 }
 .ihub-barFill{
   position:absolute; left:0; top:0; bottom:0; border-radius:999px;
+  background:#13b9ec;
 }
 .ihub-barFill.pos{ background:#34d399; }
-.ihub-barFill.neu{ background:#60a5fa; }
+.ihub-barFill.neu{ background:#13b9ec; }
 .ihub-barFill.neg{ background:#fb7185; }
 
 .ihub-sentPct{ font-size:12px; color:#334155; text-align:right; }
-.ihub-sentPct.neg{ color:#b91c1c; }
+/* .ihub-sentPct.neg{ color:#b91c1c; } */
+
+.ihub-sentPct.pos{
+  color: #22c55e; /* green like Positive; override per row if needed */
+}
+
+.ihub-sentPct.neu{
+  color: #6b7280; 
+}
+
+.ihub-sentPct.neg{
+  color: #ef4444; 
+}
 
 /* Activity list */
 .ihub-softHeader{
@@ -442,190 +541,772 @@ body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, 
   .ihub-sentRow{ grid-template-columns: 70px 1fr 42px; }
 }
 
-/* --- Content Opportunities Add-ons --- */
-
-.ihub-card--soft {
-  background-color: #fcfcfd;
-  border: 1px solid #f2f4f7;
-  padding: 0 20px; /* Aligns content better within the soft card */
-}
-
-.ihub-opCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;            /* breathing room between content and the right-side button */
-  padding: 20px 24px;   /* was 24px 0 — restore horizontal padding so the bullet and button don't touch the card border */
-}
-
-.ihub-opCard-titleRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.ihub-opBullet {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-.ihub-opBullet.danger { background-color: #f04438; }
-.ihub-opBullet.success { background-color: #12b76a; }
-
-.ihub-opCard-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #101828;
-}
-
-.ihub-opCard-subtext {
-  font-size: 0.9rem;
-  color: #475467;
-  margin: 0 0 16px 18px; /* Indented to align under title text, not bullet */
-}
-
-.ihub-opCard-tagsRow {
-  display: flex;
-  gap: 8px;
-  margin-left: 18px;
-  margin-bottom: 16px;
-}
-
-.ihub-tag.light {
-  background: #f9fafb;
-  border: 1px solid #f2f4f7;
-  color: #667085;
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.ihub-opCard-recoRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: 18px;
-}
-
-.ihub-recoLabel {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #344054;
-}
-
-.ihub-recoChips {
-  display: flex;
-  gap: 8px;
-}
-
-/* Specific Recommendation Chip Colors */
-.ihub-chip {
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.75rem;
+/* ===== Cross-Channel Insights ===== */
+.ihub-sectionLabel{
+  margin: 18px 2px 8px;
   font-weight: 600;
-}
-
-.green-chip { background: #ecfdf3; color: #027a48; border: 1px solid #abefc6; }
-.blue-chip { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; }
-.violet-chip { background: #f9f5ff; color: #6941c6; border: 1px solid #e9d7fe; }
-.indigo-chip { background: #eef4ff; color: #3538cd; border: 1px solid #c7d7fe; }
-
-/* Right side Button */
-.ihub-btn-teal {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #0d9488; /* Teal color from screenshot */
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.ihub-btn-teal:hover {
-  background-color: #0f766e;
-}
-
-.ihub-divider {
-  height: 12px;            /* gap between stacked opportunity cards */
-  background-color: transparent;
-  width: 100%;
-}
-
-/* ==========================================================
-   SPECIFIC SCREENSHOT MATCHING: WEBSITE INTELLIGENCE
-   ========================================================== */
-
-/* Enhanced KPI Row & Colors */
-.ihub-kpiRow {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.ihub-kpi.blue { background: #eff6ff; border-color: #dbeafe; }
-.ihub-kpi.green { background: #f0fdf4; border-color: #dcfce7; }
-.ihub-kpi.purple { background: #f5f3ff; border-color: #ede9fe; }
-.ihub-kpi.orange { background: #fff7ed; border-color: #ffedd5; }
-
-/* Icon Colors within KPIs */
-.ihub-kpi.blue .ihub-kpiIcon { color: #2563eb; background: transparent; }
-.ihub-kpi.green .ihub-kpiIcon { color: #12b76a; background: transparent; }
-.ihub-kpi.purple .ihub-kpiIcon { color: #7c3aed; background: transparent; }
-.ihub-kpi.orange .ihub-kpiIcon { color: #f79009; background: transparent; }
-
-/* Font refinements for screenshot look */
-.ihub-ciTitle { font-size: 22px; font-weight: 700; color: #0f172a; }
-.ihub-ciSubtitle { margin-left: 32px; font-size: 14px; color: #64748b; margin-top: 2px; }
-
-.ihub-kpiValue { font-size: 24px; font-weight: 800; margin: 4px 0; }
-.ihub-kpiLabel { font-size: 13px; font-weight: 500; color: #64748b; }
-
-/* Website Intelligence Navigation Pill-Bar */
-.ihub-tabs-container {
-  display: flex;
-  background: #f1f5f9;
-  padding: 4px;
-  border-radius: 12px;
-  gap: 4px;
-  margin-top: 24px;
-}
-
-.ihub-tab-btn {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.ihub-tab-btn.active {
-  background: #ffffff;
   color: #0f172a;
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 
-.ihub-tab-btn:hover:not(.active) {
-  background: rgba(0, 0, 0, 0.03);
+.ihub-ccCard{ padding:14px; }
+
+.ihub-ccTop{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; margin-bottom:10px;
+}
+.ihub-ccTitle{ display:flex; align-items:center; gap:10px; }
+
+.ihub-pillAction{
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #020817;
+  background: #f8fafc;
+  border: 1px solid #f8fafc;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
-@media (max-width: 800px) {
-  .ihub-kpiRow { grid-template-columns: repeat(2, 1fr); }
-  .ihub-tabs-container { flex-wrap: wrap; }
-  .ihub-tab-btn { min-width: 30%; }
+/* Tabs bar flush with card edges */
+.ihub-tabs--flush{
+  margin:0 0px 10px 0px;
+  padding:4px 4px 4px;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:10px;
+}
+
+/* Callout banner */
+.ihub-callout{
+  background:#eef6ff;
+  border:1px solid #dbeafe;
+  color:#1e3a8a;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
+.ihub-calloutTitle{ font-weight:800; }
+.ihub-calloutText{ font-size:12px; color:#475569; }
+
+/* Journey list */
+.ihub-journeyList{ display:flex; flex-direction:column; gap:10px; }
+.ihub-journeyRow{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  border:1px solid var(--border); border-radius:12px; padding:12px;
+  background:#fff;
+}
+.ihub-journeyMain{ min-width:0; }
+.ihub-flow{
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+  margin-bottom:6px;
+}
+.ihub-flowChip{
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: #020817;
+  border: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.ihub-flowSep{ color:#94a3b8; font-weight:700; }
+
+.ihub-journeySub{
+  font-size:12px; color:#6b7280;
+}
+
+.ihub-pillRate{
+  align-self:flex-start;
+  font-size:12px; font-weight:800; white-space:nowrap;
+  color:#065f46; background:#ecfdf5; border:1px solid #bbf7d0;
+  padding:6px 10px; border-radius:999px;
+}
+
+/* Responsive */
+@media (max-width: 640px){
+  .ihub-journeyRow{ flex-direction:column; align-items:stretch; }
+  .ihub-pillRate{ align-self:flex-end; }
+}
+
+/* ===== Additional Intelligence ===== */
+
+/* Use existing tabs look, but a lighter strip (no framed box) */
+.ihub-tabs--plain{
+  margin-top: 6px;
+  margin-bottom: 10px;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+.ihub-tabs--plain .ihub-tab{
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.ihub-tabs--plain .ihub-tab.active{
+  background: #eef2ff; border-color: #dbeafe; color:#1e40af;
+}
+
+.ihub-addlCard{ padding: 14px; }
+.ihub-addlHead{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
+}
+.ihub-addlTitle{ display:flex; align-items:center; gap:10px; }
+
+.ihub-pillData{
+  font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
+  background:#10b9811a; /* faint green */
+  color:#065f46; border:1px solid #bbf7d0; white-space:nowrap;
+}
+
+/* Metric */
+.ihub-metricBlock{ margin: 8px 0 10px 26px; }
+.ihub-metricValue{
+  font-weight:800; font-size:32px; color:#0f172a; line-height:1;
+}
+.ihub-metricHint{
+  font-size:12px; color:#6b7280; margin-top:6px;
+}
+
+/* Soft callout line within the card */
+.ihub-callout.soft{
+  background:#f5f7ff; border-color:#e5e7ff; color:#334155;
+}
+.ihub-calloutRow{ display:flex; align-items:center; gap:8px; }
+.ihub-calloutIcon{ font-size:12px; }
+
+/* Concerns */
+.ihub-concernList{
+  margin-top:8px; display:flex; flex-direction:column; gap:8px;
+}
+.ihub-concernRow{
+  background:#f7f8fb; border:1px solid #eef0f4; border-radius:10px;
+  padding:12px; 
+}
+.ihub-concernTitle{ font-weight:700; color:#0f172a; }
+.ihub-concernSub{ font-size:12px; color:#6b7280; margin-top:4px; }
+
+/* Responsive */
+@media (max-width: 560px){
+  .ihub-metricBlock{ margin-left: 0; }
+}
+
+/* Filters grid */
+.ihub-filters {
+position: relative;
+display: grid;
+grid-template-columns: repeat(4, minmax(180px, 1fr));
+gap: 16px;
+}
+
+.ihub-label {
+font-weight: 600;
+font-size: 13px;
+color: #0f172a;
+margin-bottom: 6px;
+display: block;
+}
+
+.ihub-select {
+width: 100%;
+display: inline-flex;
+align-items: center;
+justify-content: space-between;
+gap: 8px;
+padding: 10px 12px;
+border: 1px solid #e5e7eb;
+border-radius: 8px;
+background: #fff;
+color: #0f172a;
+}
+.ihub-select.disabled { opacity: 0.6; pointer-events: none; }
+
+/* Dropdown menu */
+.ihub-menu {
+margin-top: 6px;
+background: #fff;
+border: 1px solid #e5e7eb;
+border-radius: 10px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+padding: 6px 0;
+position: absolute;
+z-index: 30;
+}
+
+.ihub-menu-item {
+display: grid;
+grid-template-columns: 24px 1fr;
+align-items: center;
+gap: 8px;
+padding: 10px 12px;
+cursor: pointer;
+color: #0f172a;
+}
+.ihub-menu-item:hover,
+.ihub-menu-item.active { background: #f8fafc; }
+.ihub-menu-item.selected {
+background: #6b0000; /* maroon selected, like screenshot */
+color: #fff;
+}
+.ihub-menu-check { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; }
+.ihub-menu-check-placeholder { width: 16px; height: 16px; }
+
+/* Active chips row */
+.ihub-active-filters {
+display: flex; align-items: center; gap: 8px; margin-top: 8px;
+}
+.ihub-active-label { font-size: 13px; color: #334155; }
+.ihub-chip {
+background: #eef2ff; color: #3730a3; border-radius: 999px;
+padding: 4px 10px; font-size: 12px; font-weight: 600;
+}
+.ihub-clear {
+background: none; border: none; color: #0ea5e9; font-weight: 600; cursor: pointer; padding: 0 4px;
+}
+
+
+
+/* New: styling for NATIVE <select> */
+.ihub-native-select {
+-webkit-appearance: none;
+-moz-appearance: none;
+appearance: none;
+
+width: 100%;
+padding: 10px 36px 10px 12px;  /* right padding for arrow */
+border: 1px solid var(--border);
+border-radius: 10px;
+background-color: #fff;
+color: #0f172a;
+font-size: 14px;
+line-height: 1.25rem;
+
+background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%2399A1B3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+background-repeat: no-repeat;
+background-position: right 10px center;
+background-size: 16px;
+}
+
+/* Disabled state for native select */
+.ihub-native-select:disabled {
+background-color: #f9fafb;
+color: #9ca3af;
+cursor: not-allowed;
+}
+
+/* Wrapper should allow popup to escape if browser needs it */
+.ihub-card,
+.ihub-filters,
+.ihub-field {
+overflow: visible;
+position: relative;
+z-index: 0;
+}
+
+/*website intelligence */
+
+.ihub-web-ciCard{
+border:1px solid var(--border); background:#fff; border-radius:12px; padding:16px;
+box-shadow: var(--shadow);
+}
+.ihub-web-ciHead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.ihub-web-ciTitle{ display:flex; align-items:center; gap:10px; }
+.ihub-web-ciIcon{
+display: inline-grid;
+place-items: center;
+width: 32px;
+height: 32px;
+border-radius: 10px;
+font-size: 22px;
+/* background: #eef2ff; */
+color: #1e40af;
+margin-top: -26px;
+}
+.ihub-web-ciIcon.mail{ background:#ecfdf5; color:#065f46; }
+.ihub-web-ciName{     font-weight: 600;
+color: #0f172a;
+letter-spacing: -0.025em;
+line-height: 1;
+font-size: 1.175rem; 
+margin-left: -8px;}
+.ihub-web-ciSubtitle{ color: #6b7280;
+font-size: 0.875rem;
+line-height: 1.15rem;
+margin-top: 10px;
+margin-left: -36px;
+}
+
+.ihub-web-kpiRow{
+display:flex; align-items:stretch; gap:12px; flex-wrap:wrap;
+}
+.ihub-web-kpi{
+flex:1 1 120px; min-width:120px; background:#f8fafc; border:1px solid var(--border);
+border-radius:12px; padding:14px; text-align:center;
+}
+.ihub-web-kpiValue{
+font-weight:800; font-size:20px; margin-bottom:6px; color:#111827;
+}
+.ihub-web-kpiValue.primary{ color:#2563eb; }
+.ihub-web-kpiValue.success{ color:#16a34a; }
+.ihub-web-kpiValue.info{ color:#0ea5e9; }
+.ihub-web-kpiValue.warn{ color:#f97316; }
+.ihub-web-kpiLabel{
+font-size:13px; color:#6b7280;
+}
+
+/* Responsive for new sections */
+@media (max-width: 900px){
+.ihub-web-ciGrid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 560px){
+.ihub-web-opCard{ flex-direction:column; }
+.ihub-web-opCard-right{ justify-content:flex-start; }
+}
+
+/* Panels with tabs */
+.ihub-web-panel{ padding:0; }
+.ihub-web-panelBody{
+min-height:220px;
+padding:14px;
+border-bottom-left-radius:12px;
+border-bottom-right-radius:12px;
+}
+.ihub-web-panelBody.empty{
+background:#fff;
+border-top: none;
+}
+/* Cards */
+.ihub-web-card{
+/* background:var(--card); 
+border:1px solid var(--border); 
+border-radius: var(--radius);
+padding: 18px; box-shadow: var(--shadow);  */
+margin-top: 16px;
+}
+.ihub-web-panel{ 
+padding: 0;               /* panel with tabs attached to top edge */
+  border-radius: var(--radius);
+  overflow: visible;
+ }
+
+ 
+.ihub-web-tabs,
+.ihub-web-tabs.ihub-tabs--bar {
+display: flex;
+gap: 33px;
+align-items: center;
+background: #f1f5f9;
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 4px;
+box-shadow:
+  0 1px 2px rgba(16,24,40,0.06),
+  inset 0 1px 0 rgba(255,255,255,0.6);
+  justify-content: center;
+}
+
+/* Base tab look */
+.ihub-web-tab {
+appearance: none;
+/* border: 1px solid #e6e8ee; */
+background: #f1f5f9;
+color: #374151;
+padding: 8px 12px;
+/* border-radius: 10px; */
+font-weight: 500;
+font-size: 0.875rem;
+  line-height: 1rem;
+cursor: pointer;
+/* transition: background .18s 
+ease, color .18s 
+ease, box-shadow .18s 
+ease, border-color .18s 
+ease; */
+border: none;
+}
+
+/* .ihub-web-tab {
+font-weight: 500;
+font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: calc(var(--radius) - 4px);
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+} */
+
+/* Hover: slight lift + brighter */
+.ihub-web-tab:hover {
+background: #edf2f9;
+border-color: #d9dde6;
+}
+
+/* Active tab: white pill, stronger elevation */
+.ihub-web-tab.active {
+background: #fff;
+color: #1f2937;
+border-color: #dbe0ea;
+border-radius: 7px;
+box-shadow:
+  0 1px 3px rgba(16,24,40,0.10),
+  0 6px 14px rgba(16,24,40,0.08);
+}
+
+/* Optional: compress the bar to sit closer to KPIs */
+/* .ihub-web-ciCard .ihub-web-tabs {
+margin-top: 12px;   
+} */
+
+/* If you see double borders around the bar, ensure the card body under it has no top border */
+.ihub-web-panelBody.empty {
+background: #fff;
+border-top: none;
+}
+
+.ihub-web-avg{
+color: #1359ec;
+}
+
+.ihub-web-kpi-avg{
+flex: 1 1 120px;
+min-width: 120px;
+background: #eff6ff;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px;
+text-align: center;
+border-color: #bfdbfe;
+}
+
+.ihub-web-kpi-page{
+flex: 1 1 120px;
+min-width: 120px;
+background: #f0fdf4;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px;
+text-align: center;
+border-color: #bbf7d0;
+color: #15803d;
+}
+
+.ihub-web-page{
+color: #15803d;
+}
+
+.ihub-web-kpi-return{
+flex: 1 1 120px;
+min-width: 120px;
+background: #faf5ff;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px;
+text-align: center;
+border-color: #e9d5ff;
+}
+
+.ihub-web-return{
+color: #7e22ce;
+}
+
+.ihub-web-kpi-active{
+flex: 1 1 120px;
+min-width: 120px;
+background: #fff7ed;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px;
+text-align: center;
+border-color: #fed7aa;
+}
+
+.ihub-web-active{
+color: #c2410c;
+}
+
+.soft-divider {
+height: 1px;
+  background-color: #dbe5ea;
+  margin: 14px 0;
+  width: 125%;
+}
+.ihub-social-icon{
+margin-top: -22px;
+margin-right: 4px;
+}
+
+.ihub-soc-tabs,
+.ihub-soc-tabs.ihub-soc-tabs--bar {
+display: flex;
+gap: 10px;
+align-items: center;
+background: #f1f5f9;
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 4px;
+box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+justify-content: center;
+}
+
+/* Base tab look */
+.ihub-soc-tab {
+appearance: none;
+/* border: 1px solid #e6e8ee; */
+background: #f1f5f9;
+color: #374151;
+padding: 8px 60px;
+/* border-radius: 10px; */
+font-weight: 500;
+font-size: 0.875rem;
+line-height: 1rem;
+cursor: pointer;
+/* transition: background .18s 
+ease, color .18s 
+ease, box-shadow .18s 
+ease, border-color .18s 
+ease; */
+border: none;
+}
+
+/* Hover: slight lift + brighter */
+.ihub-soc-tab:hover {
+background: #edf2f9;
+border-color: #d9dde6;
+}
+
+/* Active tab: white pill, stronger elevation */
+.ihub-soc-tab.active {
+background: #fff;
+color: #1f2937;
+border-color: #dbe0ea;
+border-radius: 7px;
+box-shadow:
+  0 1px 3px rgba(16,24,40,0.10),
+  0 6px 14px rgba(16,24,40,0.08);
+}
+
+/* ---------- Topics list rows ---------- */
+.ihub-soc-platform {
+/* two columns: left = text block, right = sentiment pill */
+display: grid;
+grid-template-columns: 1fr auto;
+align-items: center;
+
+/* padding: 12px 14px;
+background: transparent;          */
+border: 1px solid var(--border);
+border-radius: 12px;               /* keeps soft feel if needed */
+padding: 12px;
+background: #fff;
+margin-top: 10px;
+  background-color: #f1f5f94d;
+}
+
+/* Light separators between rows */
+.ihub-soc-platform + .ihub-soc-platform {
+border-top: 1px solid #e5e7eb;     /* divider like the reference image */
+margin-top: 8px;
+padding-top: 14px;
+}
+
+/* Title (left column, row 1) */
+.ihub-soc-platformName {
+grid-column: 1 / 2;
+font-weight: 500;
+color: #0f172a;
+margin: 0;
+font-size: 0.899rem;
+  line-height: 1.25rem;
+}
+
+/* The "1000 mentions • +32% growth" line (left column, row 2) */
+.ihub-soc-sentRow {
+grid-column: 1 / 2;
+margin-top: 2px;
+font-size: 13px;
+color: #475569;                    /* muted text */
+}
+
+/* Sentiment pill on the right (col 2) */
+.ihub-soc-pillLite {
+grid-column: 2 / 3;
+justify-self: end;
+
+display: inline-flex;
+align-items: center;
+gap: 6px;
+
+padding: 6px 10px;
+border-radius: 999px;
+
+background: #ecfdf5;               /* light green */
+color: #065f46;
+border: 1px solid #bbf7d0;
+font-weight: 700;
+font-size: 12px;
+white-space: nowrap;
+}
+
+/* ---------- Generate Social Content button ---------- */
+.ihub-soc-genBtn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+width: 100%;
+padding: 10px 12px;
+margin-top: 12px;
+background: #ffffff;
+color: #0f172a;
+border: 1px solid #e5e7eb;
+border-radius: 10px;
+box-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 12px rgba(16, 24, 40, .06);
+font-weight: 500;
+cursor: pointer;
+font-size: 0.875rem;
+line-height: 1.25rem;
+}
+
+.ihub-soc-genBtn:hover {
+box-shadow: 0 6px 18px rgba(16,24,40,.10);
+transform: translateY(-1px);
+}
+
+/* ---------- Top Mentions Container ---------- */
+.ihub-topMentions {
+margin-top: 12px;
+display: flex;
+flex-direction: column;
+gap: 9px;
+}
+
+/* ---------- Each Mention Item ---------- */
+.ihub-tm-item {
+background: #f8fafc;
+border: 1px solid #e5e7eb;
+border-radius: 12px;
+padding: 8px 16px;
+position: relative;
+
+display: grid;
+grid-template-columns: 1fr auto;
+row-gap: 3px;
+}
+
+/* ---------- Platform Badge ---------- */
+.ihub-tm-platform {
+display: inline-block;
+font-weight: 700;
+font-size: 13px;
+color: #0f172a;
+background: #ffffff;
+border: 1px solid #e5e7eb;
+padding: 4px 10px;
+border-radius: 10px;
+width: fit-content;
+}
+
+/* ---------- Right-side Sentiment Pill ---------- */
+.ihub-tm-pill {
+font-size: 12px;
+font-weight: 700;
+padding: 4px 10px;
+border-radius: 999px;
+align-self: start;
+}
+
+.ihub-tm-pill.positive {
+background: #ecfdf5;
+color: #065f46;
+border: 1px solid #bbf7d0;
+}
+
+.ihub-tm-pill.negative {
+background: #fff7ed;
+color: #b45309;
+border: 1px solid #fed7aa;
+}
+
+/* ---------- Quote/Mention Text ---------- */
+.ihub-tm-quote {
+grid-column: 1 / 3;
+font-size: 14px;
+margin-top: 3px;
+color: #0f172a;
+font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* ---------- Reach Row ---------- */
+.ihub-tm-reach {
+grid-column: 1 / 3;
+font-size: 13px;
+color: #6b7280;
+}
+
+.ihub-cross-ciName{     font-weight: 600;
+color: #0f172a;
+letter-spacing: -0.025em;
+line-height: 1;
+font-size: 1.175rem; 
+margin-left: -8px;
+margin-top: 3px;}
+.ihub-cross-ciSubtitle{ color: #6b7280;
+font-size: 0.875rem;
+line-height: 1.15rem;
+margin-top: 11px;
+margin-left: -36px;
+}
+
+.ihub-layer-icon{
+margin-top: -22px;
+margin-right: 4px;
+}
+
+.ihub-cross-tabs {
+display: flex;
+gap: 10px;
+align-items: center;
+background: #f1f5f9;
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 4px;
+box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+justify-content: center;
+}
+
+.ihub-cross-tab {
+flex: 1; border: none; background: transparent; padding: 7px;
+font-weight: 500; color: #5a67d8; cursor: pointer;
+border-radius: 6px; transition: all 0.2s;
+font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+/* Hover: slight lift + brighter */
+.ihub-cross-tab:hover {
+background: #edf2f9;
+border-color: #d9dde6;
+}
+
+/* Active tab: white pill, stronger elevation */
+.ihub-cross-tab.active {
+background: #fff;
+color: #1f2937;
+border-color: #dbe0ea;
+border-radius: 7px;
+box-shadow:
+  0 1px 3px rgba(16,24,40,0.10),
+  0 6px 14px rgba(16,24,40,0.08);
 }

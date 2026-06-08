@@ -1,367 +1,370 @@
-/* Author: Abhirup Nandi — 2026-05-20
- * Summary: New file — all .ihub-addl*, .ihub-comp*, .ihub-success*, concern-row rules for the Additional Intelligence card.
- */
+/* ===== Additional Intelligence ===== */
 
-/* =========================================================
-   ADDITIONAL INTELLIGENCE
-   Extracted from IntelligenceDashboard.css
-   ========================================================= */
-
-/* Section heading "Additional Intelligence" — bolder/larger to match target */
-.ihub-sectionLabel{
-  font-size: 22px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 24px 2px 12px;
-}
-
-/* ===== Tabs ===== */
-/* Three tabs as full-width pill-cards */
+/* Use existing tabs look, but a lighter strip (no framed box) */
 .ihub-tabs--plain{
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
   margin-top: 6px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   padding: 0;
   background: transparent;
   border: none;
 }
 .ihub-tabs--plain .ihub-tab{
-  width: 100%;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 14px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  text-align: center;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.ihub-tabs--plain .ihub-tab:hover:not(.active){
-  background: #f8fafc;
-  color: #334155;
 }
 .ihub-tabs--plain .ihub-tab.active{
-  background: #eef2ff;
-  border-color: #c7d2fe;
-  color: #2563eb;
-  font-weight: 700;
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+  background: #eef2ff; border-color: #dbeafe; color:#1e40af;
 }
 
-/* ===== Audience Insights tab ===== */
-
-/* Card outline */
-.ihub-addlCard{
-  padding: 18px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-}
+.ihub-addlCard{ padding: 14px; }
 .ihub-addlHead{
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;
 }
-.ihub-addlTitle{
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-/* Lucide Users icon for "Who You're Writing For" header */
-.ihub-addlCard .ihub-addlTitle .ihub-section-icon{
-  width: 22px;
-  height: 22px;
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-.ihub-addlCard .ihub-addlTitle .ihub-section-icon.addl-slate{
-  color: #0f172a;
-}
-.ihub-addlCard .ihub-intelName{
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.2;
-}
-.ihub-addlCard .ihub-intelSubtitle{
-  font-size: 13px;
-  color: #94a3b8;
-  margin-top: 2px;
+.ihub-addlTitle{ display:flex; align-items:center; gap:10px; }
+
+.ihub-pillData{
+  font-size:12px; font-weight:700; padding:6px 10px; border-radius:999px;
+  background:#10b9811a; /* faint green */
+  color:#065f46; border:1px solid #bbf7d0; white-space:nowrap;
 }
 
-/* "100% data quality" pill — clearer green */
-.ihub-pillData,
-span.ihub-pillData{
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #bbf7d0;
-  white-space: nowrap;
-}
-
-/* Big metric block (232,052) */
-.ihub-metricBlock{ margin: 12px 0 14px 26px; }
+/* Metric */
+.ihub-metricBlock{ margin: 8px 0 10px 26px; }
 .ihub-metricValue{
-  font-weight: 800;
-  font-size: 36px;
-  color: #0f172a;
-  line-height: 1;
+  font-weight:800; font-size:32px; color:#0f172a; line-height:1;
 }
 .ihub-metricHint{
-  font-size: 13px;
-  color: #94a3b8;
-  margin-top: 6px;
+  font-size:12px; color:#6b7280; margin-top:6px;
 }
 
-/* Soft callout banner — "Top 3 Concerns They Have Right Now" */
+/* Soft callout line within the card */
 .ihub-callout.soft{
-  background: #eef2ff;
-  border: 1px solid #dbeafe;
-  color: #1e293b;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  background:#f5f7ff; border-color:#e5e7ff; color:#334155;
 }
-.ihub-calloutRow{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.ihub-calloutIcon{
-  font-size: 14px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.ihub-callout.soft .ihub-calloutTitle{
-  font-weight: 700;
-  color: #0f172a;
-  font-size: 14px;
-}
+.ihub-calloutRow{ display:flex; align-items:center; gap:8px; }
+.ihub-calloutIcon{ font-size:12px; }
 
-/* Concern rows */
+/* Concerns */
 .ihub-concernList{
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-top:8px; display:flex; flex-direction:column; gap:8px;
 }
 .ihub-concernRow{
-  background: #f7f8fb;
-  border: 1px solid #eef0f4;
-  border-radius: 10px;
-  padding: 12px;
+  background:#f7f8fb; border:1px solid #eef0f4; border-radius:10px;
+  padding:12px; 
 }
-.ihub-concernTitle{ font-weight: 700; color: #0f172a; }
-.ihub-concernSub{ font-size: 12px; color: #6b7280; margin-top: 4px; }
-
-/* ===== Competitive tab ===== */
-
-.ihub-compCard{
-  padding: 20px;
-}
-.ihub-compHeader{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.ihub-compHeader .ihub-section-icon{
-  width: 22px;
-  height: 22px;
-}
-.ihub-compHeader .ihub-section-icon.comp-blue{
-  color: #2563eb;
-}
-.ihub-compTitle{
-  font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.ihub-compGroup{
-  margin-top: 14px;
-}
-.ihub-compGroup:first-of-type{
-  margin-top: 4px;
-}
-.ihub-compGroupHead{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-.ihub-compGroupHead.threats{ color: #dc2626; }
-.ihub-compGroupHead.opps{ color: #16a34a; }
-.ihub-compGroupIcon{
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-.ihub-compGroupHead.threats .ihub-compGroupIcon{ color: #dc2626; }
-.ihub-compGroupHead.opps    .ihub-compGroupIcon{ color: #16a34a; }
-
-.ihub-compList{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Threat row */
-.ihub-compThreat{
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-.ihub-compThreatName{
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2px;
-}
-.ihub-compThreatDetail{
-  font-size: 13px;
-  color: #64748b;
-  margin-bottom: 10px;
-}
-.ihub-compThreatPill{
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  color: #dc2626;
-  background: #ffffff;
-  border: 1px solid #fca5a5;
-  padding: 4px 12px;
-  border-radius: 999px;
-}
-
-/* Opportunity row */
-.ihub-compOpp{
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-.ihub-compOppTitle{
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2px;
-}
-.ihub-compOppDetail{
-  font-size: 13px;
-  color: #64748b;
-}
-
-/* ===== Success Patterns tab ===== */
-
-.ihub-successCard{
-  padding: 20px;
-}
-.ihub-successHeader{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.ihub-successHeader .ihub-section-icon{
-  width: 22px;
-  height: 22px;
-}
-.ihub-successHeader .ihub-section-icon.success-amber{
-  color: #f59e0b;
-}
-.ihub-successTitle{
-  font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.ihub-successGrid{
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-.ihub-successCol{ min-width: 0; }
-.ihub-successColHead{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 10px;
-}
-.ihub-successColIcon{
-  width: 16px;
-  height: 16px;
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.ihub-successList{
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.ihub-successItem{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #eef0f4;
-  border-radius: 10px;
-  padding: 12px 14px;
-}
-.ihub-successItemMain{ min-width: 0; }
-.ihub-successItemTitle{
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2px;
-}
-.ihub-successItemSub{
-  font-size: 12px;
-  color: #94a3b8;
-}
-.ihub-successUses{
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  color: #0f172a;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  padding: 4px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.ihub-successEmpty{
-  /* Reserve no space when a column has no rows */
-  min-height: 0;
-}
+.ihub-concernTitle{ font-weight:700; color:#0f172a; }
+.ihub-concernSub{ font-size:12px; color:#6b7280; margin-top:4px; }
 
 /* Responsive */
-@media (max-width: 900px){
-  .ihub-successGrid{
-    grid-template-columns: 1fr;
-  }
-}
 @media (max-width: 560px){
   .ihub-metricBlock{ margin-left: 0; }
 }
+
+/* --- Content Opportunities Add-ons --- */
+
+.ihub-card--soft {
+  background-color: #fcfcfd;
+  border: 1px solid #f2f4f7;
+  padding: 0 20px; /* Aligns content better within the soft card */
+}
+
+.ihub-opCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 0;
+}
+
+.ihub-opCard-titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ihub-opBullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ihub-opBullet.danger { background-color: #f04438; }
+.ihub-opBullet.success { background-color: #12b76a; }
+
+.ihub-opCard-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #101828;
+}
+
+.ihub-opCard-subtext {
+  font-size: 0.9rem;
+  color: #475467;
+  margin: 0 0 16px 18px; /* Indented to align under title text, not bullet */
+}
+
+.ihub-opCard-tagsRow {
+  display: flex;
+  gap: 8px;
+  margin-left: 18px;
+  margin-bottom: 16px;
+}
+
+.ihub-tag.light {
+  background: #f9fafb;
+  border: 1px solid #f2f4f7;
+  color: #667085;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ihub-opCard-recoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 18px;
+}
+
+.ihub-recoLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #344054;
+}
+
+.ihub-recoChips {
+  display: flex;
+  gap: 8px;
+}
+
+/* Specific Recommendation Chip Colors */
+.ihub-chip {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.green-chip { background: #ecfdf3; color: #027a48; border: 1px solid #abefc6; }
+.blue-chip { background: #eff8ff; color: #175cd3; border: 1px solid #b2ddff; }
+.violet-chip { background: #f9f5ff; color: #6941c6; border: 1px solid #e9d7fe; }
+.indigo-chip { background: #eef4ff; color: #3538cd; border: 1px solid #c7d7fe; }
+
+/* Right side Button */
+.ihub-btn-teal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #0d9488; /* Teal color from screenshot */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ihub-btn-teal:hover {
+  background-color: #0f766e;
+}
+
+.ihub-divider {
+  height: 1px;
+  background-color: #f2f4f7;
+  width: 100%;          
+}
+
+/* =====================================================
+   Additional Intelligence — Additions for new tabs only
+   Prefix: aii-
+   ===================================================== */
+
+/* Block header / title row */
+.aii-blockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.aii-blockTitle {
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aii-emoji {
+  font-size: 16px;
+}
+
+/* -------------------------------
+   Competitive tab
+   ------------------------------- */
+.aii-section {
+  background: #ffffff;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.aii-section--danger {
+  background: #fff7f7;       /* soft red like screenshot */
+  border-color: #fde2e2;
+}
+
+.aii-section--success {
+  background: #f0fff4;       /* soft green */
+  border-color: #c6f6d5;
+}
+
+.aii-sectionTitle {
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aii-sectionIcon { opacity: 0.9; }
+
+.aii-threatList {
+  display: grid;
+  gap: 10px;
+}
+
+.aii-threatCard {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #fde2e2;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.aii-threatHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.aii-threatName {
+  font-weight: 600;
+  color: #111827;
+}
+
+.aii-threatPill {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.aii-threatNote {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Differentiation card */
+.aii-diffCard {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.aii-diffTitle {
+  font-weight: 600;
+  color: #065f46;
+  margin-bottom: 2px;
+}
+
+.aii-diffSub {
+  color: #047857;
+  font-size: 13px;
+}
+
+/* -------------------------------
+   Success Patterns tab
+   ------------------------------- */
+.aii-grid3 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.aii-panel {
+  background: #ffffff;
+  border: 1px solid #e9eef5;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.aii-panelHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.aii-panelIcon { opacity: 0.9; }
+
+.aii-panelTitle {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.aii-tileList {
+  display: grid;
+  gap: 8px;
+}
+
+.aii-tile {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.aii-tileTitle {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.aii-tileMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #64748b;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.aii-usesPill {
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #e0e7ff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .aii-grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+

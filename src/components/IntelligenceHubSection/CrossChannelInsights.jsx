@@ -1,230 +1,241 @@
-// Author: Abhirup Nandi — 2026-05-20
-// Summary: New file — extracted from IntelligenceDashboard. Owns ccTab state + Customer Journeys / Attribution / Multi-Touch tabs with their datasets and JSX.
-
 import React, { useState } from "react";
-import { Layers, TrendingUp, Zap } from "lucide-react";
 import "./IntelligenceCss/CrossChannelInsights.css";
+import {  ArrowRight, Funnel, TrendingUp, Mail, Share2, Sparkles, Lightbulb, Layers, Zap } from 'lucide-react';
+
 
 export default function CrossChannelInsights() {
-  // Cross-Channel Intelligence — tab state
-  const [ccTab, setCcTab] = useState("journeys"); // "journeys" | "attribution" | "multitouch"
+  const [activeTab, setActiveTab] = useState("journeys");
 
-  // Static data for the Attribution & Multi-Touch tabs (kept inline — no API yet)
+  // Data for the new tabs (adjust as needed)
   const attributionRows = [
-    { name: "Website",     firstTouch: 15, lastTouch: 10, influenced: 30 },
-    { name: "Email",       firstTouch: 7,  lastTouch: 10, influenced: 22 },
-    { name: "Rep-Enabled", firstTouch: 6,  lastTouch: 8,  influenced: 16 },
+    { channel: "Website", first: 15, last: 10, influenced: 30 },
+    { channel: "Email", first: 7, last: 10, influenced: 22 },
+    { channel: "Rep-Enabled", first: 6, last: 8, influenced: 16 },
   ];
-  const multiTouchRows = [
-    { name: "Website + Email",       engagement: "2.4x", conversion: "3.1x" },
-    { name: "Rep + Website",         engagement: "2.8x", conversion: "3.5x" },
-    { name: "Website + Rep + Email", engagement: "3.2x", conversion: "4.1x" },
+
+  const synergyRows = [
+    { combo: "Website + Email", engagement: 2.4, conversion: 3.1 },
+    { combo: "Rep + Website", engagement: 2.8, conversion: 3.5 },
+    { combo: "Website + Rep + Email", engagement: 3.2, conversion: 4.1 },
   ];
 
   return (
-    <>
-      <h3 className="ihub-sectionLabel">Cross-Channel Insights</h3>
-
-      <section className="ihub-card ihub-ccCard">
+      <div>
+        <section className="ihub-card ihub-ccCard">
         <div className="ihub-ccTop">
-          <div className="ihub-ccTitle">
-            <Layers className="ihub-section-icon cc-indigo" strokeWidth={2} />
-            <div>
-              <div className="ihub-intelName">Cross-Channel Intelligence</div>
-              <div className="ihub-intelSubtitle">
-                Understand how channels work together to drive conversions
-              </div>
-            </div>
+    <div className="ihub-ccTitle">
+    <Layers size={22} className="h-1 w-1 mr-2 ihub-layer-icon" style={{color: "#a855f7"}}/>
+      <div>
+        <div className="ihub-cross-ciName">Cross-Channel Intelligence</div>
+        <div className="ihub-cross-ciSubtitle"> Understand how channels work together to drive conversions</div>
+      </div>
+  </div>
+    <button className="ihub-pillAction">Multi-Touch Analysis</button>
+  </div>
+
+          {/* Tabs */}
+          <div className="ihub-tabs ihub-tabs--flush">
+            <button
+              className={`ihub-cross-tab ${activeTab === "journeys" ? "active" : ""}`}
+              onClick={() => setActiveTab("journeys")}
+            >
+              Customer Journeys
+            </button>
+            <button
+              className={`ihub-cross-tab ${activeTab === "attribution" ? "active" : ""}`}
+              onClick={() => setActiveTab("attribution")}
+            >
+              Attribution
+            </button>
+            <button
+              className={`ihub-cross-tab ${activeTab === "insights" ? "active" : ""}`}
+              onClick={() => setActiveTab("insights")}
+            >
+              Multi-Touch Insights
+            </button>
           </div>
 
-          <button className="ihub-pillAction">Multi-Touch Analysis</button>
-        </div>
-
-        {/* Tabs */}
-        <div className="ihub-tabs ihub-tabs--flush">
-          <button
-            className={`ihub-tab ${ccTab === "journeys" ? "active" : ""}`}
-            onClick={() => setCcTab("journeys")}
-          >
-            Customer Journeys
-          </button>
-          <button
-            className={`ihub-tab ${ccTab === "attribution" ? "active" : ""}`}
-            onClick={() => setCcTab("attribution")}
-          >
-            Attribution
-          </button>
-          <button
-            className={`ihub-tab ${ccTab === "multitouch" ? "active" : ""}`}
-            onClick={() => setCcTab("multitouch")}
-          >
-            Multi-Touch Insights
-          </button>
-        </div>
-
-        {/* ───── Customer Journeys tab ───── */}
-        {ccTab === "journeys" && (
-          <>
-            <div className="ihub-callout">
-              <div className="ihub-calloutTitle">Top Converting Journeys</div>
-              <div className="ihub-calloutText">
-                These channel combinations drive the highest conversion rates.
-              </div>
-            </div>
-
-            <div className="ihub-journeyList">
-              <div className="ihub-journeyRow">
-                <div className="ihub-journeyMain">
-                  <div className="ihub-flow">
-                    <span className="ihub-flowChip">Email</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Website</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Resource Download</span>
+          {/* --- Customer Journeys (kept exactly as you had) --- */}
+          {activeTab === "journeys" && (
+            <>
+              {/* Top converting journeys callout */}
+ <div className="ihub-intelTitle ihub-callout">
+    <ArrowRight size={16} className="h-1 w-1 mr-2 ihub-arrow-icon"/>
+      <div>
+        <div className="ihub-top-ciName">Top Converting Journeys</div>
+        <div className="ihub-top-ciSubtitle">These channel combinations drive the highest conversion rates.</div>
+      </div>
+    </div>
+              {/* Journeys list */}
+              <div className="ihub-journeyList">
+                {/* Row 1 */}
+                <div className="ihub-journeyRow">
+                  <div className="ihub-journeyMain">
+                    <div className="ihub-flow">
+                      <span className="ihub-flowChip">Email</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Website</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Resource Download</span>
+                    </div>
+                    <div className="ihub-journeySub">855 conversions</div>
                   </div>
-                  <div className="ihub-journeySub">855 conversions</div>
+                  <span className="ihub-pillRate">24.1% conversion rate</span>
                 </div>
-                <span className="ihub-pillRate">24.1% conversion rate</span>
-              </div>
 
-              <div className="ihub-journeyRow">
-                <div className="ihub-journeyMain">
-                  <div className="ihub-flow">
-                    <span className="ihub-flowChip">Rep Visit</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Website</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Prescription</span>
+                {/* Row 2 */}
+                <div className="ihub-journeyRow">
+                  <div className="ihub-journeyMain">
+                    <div className="ihub-flow">
+                      <span className="ihub-flowChip">Rep Visit</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Website</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Prescription</span>
+                    </div>
+                    <div className="ihub-journeySub">150 conversions</div>
                   </div>
-                  <div className="ihub-journeySub">150 conversions</div>
+                  <span className="ihub-pillRate">18.7% conversion rate</span>
                 </div>
-                <span className="ihub-pillRate">18.7% conversion rate</span>
-              </div>
 
-              <div className="ihub-journeyRow">
-                <div className="ihub-journeyMain">
-                  <div className="ihub-flow">
-                    <span className="ihub-flowChip">Website</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Email Signup</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Sample Request</span>
+                {/* Row 3 */}
+                <div className="ihub-journeyRow">
+                  <div className="ihub-journeyMain">
+                    <div className="ihub-flow">
+                      <span className="ihub-flowChip">Website</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Email Signup</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Sample Request</span>
+                    </div>
+                    <div className="ihub-journeySub">120 conversions</div>
                   </div>
-                  <div className="ihub-journeySub">120 conversions</div>
+                  <span className="ihub-pillRate">12.3% conversion rate</span>
                 </div>
-                <span className="ihub-pillRate">12.3% conversion rate</span>
-              </div>
 
-              <div className="ihub-journeyRow">
-                <div className="ihub-journeyMain">
-                  <div className="ihub-flow">
-                    <span className="ihub-flowChip">Social</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Website</span>
-                    <span className="ihub-flowSep">→</span>
-                    <span className="ihub-flowChip">Email Signup</span>
+                {/* Row 4 */}
+                <div className="ihub-journeyRow">
+                  <div className="ihub-journeyMain">
+                    <div className="ihub-flow">
+                      <span className="ihub-flowChip">Social</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Website</span>
+                      <span className="ihub-flowSep">→</span>
+                      <span className="ihub-flowChip">Email Signup</span>
+                    </div>
+                    <div className="ihub-journeySub">90 conversions</div>
                   </div>
-                  <div className="ihub-journeySub">90 conversions</div>
+                  <span className="ihub-pillRate">10.1% conversion rate</span>
                 </div>
-                <span className="ihub-pillRate">10.1% conversion rate</span>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {/* ───── Attribution tab ───── */}
-        {ccTab === "attribution" && (
-          <>
-            <div className="ihub-callout ihub-callout--attribution">
-              <div className="ihub-calloutRow">
-                <TrendingUp className="ihub-calloutIcon ihub-calloutIcon--blue" strokeWidth={2.2} />
+          {/* --- Attribution tab (new, uses separate CSS) --- */}
+          {activeTab === "attribution" && (
+            <>
+              {/* <div className="ihub-callout">
                 <div className="ihub-calloutTitle">Channel Attribution</div>
-              </div>
-              <div className="ihub-calloutText">
-                How each channel contributes to customer journeys.
-              </div>
-            </div>
-
-            <div className="ihub-attrList">
-              {attributionRows.map((row) => (
-                <div className="ihub-attrRow" key={row.name}>
-                  <div className="ihub-attrRowHead">
-                    <span className="ihub-attrName">{row.name}</span>
-                    <span className="ihub-attrInfluenced">{row.influenced}% influenced</span>
-                  </div>
-
-                  <div className="ihub-attrMetrics">
-                    <div className="ihub-attrMetric">
-                      <div className="ihub-attrMetricLabel">First Touch</div>
-                      <div className="ihub-attrBar">
-                        <span className="ihub-attrBarFill" style={{ width: `${row.firstTouch}%` }} />
-                      </div>
-                      <div className="ihub-attrMetricPct">{row.firstTouch}%</div>
-                    </div>
-
-                    <div className="ihub-attrMetric">
-                      <div className="ihub-attrMetricLabel">Last Touch</div>
-                      <div className="ihub-attrBar">
-                        <span className="ihub-attrBarFill" style={{ width: `${row.lastTouch}%` }} />
-                      </div>
-                      <div className="ihub-attrMetricPct">{row.lastTouch}%</div>
-                    </div>
-
-                    <div className="ihub-attrMetric">
-                      <div className="ihub-attrMetricLabel">Influenced</div>
-                      <div className="ihub-attrBar">
-                        <span className="ihub-attrBarFill" style={{ width: `${row.influenced}%` }} />
-                      </div>
-                      <div className="ihub-attrMetricPct">{row.influenced}%</div>
-                    </div>
-                  </div>
+                <div className="ihub-calloutText">
+                  How each channel contributes to customer journeys.
                 </div>
-              ))}
-            </div>
-          </>
-        )}
+              </div> */}
 
-        {/* ───── Multi-Touch Insights tab ───── */}
-        {ccTab === "multitouch" && (
-          <>
-            <div className="ihub-callout ihub-callout--synergy">
-              <div className="ihub-calloutRow">
-                <Zap className="ihub-calloutIcon ihub-calloutIcon--purple" strokeWidth={2.2} />
-                <div className="ihub-calloutTitle">Multi-Touch Synergy</div>
-              </div>
-              <div className="ihub-calloutText">
-                Channel combinations that amplify engagement and conversions.
-              </div>
-            </div>
+              <div className="ihub-intelTitle ihub-callout">
+    <TrendingUp size={16} className="h-1 w-1 mr-2 ihub-arrow-icon"/>
+      <div>
+        <div className="ihub-top-ciName">Channel Attribution</div>
+        <div className="ihub-top-ciSubtitle"> How each channel contributes to customer journeys.</div>
+      </div>
+    </div>
+              <div className="cci-attr-list">
+                {attributionRows.map((row) => (
+                  <div className="cci-attr-card" key={row.channel}>
+                    <div className="cci-attr-head">
+                      <div className="cci-attr-title">{row.channel}</div>
+                      <div className="cci-attr-influenced">{row.influenced}% influenced</div>
+                    </div>
 
-            <div className="ihub-comboList">
-              {multiTouchRows.map((row) => (
-                <div className="ihub-comboRow" key={row.name}>
-                  <div className="ihub-comboMain">
-                    <div className="ihub-comboName">{row.name}</div>
-                    <div className="ihub-comboSub">Combined touchpoint effect</div>
+                    <div className="cci-attr-grid">
+                      <AttrMetric label="First Touch" value={row.first} />
+                      <AttrMetric label="Last Touch" value={row.last} />
+                      <AttrMetric label="Influenced" value={row.influenced} />
+                    </div>
                   </div>
-                  <div className="ihub-comboChips">
-                    <span className="ihub-chip-engagement">{row.engagement} engagement</span>
-                    <span className="ihub-chip-conversion">{row.conversion} conversion</span>
-                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* --- Multi‑Touch Insights tab (new, uses separate CSS) --- */}
+          {activeTab === "insights" && (
+            <>
+              {/* <div className="ihub-callout">
+                <div className="ihub-calloutTitle">Multi‑Touch Synergy</div>
+                <div className="ihub-calloutText">
+                  Channel combinations that amplify engagement and conversions.
                 </div>
-              ))}
-            </div>
+              </div> */}
 
-            <div className="ihub-callout ihub-callout--synergy ihub-keyInsight">
-              <div className="ihub-calloutRow">
-                <Zap className="ihub-calloutIcon ihub-calloutIcon--purple" strokeWidth={2.2} />
-                <div className="ihub-calloutTitle">Key Insight</div>
+              <div className="ihub-intelTitle ihub-callout">
+    <Zap size={16} className="h-1 w-1 mr-2 ihub-arrow-icon"/>
+      <div>
+        <div className="ihub-top-ciName">Multi‑Touch Synergy</div>
+        <div className="ihub-top-ciSubtitle"> Channel combinations that amplify engagement and conversions.</div>
+      </div>
+    </div>
+
+              <div className="cci-syn-list">
+                {synergyRows.map((r) => (
+                  <div key={r.combo} className="cci-syn-row">
+                    <div className="cci-syn-main">
+                      <div className="cci-syn-title">{r.combo}</div>
+                      <div className="cci-syn-sub">Combined touchpoint effect</div>
+                    </div>
+                    <div className="cci-syn-badges">
+                      <span className="cci-badge cci-badge--engagement">
+                        {r.engagement.toFixed(1)}x engagement
+                      </span>
+                      <span className="cci-badge cci-badge--conversion">
+                        {r.conversion.toFixed(1)}x conversion
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="ihub-calloutText">
-                Combining Website + Rep + Email touchpoints delivers{" "}
-                <strong>4.1x higher conversion rates</strong> than single-channel approaches.
-              </div>
-            </div>
-          </>
-        )}
-      </section>
-    </>
+
+              <div className="ihub-intelTitle ihub-callout cci-key-callout">
+    <Zap size={16} className="h-1 w-1 mr-2 ihub-arrow-icon"/>
+      <div>
+        <div className="ihub-top-ciName">Key Insight</div>
+        <div className="ihub-calloutText"> Combining <strong>Website + Rep + Email</strong> touchpoints delivers{" "}
+        <strong>4.1x higher conversion rates</strong> than single‑channel approaches.</div>
+      </div>
+    </div>
+            </>
+          )}
+        </section>
+      </div>
+    
+  );
+}
+
+/** Metric bar uses only the new CSS classes defined in CrossChannelAdditions.css */
+function AttrMetric({ label, value, strong = false }) {
+  return (
+    <div className={`cci-attr-metric ${strong ? "cci-attr-metric--strong" : ""}`}>
+      <div className="cci-attr-metric-label">{label}</div>
+      <div
+        className="cci-meter"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
+        aria-label={`${label} ${value}%`}
+      >
+        <span className="cci-meter-fill" style={{ width: `${value}%` }} />
+      </div>
+      <div className="cci-attr-metric-value">{value}%</div>
+    </div>
   );
 }

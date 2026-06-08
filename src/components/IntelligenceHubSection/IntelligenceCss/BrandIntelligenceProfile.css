@@ -1,0 +1,721 @@
+/* Author: Abhirup Nandi — 2026-05-25
+ * Brand Intelligence Profile — embedded review panel.
+ * Renders inside BrandIntelligence's "Ingested documents" card, so it has
+ * no card frame of its own. Mirrors the .bic-ctx-embedded pattern.
+ * All selectors are .bip-* to avoid bleed with the other panels.
+ */
+
+.bip-embedded {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+.bip-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 18px 0;
+}
+
+/* ===== Header ===== */
+.bip-head { margin-bottom: 3px; }
+.bip-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bip-head-icon {
+  width: 18px;
+  height: 18px;
+  color: #6366f1; /* indigo-500 */
+  flex-shrink: 0;
+}
+.bip-title {
+  margin: 0;
+  /* font-size: 16px;
+  font-weight: 800;
+  color: #0f172a; */
+  line-height: 1.2;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #101828;
+}
+.bip-sub {
+  margin: 4px 0 0 3px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ===== Trigger panel ===== */
+.bip-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 12px 0 4px;
+  margin-bottom: 15px;
+}
+.bip-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #4f46e5;
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.bip-trigger-btn:hover:not(:disabled) {
+  background: #4338ca;
+  border-color: #4338ca;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+.bip-trigger-btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+.bip-trigger-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+.bip-trigger-hint strong {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* No source documents available — shown when the user hits the trigger
+   panel before any Veeva / Claims / SharePoint / Manual ingestion has run. */
+.bip-no-source {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+.bip-no-source svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* ===== Doc count banner ===== */
+.bip-doc-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #047857;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.bip-doc-count strong { font-weight: 800; }
+.bip-rerun-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #6ee7b7;
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.bip-rerun-btn:hover:not(:disabled) { background: #d1fae5; }
+.bip-rerun-btn:disabled { opacity: 0.7; cursor: progress; }
+
+/* ===== Sections grid ===== */
+.bip-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bip-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fafafa;
+  transition: border-color 0.2s, background 0.2s;
+}
+.bip-section--accepted { border-color: #a7f3d0; background: #f0fdf4; }
+.bip-section--edited   { border-color: #fcd34d; background: #fffbeb; }
+.bip-section--flagged  { border-color: #fca5a5; background: #fef2f2; }
+
+.bip-section-head { margin-bottom: 12px; }
+.bip-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bip-section-icon {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+.bip-section-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.bip-section-desc {
+  margin: 4px 0 0 3px;
+  font-size: 12.75px;
+  color: #64748b;
+}
+
+/* Status badges */
+.bip-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: auto;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.bip-status-pending  { 
+  /* background: #f1f5f9; 
+  color: #64748b;  */
+  background: #dbe7f3;
+    color: #25282d;
+}
+.bip-status-accepted { background: #d1fae5; color: #047857; }
+.bip-status-edited   { background: #fef3c7; color: #b45309; }
+.bip-status-flagged  { background: #fee2e2; color: #b91c1c; }
+
+/* ===== Lists (Messaging Pillars / Claims / Prohibited) ===== */
+.bip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bip-list-item {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.bip-list-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bip-list-desc {
+  font-size: 12.75px;
+  color: #475569;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.bip-citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.bip-citation {
+  font-size: 10px;
+  font-weight: 600;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.bip-prohibited-item {
+  border-left: 3px solid #ef4444;
+}
+
+/* ===== Tone parameters ===== */
+.bip-tone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+.bip-tone-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 44px;
+  align-items: center;
+  gap: 41px;
+}
+.bip-tone-word {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bip-tone-bar {
+  background: #e2e8f0;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  width: 105%;
+}
+.bip-tone-fill {
+  background: linear-gradient(to right, #818cf8, #4f46e5);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.bip-tone-score {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Edit form ===== */
+.bip-edit-form {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.bip-edit-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+.bip-edit-textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 10px;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bip-edit-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.bip-edit-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ===== Flag form ===== */
+.bip-flag-form {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.bip-flag-input {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bip-flag-input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ===== Edit log + flag banner ===== */
+.bip-edit-log {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 10px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #92400e;
+}
+.bip-flag-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+/* ===== Section action buttons ===== */
+.bip-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.bip-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.bip-action-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+.bip-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.bip-action-accept {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+.bip-action-accept:hover:not(:disabled) {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+.bip-action-edit {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}
+.bip-action-edit:hover:not(:disabled) {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+.bip-action-flag {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+.bip-action-flag:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+/* ===== Activation block ===== */
+.bip-activation {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.bip-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.bip-alert strong { font-weight: 800; }
+.bip-alert-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+.bip-alert-warning {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #b45309;
+}
+.bip-alert-success {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #047857;
+}
+.bip-activate-btn {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  border: 1px solid #0f172a;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.bip-activate-btn:hover:not(:disabled) {
+  background: #1e293b;
+  border-color: #1e293b;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+}
+.bip-activate-btn:disabled {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.bip-empty {
+  padding: 14px;
+  text-align: center;
+  font-size: 12.55px;
+  color: #94a3b8;
+  background: #ffffff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 6px;
+}
+
+/* Spinner */
+.bip-spin {
+  animation: bipSpin 0.8s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes bipSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive: stack tone grid + activation actions on small screens */
+@media (max-width: 640px) {
+  .bip-tone-row {
+    grid-template-columns: 100px 1fr 40px;
+    gap: 8px;
+  }
+  .bip-section-desc {
+    margin-left: 0;
+  }
+  .bip-activate-btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+}
+
+.bip-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.bip-collapse-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MERGED — selectors below were added during the functional-feature work
+   (US 1.3 inline editors, US 1.4 modals, US 1.5 ingest bar). They live
+   below the design-system base styles so the visual treatment from the
+   stylesheet above wins on shared selectors. Don't reorder.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ===== Per-item inline editors (Edit mode) ===== */
+.bip-edit-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.bip-edit-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fbfbfd;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bip-edit-row { display: flex; flex-direction: column; gap: 4px; }
+.bip-edit-row--inline { flex-direction: row; gap: 10px; align-items: flex-start; }
+.bip-edit-col { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.bip-edit-col--score { flex: 0 0 110px; }
+.bip-edit-col--id    { flex: 0 0 140px; }
+.bip-edit-field-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #64748b;
+}
+.bip-edit-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px;
+  line-height: 1.45; color: #0f172a; background: #ffffff;
+  border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 9px; outline: none;
+}
+.bip-edit-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.bip-edit-input--multi { resize: vertical; min-height: 52px; }
+.bip-edit-citations { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.bip-edit-remove {
+  align-self: flex-start; background: transparent; border: 1px solid #e5e7eb;
+  color: #b91c1c; font-size: 11px; font-weight: 500; border-radius: 5px;
+  padding: 4px 8px; cursor: pointer;
+}
+.bip-edit-remove:hover { background: #fef2f2; border-color: #fca5a5; }
+.bip-edit-add {
+  align-self: flex-start; background: #ffffff; border: 1px dashed #c7d2fe;
+  color: #4f46e5; font-size: 12px; font-weight: 600; border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+}
+.bip-edit-add:hover { background: #eef2ff; border-color: #4f46e5; }
+
+/* ===== Bulk Accept All toolbar (top or --bottom variant) ===== */
+.bip-bulk-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin: 4px 0 12px; padding: 8px 14px;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+  flex-wrap: wrap;
+}
+.bip-bulk-toolbar--bottom { margin-top: 18px; background: #ffffff; border-color: #c7d2fe; }
+.bip-bulk-hint { font-size: 13px; color: #475569; line-height: 1.4; }
+.bip-bulk-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #10b981; border: 1px solid #10b981; border-radius: 7px;
+  padding: 6px 14px; color: #ffffff; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.1s ease;
+}
+.bip-bulk-btn:hover:not(:disabled) {
+  background: #059669; border-color: #059669; transform: translateY(-1px);
+}
+.bip-bulk-btn:disabled {
+  background: #cbd5e1; border-color: #cbd5e1; cursor: not-allowed; transform: none;
+}
+
+/* ===== Re-ingestion scope modal ===== */
+.bip-modal-overlay {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 20px;
+}
+.bip-modal {
+  background: #ffffff; border-radius: 12px; max-width: 560px; width: 100%;
+  padding: 22px 24px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+.bip-modal-title { margin: 0 0 6px; font-size: 17px; font-weight: 700; color: #0f172a; }
+.bip-modal-sub  { margin: 0 0 14px; font-size: 13px; color: #475569; line-height: 1.5; }
+.bip-modal-textarea {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px;
+  line-height: 1.5; color: #0f172a; background: #ffffff;
+  border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px;
+  resize: vertical; min-height: 90px; outline: none;
+}
+.bip-modal-textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.bip-modal-hint  { margin: 8px 0 18px; font-size: 11px; font-style: italic; color: #94a3b8; line-height: 1.5; }
+.bip-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.bip-modal-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+}
+.bip-modal-btn--secondary { background: #ffffff; border: 1px solid #cbd5e1; color: #475569; }
+.bip-modal-btn--secondary:hover { background: #f8fafc; border-color: #94a3b8; }
+.bip-modal-btn--primary { background: #4f46e5; border: 1px solid #4f46e5; color: #ffffff; }
+.bip-modal-btn--primary:hover { background: #4338ca; border-color: #4338ca; }
+
+/* ===== Always-visible ingest bar (replaces .bip-trigger + .bip-doc-count) ===== */
+.bip-ingest-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; margin: 14px 0 16px; padding: 12px 16px;
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02);
+}
+.bip-ingest-bar--ready { background: #f0fdf4; border-color: #bbf7d0; }
+.bip-ingest-bar__left  { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; }
+.bip-ingest-bar__icon  { flex-shrink: 0; color: #4f46e5; }
+.bip-ingest-bar__icon--ok    { color: #16a34a; }
+.bip-ingest-bar__icon--muted { color: #94a3b8; }
+.bip-ingest-bar__text { font-size: 13px; color: #0f172a; line-height: 1.4; }
+.bip-ingest-bar__text strong { font-weight: 700; }
+.bip-ingest-bar__text--muted { color: #64748b; }
+.bip-ingest-bar__btn {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px;
+  background: #4f46e5; border: 1px solid #4f46e5; border-radius: 8px;
+  padding: 9px 16px; color: #ffffff; font-size: 13px; font-weight: 600;
+  letter-spacing: 0.01em; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.bip-ingest-bar__btn:hover:not(:disabled) {
+  background: #4338ca; border-color: #4338ca;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28); transform: translateY(-1px);
+}
+.bip-ingest-bar__btn--rerun { background: #ffffff; color: #047857; border-color: #86efac; }
+.bip-ingest-bar__btn--rerun:hover:not(:disabled) {
+  background: #ecfdf5; border-color: #16a34a; color: #065f46;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.18);
+}
+.bip-ingest-bar__btn:disabled {
+  background: #e2e8f0; border-color: #cbd5e1; color: #94a3b8;
+  cursor: not-allowed; box-shadow: none; transform: none;
+}
+
+/* ===== Citation chip — link variant ===== */
+.bip-citation--link { cursor: pointer; text-decoration: none; transition: background 0.12s, border-color 0.12s, transform 0.12s; }
+.bip-citation--link:hover {
+  background: #e0e7ff; border-color: #818cf8; color: #3730a3;
+  transform: translateY(-1px);
+}
+.bip-citation--link:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; }

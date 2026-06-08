@@ -1,327 +1,428 @@
-/* Author: Abhirup Nandi — 2026-05-20
- * Summary: New file — all .ihub-cc*, .ihub-attr*, .ihub-combo*, chip, and callout rules for the Cross-Channel card.
- */
+/* ===== Cross-Channel Insights ===== */
+/* .ihub-sectionLabel{
+    margin:18px 2px 8px;
+    font-weight:800;
+    color:#111827;
+  } */
+  
+  .ihub-ccCard{ padding:14px; }
+  
+  .ihub-ccTop{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; margin-bottom:10px;
+  }
+  .ihub-ccTitle{ display:flex; align-items:center; gap:10px; }
+  
+  .ihub-pillAction{
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #020817;
+    background: #f8fafc;
+    border: 1px solid #f8fafc;
+    cursor: pointer;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  /* Tabs bar flush with card edges */
+  .ihub-tabs--flush{
+    margin:0 0px 10px 0px;
+    padding:4px 4px 4px;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  
+  /* Callout banner */
+  .ihub-callout{
+    background:#eef6ff;
+    border:1px solid #dbeafe;
+    color:#1e3a8a;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:10px;
+  }
+  .ihub-calloutTitle{ font-weight:800; }
+  .ihub-calloutText{ color:#475569; margin-top: 7px;
+    margin-left: -31px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;}
+  
+  /* Journey list */
+  .ihub-journeyList{ display:flex; flex-direction:column; gap:10px; }
+  .ihub-journeyRow{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    border:1px solid var(--border); border-radius:12px; padding:12px;
+    background: #f1f5f94d;
+  }
+  .ihub-journeyMain{ min-width:0; }
+  .ihub-flow{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+    margin-bottom:6px;
+  }
+  .ihub-flowChip{
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #fff;
+    color: #020817;
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .ihub-flowSep{ color:#94a3b8; font-weight:700; }
+  
+  .ihub-journeySub{
+    font-size:13px; color:#6b7280;
+  }
+  
+  .ihub-pillRate{
+    align-self: flex-start;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #15803d;
+    background: #dcfce7;
+    /* border: 1px solid #bbf7d0; */
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    border-width: 1px;
+    border-radius: 9999px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px){
+    .ihub-journeyRow{ flex-direction:column; align-items:stretch; }
+    .ihub-pillRate{ align-self:flex-end; }
+  }
+  
+  /* ================================
+     CrossChannel Additions (scoped)
+     Prefix: cci-
+     ================================ */
+  
+  /* ----- Attribution ----- */
+  .cci-attr-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .cci-attr-card {
+    background: #f1f5f94d;
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  
+  .cci-attr-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .cci-attr-title {
+    font-weight: 600;
+    color: #0f172a;
+  }
+  
+  .cci-attr-influenced {
+    color: #64748b;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+  
+  /* 3 columns like the screenshot; collapses on small screens */
+  .cci-attr-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .cci-attr-metric {
+    display: grid;
+    gap: 6px;
+  }
+  
+  .cci-attr-metric--strong .cci-attr-metric-label {
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .cci-attr-metric-label {
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .cci-meter {
+    height: 10px;
+    background: #f3f4f6;
+    border-radius: 999px;
+    overflow: hidden;
+    /* border: 1px solid #e5e7eb; */
+  }
+  
+  .cci-meter-fill {
+    display: block;
+    height: 100%;
+    background: #13b9ec;
+    border-radius: 999px;
+  }
+  
+  .cci-attr-metric-value {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+  }
+  
+  /* ----- Multi‑Touch Insights ----- */
+  .cci-syn-list {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .cci-syn-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f1f5f94d;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  
+  .cci-syn-main {
+    display: grid;
+    gap: 2px;
+  }
+  
+  .cci-syn-title {
+    font-weight: 500;
+    color: #0f172a;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .cci-syn-sub {
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    margin-top: 0.25rem;
+  }
+  
+  .cci-syn-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .cci-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .cci-badge--engagement {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #dbeafe;
+  }
+  
+  .cci-badge--conversion {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #d1fae5;
+  }
+  
+  /* Key insight spacing/feel within your existing callout */
+  .cci-key-callout {
+    margin-top: 10px;
+    /* uses existing .ihub-callout visuals; no overrides needed */
+  }
+  
+  /* ----- Responsive tweaks ----- */
+  @media (max-width: 720px) {
+    .cci-attr-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .cci-syn-row {
+      align-items: flex-start;
+      gap: 10px;
+    }
+  
+    .cci-syn-badges {
+      justify-content: flex-start;
+    }
+  }
+  
+  /* ================================================
+     Cross-Channel Insights — page shell only
+     (safe: does not alter existing ihub styles)
+     ================================================ */
+  
+  .cci-page {
+    min-height: 100vh;
+    background: #f6f8fc;
+    padding: 24px 24px 40px;
+  }
+  
+  .cci-pageTitle {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 4px 0 16px;
+  }
+  
+  /* Centered wide container controlling max width */
+  .cci-shell {
+    max-width: 1100px;      /* increase to 1200px if you want wider */
+    margin: 0 auto;
+  }
+  
+  /* Elevate the main card to match dashboard look */
+  .cci-shell .ihub-ccCard {
+    border-radius: 16px;
+    border: 1px solid #e9eef5;
+    background: #ffffff;
+    box-shadow:
+      0 2px 6px rgba(16, 24, 40, 0.04),
+      0 12px 24px rgba(16, 24, 40, 0.08);
+  }
+  
+  /* Consistent breathing room under tabs */
+  .cci-shell .ihub-tabs {
+    margin-bottom: 14px;
+  }
+  
+  /* Mobile polish */
+  @media (max-width: 640px) {
+    .cci-page {
+      padding: 16px 12px 28px;
+    }
+    .cci-pageTitle {
+      font-size: 20px;
+    }
+    .cci-shell {
+      max-width: 100%;
+    }
+  }
+  /* ================================================
+     Cross-Channel Insights — page shell only
+     (safe: does not alter existing ihub styles)
+     ================================================ */
+  
+  .cci-page {
+    min-height: 100vh;
+    background: #f6f8fc;
+    padding: 24px 24px 40px;
+  }
+  
+  .cci-pageTitle {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 4px 0 16px;
+  }
+  
+  /* Centered wide container controlling max width */
+  .cci-shell {
+    max-width: 1100px;      /* increase to 1200px if you want wider */
+    margin: 0 auto;
+  }
+  
+  /* Elevate the main card to match dashboard look */
+  .cci-shell .ihub-ccCard {
+    border-radius: 16px;
+    border: 1px solid #e9eef5;
+    background: #ffffff;
+    box-shadow:
+      0 2px 6px rgba(16, 24, 40, 0.04),
+      0 12px 24px rgba(16, 24, 40, 0.08);
+  }
+  
+  /* Consistent breathing room under tabs */
+  .cci-shell .ihub-tabs {
+    margin-bottom: 14px;
+  }
+  
+  /* Mobile polish */
+  @media (max-width: 640px) {
+    .cci-page {
+      padding: 16px 12px 28px;
+    }
+    .cci-pageTitle {
+      font-size: 20px;
+    }
+    .cci-shell {
+      max-width: 100%;
+    }
+  }
+  
+  .ihub-cross-tabs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    justify-content: center;
+  }
+  
+  .ihub-cross-tab {
+    flex: 1; border: none; background: transparent; padding: 7px;
+   font-weight: 500; color: #5a67d8; cursor: pointer;
+    border-radius: 6px; transition: all 0.2s;
+    font-size: 0.875rem;
+      line-height: 1.25rem;
+  }
+  /* Hover: slight lift + brighter */
+  .ihub-cross-tab:hover {
+    background: #edf2f9;
+    border-color: #d9dde6;
+  }
+  
+  /* Active tab: white pill, stronger elevation */
+  .ihub-cross-tab.active {
+    background: #fff;
+    color: #1f2937;
+    border-color: #dbe0ea;
+    border-radius: 7px;
+    box-shadow:
+      0 1px 3px rgba(16,24,40,0.10),
+      0 6px 14px rgba(16,24,40,0.08);
+  }
 
-/* =========================================================
-   CROSS-CHANNEL INSIGHTS
-   Extracted from IntelligenceDashboard.css
-   ========================================================= */
+  .ihub-intelTitle{ display:flex; align-items:center; gap:10px; }
 
-/* Section heading "Cross-Channel Insights" */
-.ihub-sectionLabel{
-  font-size: 22px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 24px 2px 12px;
-}
+  .ihub-arrow-icon{
+    margin-top: -22px;
+    margin-right: 4px;
+    color: #4f46e5;
+  }
 
-/* ----- Card frame ----- */
-.ihub-ccCard{
-  padding: 14px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  .ihub-top-ciName{        font-weight: 500;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+    margin-left: -8px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
 }
 
-/* ----- Header row (title + Multi-Touch Analysis pill) ----- */
-.ihub-ccTop{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.ihub-ccTitle{
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-/* Header icon (lucide Layers) */
-.ihub-ccCard .ihub-ccTitle .ihub-section-icon{
-  width: 24px;
-  height: 24px;
-  margin-top: 4px;
-  flex-shrink: 0;
-}
-.ihub-ccCard .ihub-ccTitle .ihub-section-icon.cc-indigo{
-  color: #6366f1;
-}
-
-/* Title text */
-.ihub-ccCard .ihub-intelName{
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: #0f172a;
-}
-.ihub-ccCard .ihub-intelSubtitle{
-  color: #818cf8;
-  font-size: 13px;
-  margin-top: 2px;
-}
-
-/* "Multi-Touch Analysis" green pill — beats global <button> resets */
-.ihub-pillAction,
-.ihub-ccCard .ihub-pillAction,
-button.ihub-pillAction{
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  color: #065f46;
-  background: #ecfdf5;
-  border: 1px solid #bbf7d0;
-  cursor: pointer;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-.ihub-ccCard .ihub-pillAction:hover{
-  background: #d1fae5;
-}
-
-/* ----- Tabs bar flush with card edges ----- */
-.ihub-tabs--flush{
-  margin: 0 -6px 10px -6px;
-  padding: 6px 6px 8px;
-  background: #f8fafc;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-.ihub-ccCard .ihub-tabs--flush .ihub-tab{
-  color: #64748b;
-  font-weight: 600;
-}
-.ihub-ccCard .ihub-tabs--flush .ihub-tab.active{
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-bottom: 2px solid #2563eb;
-  color: #111827;
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-
-/* ===== Callout banners ===== */
-
-/* Base callout (Customer Journeys "Top Converting Journeys") */
-.ihub-callout{
-  background: #eef6ff;
-  border: 1px solid #dbeafe;
-  color: #1e3a8a;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-}
-.ihub-calloutTitle{ font-weight: 800; }
-.ihub-calloutText{ font-size: 12px; color: #475569; }
-
-/* Tabbed-callout banners — Channel Attribution (blue) / Multi-Touch Synergy (purple) */
-.ihub-ccCard .ihub-callout--attribution{
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
-}
-.ihub-ccCard .ihub-callout--synergy{
-  background: #f5f3ff;
-  border: 1px solid #e9d5ff;
-}
-.ihub-ccCard .ihub-callout .ihub-calloutRow{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-.ihub-ccCard .ihub-callout .ihub-calloutIcon{
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-.ihub-ccCard .ihub-callout .ihub-calloutIcon--blue{ color: #2563eb; }
-.ihub-ccCard .ihub-callout .ihub-calloutIcon--purple{ color: #7c3aed; }
-.ihub-ccCard .ihub-callout .ihub-calloutTitle{
-  font-size: 14px;
-  font-weight: 800;
-  color: #0f172a;
-}
-.ihub-ccCard .ihub-callout .ihub-calloutText{
-  font-size: 13px;
-  color: #475569;
-  margin-left: 28px;  /* aligns under the title text past the icon */
-}
-
-/* ===== Customer Journeys tab — journey list ===== */
-.ihub-journeyList{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.ihub-journeyRow{
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
-  background: #fff;
-}
-.ihub-journeyMain{ min-width: 0; }
-.ihub-flow{
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.ihub-flowChip{
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #fff;
-  color: #111827;
-  border: 1px solid var(--border);
-}
-.ihub-flowSep{ color: #94a3b8; font-weight: 700; }
-.ihub-journeySub{ font-size: 12px; color: #6b7280; }
-
-.ihub-pillRate{
-  align-self: flex-start;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-  color: #065f46;
-  background: #ecfdf5;
-  border: 1px solid #bbf7d0;
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
-/* ===== Attribution tab — rows + bars ===== */
-.ihub-attrList{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-.ihub-attrRow{
-  background: #f8fafc;
-  border: 1px solid #eef0f4;
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-.ihub-attrRowHead{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.ihub-attrName{
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-}
-.ihub-attrInfluenced{
-  font-size: 12px;
-  color: #64748b;
-  white-space: nowrap;
-}
-.ihub-attrMetrics{
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-.ihub-attrMetric{ min-width: 0; }
-.ihub-attrMetricLabel{
-  font-size: 12px;
-  color: #94a3b8;
-  margin-bottom: 6px;
-}
-.ihub-attrBar{
-  position: relative;
-  width: 100%;
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.ihub-attrBarFill{
-  display: block;
-  height: 100%;
-  background: #0f172a;            /* dark slate fill matches the screenshot */
-  border-radius: 999px;
-  transition: width 0.3s ease;
-}
-.ihub-attrMetricPct{
-  margin-top: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* ===== Multi-Touch tab — combo rows + chips ===== */
-.ihub-comboList{
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 12px;
-}
-.ihub-comboRow{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: #f8fafc;
-  border: 1px solid #eef0f4;
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-.ihub-comboMain{ min-width: 0; }
-.ihub-comboName{
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2px;
-}
-.ihub-comboSub{
-  font-size: 12px;
-  color: #94a3b8;
-}
-.ihub-comboChips{
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-.ihub-chip-engagement,
-.ihub-chip-conversion{
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-.ihub-chip-engagement{
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-}
-.ihub-chip-conversion{
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-
-/* Key Insight callout (bottom of Multi-Touch tab) */
-.ihub-keyInsight{ margin-top: 4px; }
-.ihub-keyInsight .ihub-calloutText strong{
-  color: #0f172a;
-  font-weight: 800;
-}
-
-/* Responsive */
-@media (max-width: 640px){
-  .ihub-journeyRow{ flex-direction: column; align-items: stretch; }
-  .ihub-pillRate{ align-self: flex-end; }
-}
+  .ihub-top-ciSubtitle{ color: #64748b;
+    margin-top: 7px;
+    margin-left: -36px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+   }

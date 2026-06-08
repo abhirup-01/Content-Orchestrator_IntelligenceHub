@@ -1,13 +1,8 @@
-// Author: Abhirup Nandi — 2026-05-20
-// Summary: Replaced emoji KPI icons with lucide (Mail / MousePointerClick / BarChart3 / TrendingUp); aligned markup with the shared .ihub-kpi-grid pattern.
-
 import React, { useState } from "react";
 import "./IntelligenceCss/IntelligenceDashboard.css";
 import "./IntelligenceCss/EmailIntelligence.css";
-import { Mail } from 'lucide-react';
-import { MousePointerClick } from 'lucide-react';
-import { BarChart3 } from 'lucide-react';
-import { TrendingUp } from 'lucide-react';
+import { Mail, MousePointerClick, BarChart3, TrendingUp, Clock, Users } from 'lucide-react';
+
 
 export default function EmailIntelligence() {
   // 1) ADD: tab state
@@ -34,14 +29,14 @@ export default function EmailIntelligence() {
   // ADD-ON: Segments Data
   const segments = [
     { name: "HCP-Infectious Disease", trend: "Stable", icon: "➡️", eng: "3.1% engagement" },
-    { name: "Patient-Established", trend: "Improving", icon: "↗️", eng: "3.1% engagement" },
+    { name: "Patient-Established", trend: "Improving", icon: "📈", eng: "3.1% engagement" },
     { name: "HCP-HIV Specialist", trend: "Stable", icon: "➡️", eng: "3% engagement" },
-    { name: "HCP-Primary Care", trend: "Improving", icon: "↗️", eng: "3% engagement" },
-    { name: "HCP-Pharmacist", trend: "Improving", icon: "↗️", eng: "3% engagement" },
+    { name: "HCP-Primary Care", trend: "Improving", icon: "📈", eng: "3% engagement" },
+    { name: "HCP-Pharmacist", trend: "Improving", icon: "📈", eng: "3% engagement" },
     { name: "HCP-Nurse-NP-PA", trend: "Stable", icon: "➡️", eng: "3% engagement" },
     { name: "Patient-Newly Diagnosed", trend: "Stable", icon: "➡️", eng: "3% engagement" },
     { name: "Patient-Treatment-Experienced", trend: "Stable", icon: "➡️", eng: "3% engagement" },
-    { name: "Caregiver-Family", trend: "Improving", icon: "↗️", eng: "2.9% engagement" },
+    { name: "Caregiver-Family", trend: "Improving", icon: "📈", eng: "2.9% engagement" },
     { name: "Caregiver-Professional", trend: "Stable", icon: "➡️", eng: "2.9% engagement" },
   ];
 
@@ -50,10 +45,10 @@ export default function EmailIntelligence() {
     switch (activeTab) {
       case "Campaigns":
         return (
-          <div className="ihub-list">
+          <div>
             {/* Your original Campaign rows stay as-is */}
             {/* Row 1 */}
-            <div className="ihub-row">
+            <div className="ihub-camp-row">
               <div className="ihub-rowMain">
                 <div className="ihub-rowTitle">Email Campaign Jan 2025 – Wave 6</div>
                 <div className="ihub-rowSub">Patient: Newly Diagnosed</div>
@@ -134,22 +129,23 @@ export default function EmailIntelligence() {
         return (
           <div className="ihub-list">
             <div className="ihub-infoCard">
-              <div className="ihub-infoTitle">📈 Top Performing Subject Lines</div>
+              {/* <div className="ihub-infoTitle">📈 Top Performing Subject Lines</div> */}
+              <div className="ihub-infoTitle"><TrendingUp size={17} className="h-1 w-1 mr-4 mb-1"/> Top Performing Subject Lines</div>
               <div className="ihub-infoText">
                 Use these patterns to improve your email open rates.
               </div>
             </div>
 
             {subjectLines.map((item, idx) => (
-              <div className="ihub-row" key={idx}>
+              <div className="ihub-sub-row" key={idx}>
                 <div className="ihub-rowMain">
-                  <div className="ihub-rowTitle">{item.title}</div>
+                  <div className="ihub-sub-rowTitle">{item.title}</div>
                 </div>
                 <span className="ihub-pillState soft success">{item.metric}</span>
               </div>
             ))}
 
-            <div className="ihub-row footerAction">
+            <div>
               <button className="ihub-ghostBtn">
                 ✨ Generate Email Content
               </button>
@@ -161,15 +157,15 @@ export default function EmailIntelligence() {
         return (
           <div className="ihub-list">
             <div className="ihub-infoCard">
-              <div className="ihub-infoTitle">🕒 Optimal Send Times</div>
+              <div className="ihub-infoTitle"><Clock size={17} className="h-1 w-1 mr-2 mb-1"/> Optimal Send Times</div>
               <div className="ihub-infoText">
                 Best times to reach your audience based on historical data.
               </div>
             </div>
             {sendTimes.map((item, idx) => (
-              <div className="ihub-row" key={idx}>
+              <div className="ihub-sub-row" key={idx}>
                 <div className="ihub-rowMain flex-row">
-                  <span className="ihub-rowIcon">🕒</span>
+                  <span className="ihub-rowIcon"><Clock size={16} className="h-1 w-1 mr-2"/></span>
                   <div className="ihub-rowTitle">{item.label}</div>
                 </div>
                 <span className="ihub-pillState soft grey">{item.metric}</span>
@@ -181,13 +177,13 @@ export default function EmailIntelligence() {
       case "Segments":
         return (
           <div className="ihub-list">
-            <div className="ihub-infoCard purple-theme">
-              <div className="ihub-infoTitle">👥 Audience Segment Performance</div>
+            <div className="ihub-infoCard">
+              <div className="ihub-infoTitle"><Users size={17} className="h-1 w-1 mr-4 mb-1"/> Audience Segment Performance</div>
             </div>
             {segments.map((item, idx) => (
-              <div className="ihub-row" key={idx}>
+              <div className="ihub-sub-row" key={idx}>
                 <div className="ihub-rowMain">
-                  <div className="ihub-rowTitle">{item.name}</div>
+                  <div className="ihub-sub-rowTitle">{item.name}</div>
                   <div className="ihub-trend">
                     Trend: <span className={`trend-box ${item.trend === 'Stable' ? 'blue' : 'white'}`}>{item.icon}</span> {item.trend}
                   </div>
@@ -204,8 +200,8 @@ export default function EmailIntelligence() {
   };
 
   return (
-    <div className="ihub-ciCard">
-     <div className="ihub-ciHead">
+    <div className="ihub-web-ciCard">
+     {/* <div className="ihub-ciHead">
   <div className="ihub-ciTitle">
     <Mail className="ihub-ciIcon main-green" size={24} />
     <div>
@@ -213,61 +209,63 @@ export default function EmailIntelligence() {
       <p className="ihub-subtitle-exact">Campaign performance for all audiences</p>
     </div>
   </div>
-</div>
+</div> */}
 
-      <div className="ihub-kpi-grid">
-        {/* Green Card — Avg Open Rate */}
-        <div className="ihub-kpi-box box-green">
-          <Mail className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">31.1%</div>
-          <div className="kpi-label">Avg Open Rate</div>
+<div className="ihub-web-ciHead">
+       <div className="ihub-web-ciTitle">
+         <Mail className="ihub-ciIcon main-green" size={12}/>
+         <div>
+           <div className="ihub-web-eiName">Email Intelligence</div>
+           <div className="ihub-web-ciSubtitle">Campaign performance for all audiences</div>
+         </div>
+       </div>
+     </div>
+      <div className="ihub-web-kpiRow">
+  <div  className="ihub-web-kpi-page">
+  <div className='mb-2'><Mail className="h-1 w-1 mr-2 ihub-web-page" size={19} /></div>
+    <div className="ihub-web-kpiValue ihub-web-page">31.1%</div>
+    <div className="ihub-web-kpiLabel ihub-web-page">Avg Open Rate</div>
+  </div>
+        <div className="ihub-web-kpi-avg">
+        <div className='mb-2'><MousePointerClick className="h-1 w-1 mr-2 ihub-web-avg" size={19} /></div>
+  <div className="ihub-web-kpiValue primary">6.9%</div>
+  <div className="ihub-web-kpiLabel ihub-web-avg">Avg Click Rate</div>
         </div>
-
-        {/* Blue Card — Avg Click Rate */}
-        <div className="ihub-kpi-box box-blue">
-          <MousePointerClick className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">6.9%</div>
-          <div className="kpi-label">Avg Click Rate</div>
+        <div className="ihub-web-kpi-active">
+        <div className='mb-2'><BarChart3 className="h-1 w-1 mr-2 ihub-web-active" size={19} /></div>
+  <div className="ihub-web-kpiValue ihub-web-active">10</div>
+  <div className="ihub-web-kpiLabel ihub-web-active">Campaigns</div>
         </div>
-
-        {/* Purple Card — Campaigns */}
-        <div className="ihub-kpi-box box-purple">
-          <BarChart3 className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">10</div>
-          <div className="kpi-label">Campaigns</div>
-        </div>
-
-        {/* Orange Card — Top Conv. Rate */}
-        <div className="ihub-kpi-box box-orange">
-          <TrendingUp className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">9.3%</div>
-          <div className="kpi-label">Top Conv. Rate</div>
+        <div className="ihub-web-kpi-return">
+        <div className='mb-2'><TrendingUp className="h-1 w-1 mr-2 ihub-web-return" size={19} /></div>
+  <div className="ihub-web-kpiValue ihub-web-return">9.3%</div>
+  <div className="ihub-web-kpiLabel ihub-web-return">Top Conv. Rate</div>
         </div>
       </div>
 
-      <div className="ihub-card ihub-panel">
+      <div className="ihub-web-card ihub-web-panel">
         {/* 4) REPLACE your static tabs with clickable tabs + active class */}
-        <div className="ihub-tabs">
+        <div className="ihub-web-tabs">
           <button
-            className={`ihub-tab ${activeTab === "Campaigns" ? "active" : ""}`}
+            className={`ihub-email-tab ${activeTab === "Campaigns" ? "active" : ""}`}
             onClick={() => setActiveTab("Campaigns")}
           >
             Campaigns
           </button>
           <button
-            className={`ihub-tab ${activeTab === "Subject Lines" ? "active" : ""}`}
+            className={`ihub-email-tab ${activeTab === "Subject Lines" ? "active" : ""}`}
             onClick={() => setActiveTab("Subject Lines")}
           >
             Subject Lines
           </button>
           <button
-            className={`ihub-tab ${activeTab === "Send Timing" ? "active" : ""}`}
+            className={`ihub-email-tab ${activeTab === "Send Timing" ? "active" : ""}`}
             onClick={() => setActiveTab("Send Timing")}
           >
             Send Timing
           </button>
           <button
-            className={`ihub-tab ${activeTab === "Segments" ? "active" : ""}`}
+            className={`ihub-email-tab ${activeTab === "Segments" ? "active" : ""}`}
             onClick={() => setActiveTab("Segments")}
           >
             Segments

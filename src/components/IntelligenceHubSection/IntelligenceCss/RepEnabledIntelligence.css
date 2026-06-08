@@ -1,0 +1,197 @@
+:root {
+  --peach-bg: #fff5eb;
+  --peach-text: #e67e22;
+  --sky-bg: #f0f7ff;
+  --sky-text: #3498db;
+  --mint-bg: #f0fff4;
+  --mint-text: #27ae60;
+  --purple-bg: #f5f3ff;
+  --purple-text: #8e44ad;
+  --chip-bg: #59b296;
+  --border-light: #f1f2f6;
+}
+
+/* .ihub-intelCard {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding: 24px;
+  max-width: 1000px;
+  margin: 20px auto;
+} */
+
+.ihub-intelTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ihub-header-icon { font-size: 20px; color: var(--peach-text); }
+.ihub-intelName { font-size: 1.2rem; font-weight: 700; color: #2c3e50; }
+.ihub-intelSubtitle { font-size: 0.85rem; color: #7f8c8d; }
+
+/* Mini Stats */
+.ihub-miniRow { display: flex; gap: 12px; margin-bottom: 24px; }
+.ihub-mini {
+  flex: 1; padding: 15px; border-radius: 10px; text-align: center;
+  border: 1px solid transparent;
+}
+.ihub-miniValue { font-size: 1.4rem; font-weight: 800; }
+.ihub-miniLabel { font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+
+.peach { background: var(--peach-bg); color: var(--peach-text); border-color: #ffe0c2; }
+.sky { background: var(--sky-bg); color: var(--sky-text); border-color: #d6eaff; }
+.mint { background: var(--mint-bg); color: var(--mint-text); border-color: #d1f7d6; }
+.purple { background: var(--purple-bg); color: var(--purple-text); border-color: #e9e2ff; }
+
+/* Tabs Navigation */
+.ihub-tabs-container {
+  background: #f1f3f5;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.ihub-tabs { display: flex; }
+.ihub-tab {
+  flex: 1; border: none; background: transparent; padding: 10px;
+  font-size: 0.85rem; font-weight: 500; color: #5a67d8; cursor: pointer;
+  border-radius: 6px; transition: all 0.2s;
+}
+.ihub-tab.active {
+  background: #fff; color: #2d3748; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Banner Headers inside tabs */
+.ihub-banner {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.ihub-banner-title { 
+  font-weight: 500;
+  /* font-size: 0.95rem; */
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.ihub-banner-sub { font-size: 0.85rem; color: #4a5568; }
+
+.mint-banner { 
+  /* background: var(--mint-bg); color: var(--mint-text); */
+  background: #f0fdf4;
+  color: #151716;
+  margin-top: 10px;
+ }
+.purple-banner { background: var(--purple-bg); color: #151716;
+margin-top: 10px;}
+.sky-banner { background: var(--sky-bg); color: #151716; 
+  margin-top: 10px;}
+
+/* Activity List Rows */
+.ihub-softHeader { font-weight: 700; font-size: 0.9rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #2d3748;}
+.ihub-activityRow {
+  display: flex; justify-content: space-between; align-items: center;
+  /* padding: 14px 0;  */
+  background-color: #f1f5f94d;
+  border-bottom: 1px solid var(--border-light);
+}
+.ihub-activityName { font-weight: 600; font-size: 0.9rem; color: #2d3748; }
+.ihub-activitySub { 
+  color: #64748b;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+ }
+
+/* Right Metrics */
+.ihub-activityRight { display: flex; align-items: center; gap: 16px; }
+.ihub-qty { font-size: 0.85rem; font-weight: 600; color: #4a5568; }
+.ihub-chip.green {
+  background: var(--chip-bg); color: #fff; padding: 5px 14px;
+  border-radius: 20px; font-size: 0.75rem; font-weight: 700; min-width: 110px; text-align: center;
+}
+
+/* Conversion Chip (NBA Tab) */
+.ihub-conversion-chip {
+  border: 1px solid #cbd5e0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* Content Tab Special Button */
+.ihub-action-bar {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #2d3748;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.ihub-action-bar:hover { background: #f8fafc; }
+
+.ihub-rep-tab {
+  appearance: none;
+  /* border: 1px solid #e6e8ee; */
+  background: #f1f5f9;
+  color: #374151;
+  padding: 8px 20px;
+  /* border-radius: 10px; */
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  cursor: pointer;
+  /* transition: background .18s ease, color .18s ease, box-shadow .18s ease, border-color .18s ease; */
+  border: none;
+}
+
+.ihub-rep-tab.active {
+background: #fff;
+color: #1f2937;
+border-color: #dbe0ea;
+border-radius: 7px;
+box-shadow: 0 1px 3px rgba(16, 24, 40, 0.10), 0 6px 14px rgba(16, 24, 40, 0.08);
+}
+
+.ihub-rep-tabs, .ihub-rep-tabs.ihub-rep-tabs--bar {
+display: flex;
+gap: 31px;
+align-items: center;
+background: #f1f5f9;
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 4px;
+box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+justify-content: center;
+}
+
+.ihub-inforepCard {
+background: #f1f7ff;
+border: 1px solid #e0ecff;
+border-radius: 8px;
+padding: 14px 16px;
+margin-bottom: 10px;
+margin-top: 10px;
+}
+
+.ihub-inforepTitle {
+font-weight: 500;
+margin-bottom: 4px;
+color: #020817;
+font-size: 0.875rem;
+line-height: 1.25rem;
+}

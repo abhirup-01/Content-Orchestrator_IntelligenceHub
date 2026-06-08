@@ -537,6 +537,7 @@ import RepEnabledIntelligence  from "./RepEnabledIntelligence";
 import CrossChannelInsights from "./CrossChannelInsights";
 import AdditionalIntelligence from "./AdditionalIntelligence";
 import BrandIntelligence from "./BrandIntelligence";
+import {  ArrowLeft, Funnel, TrendingUp, Mail, Share2, Sparkles, Lightbulb, Layers } from 'lucide-react';
 // Modified by Abhirup Nandi — 2026-05-25: BrandIntelligenceContext is now
 // rendered inside <BrandIntelligence /> as a continuation of the Ingested
 // Documents card, so it is no longer mounted separately here.
@@ -698,12 +699,76 @@ const Select = ({ label, options = [], initialValue = "All" }) => {
 
 export default function IntelligenceDashboard() {
   const navigate = useNavigate();
+  const [audience, setAudience] = useState("All");
+const [secondary, setSecondary] = useState("All");
+const [region, setRegion] = useState("All");
+const [timeRange, setTimeRange] = useState("All Time");
+
+// DEPENDENT LOGIC BASED ON AUDIENCE TYPE
+let secondaryLabel = "Segment";
+let secondaryOptions = ["All"];
+
+if (audience === "HCP") {
+  secondaryLabel = "Specialty";
+  secondaryOptions = [
+    "All",
+    "HIV Specialist",
+    "Infectious Disease",
+    "Primary Care",
+    "Pharmacist",
+    "Nurse-NP-PA",
+    "Internal Medicine",
+  ];
+}
+
+if (audience === "Patient") {
+  secondaryLabel = "Journey Stage";
+  secondaryOptions = [
+    "All",
+    "Newly Diagnosed",
+    "Treatment Experienced",
+    "Switching Treatment",
+    "Long-term Managed",
+  ];
+}
+
+if (audience === "Caregiver") {
+  secondaryLabel = "Segment";
+  secondaryOptions = [
+    "All",
+    "Family Caregiver",
+    "Professional Caregiver",
+  ];
+}
+
+// When audience changes → reset secondary
+const handleAudienceChange = (value) => {
+  setAudience(value);
+  setSecondary("All");
+};
+
+
+const activeFilters = [];
+
+if (audience !== "All") activeFilters.push(audience);
+if (secondary !== "All") activeFilters.push(secondary);
+if (region !== "All") activeFilters.push(region);
+if (timeRange !== "All Time") activeFilters.push(timeRange);
+
+// Clear all filters
+const clearAllFilters = () => {
+  setAudience("All");
+  setSecondary("All");
+  setRegion("All");
+  setTimeRange("All Time");
+};
+
 
   return (
     <div className="ihub-wrap">
       {/* top bar */}
       <div className="ihub-toprow">
-        <button className="ihub-back" onClick={() => navigate("/")}>
+        <button className="ihub-back" onClick={() => navigate('/')}>
           <IconBack />
           <span>Back to Dashboard</span>
         </button>
@@ -711,13 +776,10 @@ export default function IntelligenceDashboard() {
         <div className="ihub-spacer" />
 
         <div className="ihub-actions">
-  <button 
-    className="ihub-btn ghost" 
-    onClick={() => window.location.reload()}
-  >
-    <IconRefresh />
-    <span>Refresh Data</span>
-  </button>
+          <button className="ihub-btn ghost">
+            <IconRefresh />
+            <span>Refresh Data</span>
+          </button>
           <button className="ihub-btn primary">
             <IconPlus />
             <span>Create from Scratch</span>
@@ -728,34 +790,46 @@ export default function IntelligenceDashboard() {
       {/* title */}
       <div className="ihub-heading">
         <h1 className="ihub-title">
-          Intelligence <span className="ihub-title-accent">Hub</span>
+          Intelligence Hub
         </h1>
         <p className="ihub-subtitle">
           Channel‑first intelligence for smarter content creation • Select a channel and audience to discover insights
         </p>
       </div>
 
-      {/* Select Channel card */}
-      <section className="ihub-card">
-        <div className="ihub-card-title">
-          <svg 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="#00CFFF" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    style={{ marginRight: '8px' }}
+     {/* Select Channel card */}
+     <section className="ihub-card">
+        <div className="ihub-card-title1">
+        <svg
+
+    width="20"
+
+    height="20"
+
+    viewBox="0 0 24 24"
+
+    fill="none"
+
+    stroke="#00CFFF"
+
+    strokeWidth="2"
+
+    strokeLinecap="round"
+
+    strokeLinejoin="round"
+
+    style={{ marginRight: '1px' }}
+
   >
+
     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-  </svg>Select Channel
+
+  </svg> Select Channel
         </div>
 
         <div className="ihub-channel-grid">
           <ChannelTile
-            active
+            // active
             icon={<IconGlobe />}
             title="Website"
             desc="Page engagement, downloads, CTAs, search terms"
@@ -782,33 +856,117 @@ export default function IntelligenceDashboard() {
           />
         </div>
 
-        {/* --- UPDATED FILTERS --- */}
+        {/* Filters */}
         <div className="ihub-filters">
-          <Select 
-            label="Audience Type" 
-            initialValue="All"
-            options={["All", "HCP", "Patient", "Caregiver"]} 
-          />
-          <Select 
-            label="Segment" 
-            initialValue="All"
-            options={["All"]} 
-          />
-          <Select 
-            label="Region" 
-            initialValue="All"
-            options={["All", "Northeast", "Southeast", "Midwest", "West", "Southwest"]} 
-          />
-          <Select 
-            label="Time Range" 
-            initialValue="All Time"
-            options={["All Time", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Last 12 Months"]} 
-          />
+       
+{/* Audience Type */}
+  <div className="ihub-field">
+    <label className="ihub-label">Audience Type</label>
+    <select
+      className="ihub-native-select"
+      value={audience}
+      onChange={(e) => handleAudienceChange(e.target.value)}
+    >
+      <option>All</option>
+      <option>HCP</option>
+      <option>Patient</option>
+      <option>Caregiver</option>
+    </select>
+  </div>
+
+  {/* Specialty / Journey Stage / Segment */}
+  <div className="ihub-field">
+    <label className="ihub-label">{secondaryLabel}</label>
+    <select
+      className="ihub-native-select"
+      value={secondary}
+      onChange={(e) => setSecondary(e.target.value)}
+      disabled={secondaryOptions.length === 1}
+    >
+      {secondaryOptions.map((item) => (
+        <option key={item}>{item}</option>
+      ))}
+    </select>
+  </div>
+
+  {/* Region */}
+  <div className="ihub-field">
+    <label className="ihub-label">Region</label>
+    <select
+      className="ihub-native-select"
+      value={region}
+      onChange={(e) => setRegion(e.target.value)}
+    >
+      <option>All</option>
+      <option>Northeast</option>
+      <option>Southeast</option>
+      <option>Midwest</option>
+      <option>West</option>
+      <option>Southwest</option>
+    </select>
+  </div>
+
+  {/* Time Range */}
+  <div className="ihub-field">
+    <label className="ihub-label">Time Range</label>
+    <select
+      className="ihub-native-select"
+      value={timeRange}
+      onChange={(e) => setTimeRange(e.target.value)}
+    >
+      <option>All Time</option>
+      <option>Last 7 Days</option>
+      <option>Last 30 Days</option>
+      <option>Last 90 Days</option>
+      <option>Last 12 Months</option>
+    </select>
+  </div>
         </div>
+        {/* Active filter chips (as in screenshots) */}
+ <div className="ihub-active-filters">
+         
+{activeFilters.length > 0 && (
+  <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+    <strong>Active filters:</strong>
+
+    {activeFilters.map((f) => (
+      <span
+        key={f}
+        style={{
+          background: "#eef2ff",
+          padding: "4px 10px",
+          borderRadius: "20px",
+          fontSize: "12px",
+          color: "#3730a3",
+          fontWeight: "600"
+        }}
+      >
+        {f}
+      </span>
+    ))}
+
+    {/* Clear All */}
+    <button
+      onClick={clearAllFilters}
+      style={{
+        background: "none",
+        border: "none",
+        color: "#0ea5e9",
+        fontWeight: "600",
+        cursor: "pointer"
+      }}
+    >
+      Clear all
+    </button>
+  </div>
+)}
+
+        </div>
+
       </section>
 
-      {/* Opportunities Section */}
-      <section className="ihub-card">
+     {/* Opportunities */}
+     <section className="ihub-card">
         <div className="ihub-card-head">
           <div className="ihub-card-title">
             <span className="bulb">💡</span> Content Opportunities
@@ -818,112 +976,123 @@ export default function IntelligenceDashboard() {
         <p className="ihub-muted">
           Data‑driven content recommendations for all channels
         </p>
-      </section>
+       
+      
+      {/* --- More Opportunities (detailed cards) --- */}
+{/* <section className="ihub-card ihub-card--soft"> */}
+  {/* Opportunity #1 */}
+  <div className="ihub-opCard">
+    <div className="ihub-opCard-left">
+      <div className="ihub-opCard-titleRow">
+      <Lightbulb size={19} className="h-1 w-1 mr-2 ihub-web-return"/>
+        <h3 className="ihub-opCard-title">Re‑engage HCP‑Infectious Disease Segment</h3>
+      </div>
 
-      {/* --- Rest of your existing code remains unchanged below this point --- */}
-      <section className="ihub-card ihub-card--soft">
-        {/* Opportunity #1 */}
-        <div className="ihub-opCard">
-          <div className="ihub-opCard-left">
-            <div className="ihub-opCard-titleRow">
-              <span className="ihub-opBullet danger" />
-              <h3 className="ihub-opCard-title">Re‑engage HCP‑Infectious Disease Segment</h3>
-            </div>
+      <p className="ihub-opCard-subtext">
+        3.1% engagement – create targeted campaign to re‑activate this audience.
+      </p>
 
-            <p className="ihub-opCard-subtext">
-              <strong>3.1% engagement</strong> – create targeted campaign to re‑activate this audience.
-            </p>
-
-            <div className="ihub-opCard-tagsRow">
-              <span className="ihub-tag light"><span className="ico">@</span> Email</span>
-              <span className="ihub-tag light">HCP</span>
-              <span className="ihub-tag light">Source: sfmc_campaign_raw</span>
-            </div>
-
-            <div className="ihub-opCard-recoRow">
-              <span className="ihub-recoLabel">Recommended:</span>
-              <div className="ihub-recoChips">
-                <span className="ihub-chip green-chip">HCP Email</span>
-                <span className="ihub-chip blue-chip">Rep Triggered Email</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="ihub-opCard-right">
-            <button className="ihub-btn-teal">
-              <span>✨ Generate from Opportunity</span>
-            </button>
-          </div>
+      <div className="ihub-opCard-tagsRow">
+        <span className="ihub-tag light"> <Mail size={15} className="h-1 w-1 mr-2" style={{color: "black"}}/> Email</span>
+        <span className="ihub-tag light">HCP</span>
+        <span className="ihub-tag light">Source: sfmc_campaign_raw</span>
+      </div>
+      <div className="soft-divider" />
+      <div className="ihub-opCard-recoRow">
+        <span className="ihub-recoLabel">Recommended:</span>
+        <div className="ihub-recoChips">
+          <span className="ihub-chip green">HCP Email</span>
+          <span className="ihub-chip blue">Rep Triggered Email</span>
         </div>
+      </div>
+    </div>
 
-        {/* divider */}
-        <div className="ihub-divider"></div>
+    <div className="ihub-opCard-right">
+      <button className="ihub-btn teal">
+      <Sparkles size={15} className="h-1 w-1 mr-2" style={{color: "white"}}/>
+        <span>Generate from Opportunity</span>
+      </button>
+    </div>
+  </div>
 
-        {/* Opportunity #2 */}
-        <div className="ihub-opCard">
-          <div className="ihub-opCard-left">
-            <div className="ihub-opCard-titleRow">
-              <span className="ihub-opBullet success" />
-              <h3 className="ihub-opCard-title">Amplify “efficacy” Momentum</h3>
-            </div>
+  {/* divider */}
+  <div className="ihub-divider"></div>
 
-            <p className="ihub-opCard-subtext">
-              <strong>25% growth with positive sentiment (50%)</strong> – create content to ride this wave.
-            </p>
+  {/* Opportunity #2 */}
+  <div className="ihub-opCard">
+    <div className="ihub-opCard-left">
+      <div className="ihub-opCard-titleRow">
+      <TrendingUp size={19} className="h-1 w-1 mr-2 ihub-web-page"/>
+        <h3 className="ihub-opCard-title">Amplify “efficacy” Momentum</h3>
+      </div>
 
-            <div className="ihub-opCard-tagsRow">
-              <span className="ihub-tag light"><span className="ico">#</span> Social</span>
-              <span className="ihub-tag light">All</span>
-              <span className="ihub-tag light">Source: social_listening_raw</span>
-            </div>
+      <p className="ihub-opCard-subtext">
+        25% growth with positive sentiment (50%) – create content to ride this wave.
+      </p>
 
-            <div className="ihub-opCard-recoRow">
-              <span className="ihub-recoLabel">Recommended:</span>
-              <div className="ihub-recoChips">
-                <span className="ihub-chip violet-chip">Social Media Post</span>
-                <span className="ihub-chip indigo-chip">Paid Social Ad</span>
-              </div>
-            </div>
-          </div>
-
-           <div className="ihub-opCard-right">
-            <button className="ihub-btn-teal">
-              <span>✨ Generate from Opportunity</span>
-            </button>
-          </div>
+      <div className="ihub-opCard-tagsRow">
+        <span className="ihub-tag light"> <Share2 size={15} className="h-1 w-1 mr-2" style={{color: "black"}}/> Social</span>
+        <span className="ihub-tag light">All</span>
+        <span className="ihub-tag light">Source: social_listening_raw</span>
+      </div>
+      <div className="soft-divider" />
+      <div className="ihub-opCard-recoRow">
+        <span className="ihub-recoLabel">Recommended:</span>
+        <div className="ihub-recoChips">
+          <span className="ihub-chip violet">Social Media Post</span>
+          <span className="ihub-chip indigo">Paid Social Ad</span>
         </div>
-      </section>
+      </div>
+    </div>
 
-      {/* --- Brand Intelligence Connectors (data sources) + Context (scoping)
-             merged into one card. The Context content lives inside the
-             Ingested Documents card; see <BrandIntelligence />. --- */}
-      <BrandIntelligence />
+    <div className="ihub-opCard-right">
+      <button className="ihub-btn teal">
+      <Sparkles size={15} className="h-1 w-1 mr-2" style={{color: "white"}}/>
+        <span>Generate from Opportunity</span>
+      </button>
+    </div>
+  </div>
+</section>
 
-      {/* --- Channel Intelligence --- */}
-      <section className="ihub-card">
-        <div className="ihub-card-title">
-          Channel Intelligence
-        </div>
+<section className="ihub-card">
+ {/* --- Brand Intelligence Connectors (data sources) --- */}
+ <BrandIntelligence />
+ </section>
 
-        <div className="ihub-ciGrid">
-          <WebsiteIntelligence />
-          <EmailIntelligence />
-        </div>
-      </section>
+   {/* </section> */}
+{/* --- Channel Intelligence --- */}
+<section className="ihub-card">
+  <div className="ihub-card-title">
+    Channel Intelligence
+  </div>
 
-      <section className="ihub-twoCol">
-      </section>
+  <div className="ihub-ciGrid">
+    {/* Website Intelligence */}
+    <WebsiteIntelligence />
 
-      <section className="ihub-intelGrid">
-        <SocialIntelligence />
-        <RepEnabledIntelligence />
-      </section>
+    {/* Email Intelligence */}
+    <EmailIntelligence />
+  </div>
 
-      {/* ===== Cross-Channel Insights ===== */}
-      <CrossChannelInsights />
+{/* --- Website Panels (Tabs stub + blank body) & Email Campaigns List --- */}
+{/* <section className="ihub-twoCol">
+ 
+</section> */}
+{/* --- Social & Rep-Enabled Intelligence --- */}
+<section className="ihub-intelGrid">
+  <SocialIntelligence />
+  {/* <div className="ihub-card ihub-intelCard"> */}
+ <RepEnabledIntelligence />
+  {/* </div> */}
+</section>
+</section>
+{/* ===== Cross-Channel Insights ===== */}
+<h3 className="ihub-sectionLabel">Cross-Channel Insights</h3>
+<CrossChannelInsights />
 
-      {/* ===== Additional Intelligence ===== */}
-      <AdditionalIntelligence />
+{/* ===== Additional Intelligence ===== */}
+ <h3 className="ihub-sectionLabel">Additional Intelligence</h3>
+<AdditionalIntelligence />
     </div>
   );
 }

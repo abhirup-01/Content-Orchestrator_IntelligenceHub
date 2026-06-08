@@ -1,0 +1,808 @@
+/* ───────────────────────────────────────────────────────────────────────────
+ * US 1.4 panels — Activation, Version History, Insights, Audit Log.
+ *
+ * Lives separate from BrandIntelligenceProfile.css so US 1.4-specific styles
+ * stay isolated and can be deleted as a unit if priorities change. Each panel
+ * uses its own selector namespace:
+ *
+ *   .biha-* — Activation
+ *   .bivh-* — Version History
+ *   .bii-*  — Insights
+ *   .bial-* — Audit Log
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* ===== Shared utilities ===== */
+.biha-spin, .bivh-spin, .bii-spin, .bial-spin {
+  animation: us14-spin 0.8s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes us14-spin { to { transform: rotate(360deg); } }
+
+/* ===== Panel container — US14 panels stack with consistent spacing ===== */
+.bip-us14 {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+/* ───────────────────────────── Activation ────────────────────────────── */
+.biha-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.biha-head { margin-bottom: 12px; }
+.biha-titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.biha-headIcon { color: #4f46e5; flex-shrink: 0; }
+.biha-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  flex: 1 1 auto;
+}
+.biha-sub {
+  margin: 6px 0 0 28px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.biha-statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.biha-statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+.biha-statusDot--active   { background: #10b981; }
+.biha-statusDot--awaiting_review { background: #f59e0b; }
+.biha-statusDot--inactive { background: #94a3b8; }
+.biha-status-active   { background: #d1fae5; color: #047857; }
+.biha-status-awaiting { background: #fef3c7; color: #b45309; }
+.biha-status-inactive { background: #f1f5f9; color: #64748b; }
+
+/* Meta strip */
+.biha-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.biha-metaCell {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.biha-metaCell--warn   { background: #fffbeb; border-color: #fde68a; }
+.biha-metaCell--danger { background: #fef2f2; border-color: #fecaca; }
+.biha-metaCell--ok     { background: #f0fdf4; border-color: #bbf7d0; }
+.biha-metaLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.biha-metaValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2px;
+}
+
+/* Banners */
+.biha-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.biha-banner-warn   { background: #fffbeb; border: 1px solid #fde68a; color: #b45309; }
+.biha-banner-danger { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+.biha-banner svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Action row */
+.biha-actionRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.biha-activateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #4f46e5;
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.biha-activateBtn:hover:not(:disabled) {
+  background: #4338ca;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+.biha-activateBtn:disabled {
+  background: #c4b5fd;
+  border-color: #c4b5fd;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.biha-activeNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+.biha-activeNote svg { flex-shrink: 0; margin-top: 1px; color: #059669; }
+
+/* ───────────────────────────── Version history ───────────────────────── */
+.bivh-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.bivh-head { margin-bottom: 12px; }
+.bivh-titleRow { display: flex; align-items: center; gap: 10px; }
+.bivh-headIcon { color: #0ea5e9; flex-shrink: 0; }
+.bivh-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  flex: 1 1 auto;
+}
+.bivh-count {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.bivh-sub {
+  margin: 6px 0 0 28px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.bivh-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+.bivh-state-warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.bivh-tableWrap { overflow-x: auto; }
+.bivh-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bivh-table thead th {
+  text-align: left;
+  font-weight: 700;
+  color: #475569;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.bivh-thRight { text-align: right; }
+.bivh-table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  vertical-align: top;
+}
+.bivh-rowCurrent { background: #ecfdf5; }
+.bivh-versionChip {
+  display: inline-block;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+.bivh-currentBadge {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #047857;
+  background: #d1fae5;
+  padding: 2px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bivh-diffCell {
+  color: #475569;
+  max-width: 360px;
+}
+.bivh-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.bivh-iconBtn {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 4px 6px;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.bivh-iconBtn:hover { background: #f1f5f9; color: #0f172a; }
+.bivh-compareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+.bivh-compareBtn:hover { background: #e0e7ff; }
+
+/* Diff modal */
+.bivh-modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 24px;
+}
+.bivh-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 22px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+.bivh-modalHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.bivh-modalTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.bivh-modalX {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: inline-flex;
+}
+.bivh-modalX:hover { background: #f1f5f9; color: #0f172a; }
+
+.bivh-diffSummary {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+}
+.bivh-diffSection { margin-bottom: 14px; }
+.bivh-diffSectionTitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+.bivh-diffLists {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bivh-diffList {
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.bivh-diffList--add    { background: #ecfdf5; border-left: 3px solid #10b981; }
+.bivh-diffList--remove { background: #fef2f2; border-left: 3px solid #ef4444; }
+.bivh-diffList--change { background: #fffbeb; border-left: 3px solid #f59e0b; }
+.bivh-diffListLabel {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 4px;
+}
+.bivh-diffList ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #0f172a;
+  line-height: 1.55;
+}
+
+/* ───────────────────────────── Insights ──────────────────────────────── */
+.bii-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.bii-card--locked {
+  background: #f8fafc;
+  border-style: dashed;
+}
+.bii-head { margin-bottom: 12px; }
+.bii-titleRow { display: flex; align-items: center; gap: 10px; }
+.bii-headIcon { color: #7c3aed; flex-shrink: 0; }
+.bii-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  flex: 1 1 auto;
+}
+.bii-lockedPill {
+  font-size: 10px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bii-sub {
+  margin: 6px 0 0 28px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.bii-filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+.bii-filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+  flex: 1 1 200px;
+}
+.bii-filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bii-select {
+  font: inherit;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bii-select:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+.bii-applyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #7c3aed;
+  border: 1px solid #7c3aed;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.bii-applyBtn:hover:not(:disabled) { background: #6d28d9; }
+.bii-applyBtn:disabled { background: #c4b5fd; border-color: #c4b5fd; cursor: progress; }
+
+.bii-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.bii-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.bii-banner-warn { background: #fffbeb; border: 1px solid #fde68a; color: #b45309; }
+
+.bii-insightsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 880px) {
+  .bii-insightsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bii-disclaimer { grid-column: 1 / -1; }
+}
+
+.bii-insightCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bii-insightCard--empty { background: #f8fafc; border-style: dashed; }
+.bii-insightHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bii-insightHead svg { color: #7c3aed; }
+.bii-insightDesc {
+  margin: 0;
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.5;
+}
+.bii-insightSummary {
+  margin: 0;
+  font-size: 13px;
+  color: #0f172a;
+  line-height: 1.55;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.bii-confChip {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+.bii-confChip--high { background: #d1fae5; color: #047857; }
+.bii-confChip--mid  { background: #fef3c7; color: #b45309; }
+.bii-confChip--low  { background: #fee2e2; color: #b91c1c; }
+
+.bii-kv {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #0f172a;
+}
+.bii-kvLabel {
+  flex: 0 0 100px;
+  font-weight: 700;
+  color: #475569;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bii-kvValue { flex: 1 1 auto; line-height: 1.5; }
+
+.bii-list { display: flex; flex-direction: column; gap: 4px; }
+.bii-listLabel {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #475569;
+}
+.bii-list ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.bii-citationsRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.bii-citationsLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bii-citationChip {
+  font-size: 10px;
+  font-weight: 600;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.bii-citationMore {
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.bii-disclaimer {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ───────────────────────────── Audit log ─────────────────────────────── */
+.bial-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.bial-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.bial-toggle svg { color: #475569; }
+.bial-count {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.bial-readonlyChip {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.bial-body { margin-top: 12px; }
+
+.bial-filterRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 10px;
+}
+.bial-filterField { display: flex; flex-direction: column; gap: 4px; }
+.bial-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bial-input {
+  font: inherit;
+  font-size: 12px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  outline: none;
+}
+.bial-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+.bial-clearBtn {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  align-self: end;
+}
+.bial-clearBtn:hover:not(:disabled) { color: #0f172a; background: #e2e8f0; }
+.bial-clearBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.bial-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+.bial-state-warn {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.bial-tableWrap { overflow-x: auto; }
+.bial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bial-table thead th {
+  text-align: left;
+  font-weight: 700;
+  color: #475569;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.bial-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  vertical-align: top;
+}
+.bial-when { white-space: nowrap; color: #475569; }
+.bial-who  { color: #4338ca; font-weight: 600; }
+.bial-noteCell { color: #475569; max-width: 320px; }
+.bial-actionPill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bial-action--extract  { background: #e0e7ff; color: #3730a3; }
+.bial-action--accept   { background: #d1fae5; color: #047857; }
+.bial-action--edit     { background: #fef3c7; color: #b45309; }
+.bial-action--flag     { background: #fee2e2; color: #b91c1c; }
+.bial-action--activate { background: #ede9fe; color: #5b21b6; }

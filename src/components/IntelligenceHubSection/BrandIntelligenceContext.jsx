@@ -284,6 +284,11 @@ function FilterDropdown({ icon: Icon, label, options, value, onChange, multi = f
 /* ===== Component ===== */
 
 export default function BrandIntelligenceContext() {
+  // Default-collapsed — Scope by context is an optional filter, not a
+  // mandatory step. Collapsing it by default keeps the page focused on
+  // the connectors + Run Ingestion flow; the user expands when they
+  // actually want to narrow the document scope.
+  const [expanded,   setExpanded]   = useState(false);
   const [nlContext,  setNlContext]  = useState("");
   const [timePeriod, setTimePeriod] = useState(null);
   const [statuses,   setStatuses]   = useState(new Set());
@@ -389,16 +394,57 @@ export default function BrandIntelligenceContext() {
       <div className="bic-ctx-embedded-divider" />
 
       <div className="bic-ctx-embedded-body">
-        <div className="bic-ctx-head">
-          <div className="bic-ctx-title-row">
+        <div
+          className="bic-ctx-head"
+          onClick={() => setExpanded((v) => !v)}
+          role="button"
+          tabIndex={0}
+          aria-expanded={expanded}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setExpanded((v) => !v);
+            }
+          }}
+          style={{ cursor: "pointer", userSelect: "none" }}
+        >
+          <div className="bic-ctx-title-row" style={{ display:"flex", alignItems:"center", gap:8 }}>
             <Filter className="bic-ctx-head-icon" strokeWidth={2} />
-            <h3 className="bic-ctx-title">Scope by context</h3>
+            <h3 className="bic-ctx-title" style={{ margin:0, flex:"1 1 auto" }}>Scope by context</h3>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#64748b",
+                background: "#f1f5f9",
+                border: "1px solid #e2e8f0",
+                borderRadius: 999,
+                padding: "2px 8px",
+                marginRight: 6,
+              }}
+            >
+              Optional filter
+            </span>
+            <span style={{ fontSize: 12, color: "#64748b" }} aria-hidden="true">
+              {expanded ? "▲" : "▼"}
+            </span>
           </div>
-          <p className="bic-ctx-sub">
-            Describe which documents to include — the system identifies the relevant
-            ones automatically, no manual file selection needed.
-          </p>
+          {!expanded && (
+            <p className="bic-ctx-sub" style={{ marginTop: 6 }}>
+              Click to add filters (time period, approval status, document types).
+              Skip to ingest all available documents.
+            </p>
+          )}
+          {expanded && (
+            <p className="bic-ctx-sub" style={{ marginTop: 6 }}>
+              Describe which documents to include — the system identifies the relevant
+              ones automatically, no manual file selection needed.
+            </p>
+          )}
         </div>
+
+        {expanded && (
+        <>
 
         {/* Natural language input */}
         <div className="bic-ctx-nl">
@@ -498,6 +544,8 @@ export default function BrandIntelligenceContext() {
             </span>
           </button>
         </div>
+        </>
+        )}
       </div>{/* /bic-ctx-embedded-body */}
 
       {/* ─── Audit panel ─── */}

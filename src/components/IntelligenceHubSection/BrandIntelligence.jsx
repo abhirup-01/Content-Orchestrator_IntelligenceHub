@@ -9,7 +9,6 @@ import {
   Folder,
   Upload,
   Plus,
-  Pencil,
   Pause,
   Play,
   RotateCcw,
@@ -20,15 +19,37 @@ import {
   CheckCircle2,
   AlertCircle,
   MinusCircle,
-   Search, Filter, Trash2,
+   Search, Filter,
 } from "lucide-react";
 // Added by Abhirup Nandi - 2026-05-20: import Veeva data-service to wire the Veeva connector to the real API (same source used by ImportContentPage.jsx).
 // Added by Abhirup Nandi - 2026-05-25: import Claims data-service to wire the Claims connector to the get_claims API.
 import { getveevaData, getClaimsData } from "../api/dataService";
+// Lightweight /status fetch for the top sticky status bar. Reuses the
+// shared intelligenceHubApi client so auth headers + error interceptors
+// are consistent across the page.
+import { getProfileStatus } from "../api/intelligenceHubApi";
 // Added by Abhirup Nandi — 2026-05-25: BrandIntelligenceContext now renders
 // inside the Ingested Documents card as one continuous card (its outer
 // section/card wrappers were removed in BrandIntelligenceContext.jsx).
 import BrandIntelligenceContext from "./BrandIntelligenceContext";
+// Added by Abhirup Nandi — 2026-05-25: BrandIntelligenceProfile is the
+// AI-extracted draft profile review panel — mounted as the third section
+// inside the same card (no own card frame).
+import BrandIntelligenceProfile from "./BrandIntelligenceProfile";
+// US 1.4 — activation, version control, filtered insights. BR-SIH-002 gate.
+import BrandIntelligenceActivation from "./BrandIntelligenceActivation";
+// Added by Sanju Kumari — 2026-06-01
+// US 1.5 — incremental refresh, change detection, 90-day expiry. BR-SIH-001 gate.
+// Modified by Sanju Kumari — 2026-06-01: swapped <BrandIntelligenceRefresh />
+// for <BrandIncrementalProfile />, which renders the same US 1.5 section with
+// the new design.
+import BrandIncrementalProfile from "./BrandIncrementalProfile";
+// Cross-section UX shells — kept lightweight (no deps) so they can drop
+// into the existing layout without touching the per-section components.
+// BrandIntelligenceStatusBar import removed — sticky bar was overlapping
+// the section title. Re-add when we find a non-colliding layout slot.
+// import BrandIntelligenceStatusBar from "./BrandIntelligenceStatusBar";
+import { ToastProvider } from "./Toast";
 import "./IntelligenceCss/BrandIntelligence.css";
 
 /**
@@ -155,6 +176,65 @@ function isUploadedFileValid(file) {
   if (typeof file.name !== "string" || file.name.trim() === "") return false;
   if (typeof file.size === "number" && file.size <= 0) return false;
   return true;
+}
+
+// Manual-upload text extraction. Match by MIME and extension because the
+// Windows file picker often leaves MIME blank for .md/.yaml/etc.
+const PLAIN_TEXT_EXTENSIONS = new Set([
+  "txt", "md", "markdown", "csv", "tsv", "json", "log",
+  "html", "htm", "xml", "yaml", "yml", "rtf",
+]);
+
+function fileExtension(file) {
+  const name = (file?.name || "").toLowerCase();
+  const dot = name.lastIndexOf(".");
+  return dot >= 0 ? name.slice(dot + 1) : "";
+}
+
+function isPlainText(file) {
+  const mime = (file?.type || "").toLowerCase();
+  if (mime.startsWith("text/")) return true;
+  if (mime === "application/json" || mime === "application/xml") return true;
+  return PLAIN_TEXT_EXTENSIONS.has(fileExtension(file));
+}
+
+// Plain-text reader. Returns "" for binary files — those go through
+// readFileAsBase64 instead so the backend can extract text server-side
+// (PyMuPDF / python-docx) rather than relying on heavy browser parsers.
+function readFileAsText(file) {
+  if (!isPlainText(file)) return Promise.resolve("");
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => {
+      console.warn("[BrandIntelligence] readFileAsText failed for", file?.name, reader.error);
+      resolve("");
+    };
+    reader.readAsText(file);
+  });
+}
+
+// Read raw bytes as base64 for binary uploads (PDF / DOCX / …). The backend
+// decodes them and runs PyMuPDF / python-docx server-side to extract real
+// text into the LLM prompt. Returns "" for plain-text files where
+// readFileAsText already covers the payload.
+function readFileAsBase64(file) {
+  if (!file || isPlainText(file)) return Promise.resolve("");
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      // readAsDataURL returns "data:<mime>;base64,<payload>" — strip the
+      // header so the backend gets a clean base64 string.
+      const idx = result.indexOf(",");
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = () => {
+      console.warn("[BrandIntelligence] readFileAsBase64 failed for", file?.name, reader.error);
+      resolve("");
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 /**
@@ -334,6 +414,32 @@ export default function BrandIntelligence() {
   // Veeva / SharePoint connectors (auto-refreshed), and populated by file picks
   // for the Manual upload connector.
   const [documents, setDocuments] = useState(buildInitialDocuments);
+  // Added by Sanju Kumari — 2026-05-29: profile_id of the draft currently
+  // loaded inside <BrandIntelligenceProfile />. Lifted up so the sibling
+  // <BrandIntelligenceActivation /> can call POST /profile/{id}/activate.
+  const [activeProfileId, setActiveProfileId] = useState(null);
+
+  // Status fetched once when the active profile changes. Drives the top
+  // sticky status bar so the user always sees their current state without
+  // scrolling back to the activation panel. Best-effort — failure leaves
+  // the bar in a benign "—" state instead of breaking the page.
+  const [profileStatus, setProfileStatus] = useState(null);
+  useEffect(() => {
+    if (!activeProfileId) {
+      setProfileStatus(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getProfileStatus(activeProfileId);
+        if (!cancelled) setProfileStatus(res?.data || res || null);
+      } catch (_) {
+        if (!cancelled) setProfileStatus(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [activeProfileId]);
 
   // Hidden file input — clicked by the Manual connector's run button.
   const fileInputRef = useRef(null);
@@ -349,6 +455,11 @@ export default function BrandIntelligence() {
   // Used to disable the run button + spin its icon, mirroring the
   // `veevaLoading` flag used in ImportContentPage.jsx.
   const [veevaFetching, setVeevaFetching] = useState(false);
+  // Per-connector record of which button triggered the in-flight fetch
+  // ("run" vs "refresh"). Lets us spin only the clicked button — the other
+  // one stays static so the UI doesn't look like both actions are running.
+  // Keyed by connector id. Cleared when the fetch resolves.
+  const [clickedAction, setClickedAction] = useState({});
 
   // Added by Abhirup Nandi - 2026-05-25
   // Claims fetch state — true while a getClaimsData() call is in flight.
@@ -370,6 +481,12 @@ export default function BrandIntelligence() {
   // Search + filter state for the Ingested Documents panel
 const [docSearch, setDocSearch] = useState("");
 const [docFilter, setDocFilter] = useState("all"); // "all" | "claims" | "guidelines" | "approved" | "reference"
+// Inclusion state for the ingested-documents list.
+// Semantic: docs are INCLUDED in the next ingestion by default. The set
+// stores the IDs the user has EXCLUDED. So checkbox-checked == !excluded.
+// Down at the ingestion call site, we filter the documents array by
+// `!excludedDocIds.has(d.id)` before passing it to <BrandIntelligenceProfile />.
+const [excludedDocIds, setExcludedDocIds] = useState(() => new Set());
 
   // Single refresh pass — used by both the auto-interval and the click handler.
   //
@@ -533,6 +650,9 @@ const [docFilter, setDocFilter] = useState("all"); // "all" | "claims" | "guidel
       );
     } finally {
       setVeevaFetching(false);
+      // Reset the per-button marker so neither button keeps spinning
+      // after the underlying fetch resolves.
+      setClickedAction((prev) => ({ ...prev, veeva: null }));
     }
   };
 
@@ -603,6 +723,7 @@ const [docFilter, setDocFilter] = useState("all"); // "all" | "claims" | "guidel
       );
     } finally {
       setClaimsFetching(false);
+      setClickedAction((prev) => ({ ...prev, claims: null }));
     }
   };
 
@@ -617,9 +738,39 @@ const [docFilter, setDocFilter] = useState("all"); // "all" | "claims" | "guidel
   //  - Veeva connector: button means "fetch from Veeva Vault" when not Active,
   //    and "deactivate" when Active. Status flips after the API call resolves.
   //  - Other connectors: simple Active → Disabled → Error → Active cycle.
+  // Per-connector Refresh — re-runs the connector's fetch without
+  // toggling its status. Lets the user re-pull docs they previously
+  // removed via the ingested-documents list, or grab newly-added
+  // upstream content, without having to Pause-then-Play.
+  // Manual connector "refresh" re-opens the file picker so the user
+  // can append more files.
+  const refreshConnector = (id) => {
+    const conn = connectors.find((c) => c.id === id);
+    if (!conn) return;
+    setClickedAction((prev) => ({ ...prev, [id]: "refresh" }));
+    if (conn.type === "veeva")  { fetchVeevaDocuments();  return; }
+    if (conn.type === "claims") { fetchClaimsDocuments(); return; }
+    if (conn.type === "manual") {
+      if (fileInputRef.current) fileInputRef.current.click();
+      return;
+    }
+    // SharePoint and any other connector types: no real fetch wired yet
+    // — just bump the timestamp so the UI signals an attempt was made.
+    setConnectors((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, lastIngested: new Date().toISOString() } : c
+      )
+    );
+    // No async fetch for SharePoint yet — clear the marker immediately.
+    setClickedAction((prev) => ({ ...prev, [id]: null }));
+  };
+
   const cycleStatus = (id) => {
     const conn = connectors.find((c) => c.id === id);
     if (!conn) return;
+    // Mark this as a "run" click so the spin animation only lights up the
+    // Run / Pause button, not the Refresh button.
+    setClickedAction((prev) => ({ ...prev, [id]: "run" }));
 
     if (conn.type === "manual") {
       if (conn.status === "Active") {
@@ -698,51 +849,55 @@ return next;
     );
   };
 
-  // ----- Manual document upload -----
-  // Real validation drives the connector status:
-  //   - user cancelled the picker      → no state change
-  //   - at least one file is valid     → ingest the valid ones, Manual → Active
-  //   - every picked file is invalid   → Manual → Error (nothing ingested)
-  // Content type defaults to "reference" (the AC's "etc." catch-all) because
-  // we can't classify a file without inspecting its contents.
-  const onFilesSelected = (e) => {
+  // Manual document upload. Cancelled picker = no state change. Some valid
+  // files → ingest + Manual → Active. All invalid → Manual → Error.
+  const onFilesSelected = async (e) => {
     const picked = Array.from(e.target.files || []);
-    // Reset the input so the same file can be re-picked later.
-    e.target.value = "";
-    if (picked.length === 0) return; // user cancelled
+    e.target.value = ""; // allow re-picking the same file later
+    if (picked.length === 0) return;
 
     const now = new Date();
     const validFiles = picked.filter(isUploadedFileValid);
 
     if (validFiles.length === 0) {
-      // The picker returned files but none passed validation (empty / zero-byte / nameless).
       console.warn("[BrandIntelligence] Manual upload: no valid files");
       setConnectors((prev) =>
-        prev.map((c) =>
-          c.id === "manual" ? { ...c, status: "Error" } : c
-        )
+        prev.map((c) => (c.id === "manual" ? { ...c, status: "Error" } : c))
       );
       return;
     }
 
-    const newDocs = validFiles.map((f, i) => ({
-      id: `doc-${now.getTime()}-${i}`,
-      name: f.name,             // real file name from the user's machine
-      contentType: "reference",
-      sourceId: "manual",
-      lastRefresh: now,
-    }));
+    // Modified by Sanju Kumari — 2026-05-29: read BOTH client-side text and
+    // base64 bytes per file. readFileAsBase64 returns "" for plain-text files,
+    // readFileAsText returns "" for binary the client can't decode, so each
+    // doc carries exactly the payloads the backend can use.
+    const newDocs = await Promise.all(
+      validFiles.map(async (f, i) => {
+        const [text, file_b64] = await Promise.all([
+          readFileAsText(f),
+          readFileAsBase64(f),
+        ]);
+        return {
+          id: `doc-${now.getTime()}-${i}`,
+          name: f.name,
+          contentType: "reference",
+          sourceId: "manual",
+          lastRefresh: now,
+          text,
+          file_b64,
+          mime: f.type || "",
+          size: typeof f.size === "number" ? f.size : 0,
+        };
+      })
+    );
 
     setDocuments((prev) => [...newDocs, ...prev]);
     setConnectors((prev) =>
       prev.map((c) =>
-        c.id === "manual"
-          ? { ...c, status: "Active", lastIngested: now }
-          : c
+        c.id === "manual" ? { ...c, status: "Active", lastIngested: now } : c
       )
     );
-    setLastActiveConnectorId("manual"); // Added by Abhirup Nandi — 2026-05-25
-    // Fresh content just arrived — reflect that on the auto-refresh badge.
+    setLastActiveConnectorId("manual");
     setLastRefreshAt(now);
   };
 
@@ -751,6 +906,34 @@ return next;
   // delete button — Veeva/Claims/SharePoint docs are read-only. If removing
   // the last manual doc, the Manual connector also reverts to Disabled so
   // the row state stays consistent with what the list actually shows.
+  // Toggle a single row's "include in ingestion" checkbox. If the doc is
+  // currently EXCLUDED, this re-includes it (deletes from the excluded
+  // set); otherwise it excludes it.
+  const toggleDocIncluded = (docId) => {
+    setExcludedDocIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(docId)) next.delete(docId);
+      else next.add(docId);
+      return next;
+    });
+  };
+
+  // Bulk Select-all / Deselect-all for ingestion. Operates on the
+  // currently-filtered view so the user can search/filter first and then
+  // bulk-toggle just what they see.
+  //   shouldInclude=true  → include all visible docs (remove from excluded)
+  //   shouldInclude=false → exclude all visible docs (add to excluded)
+  const setAllVisibleIncluded = (docs, shouldInclude) => {
+    setExcludedDocIds((prev) => {
+      const next = new Set(prev);
+      for (const d of docs) {
+        if (shouldInclude) next.delete(d.id);
+        else next.add(d.id);
+      }
+      return next;
+    });
+  };
+
   const deleteDocument = (docId) => {
     setDocuments((prev) => {
       const remaining = prev.filter((d) => d.id !== docId);
@@ -843,6 +1026,7 @@ const filteredDocuments = documents.filter((d) => {
   return matchesConnector && matchesSearch && matchesFilter;
 });
   return (
+    <ToastProvider>
     <section className="bic-section" aria-label="Brand Intelligence Connectors">
       {/* Hidden file input — clicked programmatically by the Manual connector's run button */}
       <input
@@ -855,6 +1039,10 @@ const filteredDocuments = documents.filter((d) => {
         tabIndex={-1}
       />
 
+      {/* Outer wrapper card — encloses the section title + the two inner
+          cards (Data source connections, Ingested documents) in a single
+          visual frame, matching the design mockup. */}
+      {/* <div className="bic-outer-card"> */}
       <div className="bic-section-label">Brand Intelligence</div>
 
       <div className="bic-card">
@@ -927,13 +1115,29 @@ const filteredDocuments = documents.filter((d) => {
                 <div className="bic-row-actions">
                   <StatusPill status={c.status} />
 
+                  {/* Per-connector Refresh — only this button spins when
+                      the user clicked it; the Run button stays static.
+                      Tracking via clickedAction[c.id] from state above. */}
                   <button
-                    className={`bic-icon-btn ${isEditing ? "is-active" : ""}`}
-                    onClick={() => (isEditing ? commitEdit() : startEdit(c))}
-                    aria-label={isEditing ? "Save connector name" : "Edit connector"}
-                    title={isEditing ? "Save (Enter) · Cancel (Esc)" : "Edit connector"}
+                    className="bic-icon-btn"
+                    onClick={() => refreshConnector(c.id)}
+                    disabled={isInFlight}
+                    aria-label={`Refresh ${c.name}`}
+                    title={
+                      isInFlight
+                        ? "Already in progress…"
+                        : "Refresh — re-fetch documents from this source"
+                    }
                   >
-                    <Pencil size={14} strokeWidth={2} />
+                    <RefreshCw
+                      size={14}
+                      strokeWidth={2}
+                      className={
+                        isInFlight && clickedAction[c.id] === "refresh"
+                          ? "bic-spin"
+                          : ""
+                      }
+                    />
                   </button>
 
                   <button
@@ -947,7 +1151,7 @@ const filteredDocuments = documents.filter((d) => {
                       inFlightLabel ?? runTooltip(c.status, c.type)
                     }
                   >
-                    {isInFlight ? (
+                    {isInFlight && clickedAction[c.id] === "run" ? (
                       <RefreshCw size={14} strokeWidth={2} className="bic-spin" />
                     ) : (
                       <RunIcon status={c.status} type={c.type} />
@@ -1032,6 +1236,62 @@ const filteredDocuments = documents.filter((d) => {
     </div>
   </div>
 
+  {/* Bulk Select-for-Ingestion toolbar — appears only when there are docs.
+      Checkboxes here represent INCLUSION in the next ingestion (checked =
+      will be ingested). Default is everything ingested; user unchecks
+      anything they want to leave out of this run. */}
+  {filteredDocuments.length > 0 && (() => {
+    const visibleIds      = filteredDocuments.map((d) => d.id);
+    const includedVisible = visibleIds.filter((id) => !excludedDocIds.has(id)).length;
+    const allVisibleIncluded =
+      includedVisible === visibleIds.length && visibleIds.length > 0;
+    const noneVisibleIncluded = includedVisible === 0;
+    return (
+      <div className="bic-doc-bulk">
+        <label className="bic-doc-bulk-check">
+          <input
+            type="checkbox"
+            checked={allVisibleIncluded}
+            // Indeterminate when some but not all visible rows are
+            // selected for ingestion — standard table-toolbar behaviour.
+            ref={(el) => {
+              if (el) el.indeterminate = !allVisibleIncluded && !noneVisibleIncluded;
+            }}
+            onChange={(e) =>
+              setAllVisibleIncluded(filteredDocuments, e.target.checked)
+            }
+          />
+          <span className="bic-sel-opt">
+            {allVisibleIncluded
+              ? `All ${visibleIds.length} selected for ingestion`
+              : noneVisibleIncluded
+                ? `None selected — click to select all ${visibleIds.length} for ingestion`
+                : `${includedVisible} of ${visibleIds.length} selected for ingestion`}
+          </span>
+        </label>
+        {!allVisibleIncluded ? (
+          <button
+            type="button"
+            className="bic-doc-bulk-btn bic-doc-bulk-btn--primary"
+            onClick={() => setAllVisibleIncluded(filteredDocuments, true)}
+            title="Mark every visible document for inclusion in the next ingestion"
+          >
+            <span className="bic-sel-opt">Select all for ingestion</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="bic-doc-bulk-btn"
+            onClick={() => setAllVisibleIncluded(filteredDocuments, false)}
+            title="Exclude every visible document from the next ingestion"
+          >
+            <span>Deselect all</span>
+          </button>
+        )}
+      </div>
+    );
+  })()}
+
   <div className="bic-doc-list">
   {documents.length === 0 ? (
     <div className="bic-doc-empty">No documents ingested yet.</div>
@@ -1047,41 +1307,47 @@ const filteredDocuments = documents.filter((d) => {
                 cls: "bic-doc-pill-reference",
               };
               return (
-                <div className="bic-doc-row" key={d.id}>
-                  <div className="bic-doc-iconWrap">
-                    <FileText className="bic-doc-icon" strokeWidth={2} />
-                  </div>
-
-                  <div className="bic-doc-main">
-                    <div className="bic-doc-name">{d.name}</div>
-                    <div className="bic-doc-meta">
-                      <span className={`bic-doc-pill ${ct.cls}`}>{ct.label}</span>
+                <div
+                  className={`bic-doc-row ${
+                    excludedDocIds.has(d.id) ? "bic-doc-row--excluded" : ""
+                  }`}
+                  key={d.id}
+                >
+                  {/* Card-style row matching the design mockup:
+                        LEFT  → include-in-ingestion checkbox (vertically centered)
+                        RIGHT → top: source badge + content-type pill
+                                middle: document title
+                                bottom: "Last refresh: …" */}
+                  <label
+                    className="bic-doc-checkbox bic-doc-checkbox--left"
+                    title="Include in next ingestion"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!excludedDocIds.has(d.id)}
+                      onChange={() => toggleDocIncluded(d.id)}
+                      aria-label={`Include ${d.name} in next ingestion`}
+                    />
+                  </label>
+                  <div className="bic-doc-card-inner">
+                    <div className="bic-doc-card-top">
                       {source && (
-                        <span className="bic-doc-source" title={`Source: ${source.name}`}>
+                        <span className="bic-doc-source-badge">
                           <ConnectorIcon type={source.type} />
-                          <span className="bic-doc-source-name">{source.name}</span>
+                          <span>{source.name}</span>
                         </span>
                       )}
+                      <span className={`bic-doc-pill ${ct.cls}`}>{ct.label}</span>
                     </div>
-                  </div>
 
-                  <div className="bic-doc-row-right">
-                    <div className="bic-doc-refresh">
-                      Last refresh:{" "}
-                      {d.lastRefresh ? formatTimestamp(d.lastRefresh) : "Never"}
+                    <div className="bic-doc-name">{d.name}</div>
+
+                    <div className="bic-doc-card-bottom">
+                      <span className="bic-doc-refresh">
+                        Last refresh:{" "}
+                        {d.lastRefresh ? formatTimestamp(d.lastRefresh) : "Never"}
+                      </span>
                     </div>
-                    {/* Added by Abhirup Nandi — 2026-05-25: delete button for manual uploads only */}
-                    {d.sourceId === "manual" && (
-                      <button
-                        type="button"
-                        className="bic-doc-delete-btn"
-                        onClick={() => deleteDocument(d.id)}
-                        aria-label={`Delete ${d.name}`}
-                        title="Delete document"
-                      >
-                        <Trash2 size={13} strokeWidth={2} />
-                      </button>
-                    )}
                   </div>
                 </div>
               );
@@ -1094,8 +1360,51 @@ const filteredDocuments = documents.filter((d) => {
             section label + card wrapper were stripped inside the component
             so it slots in cleanly with just a divider separating the two. */}
         <BrandIntelligenceContext />
-      </div>
 
+        {/* Added by Abhirup Nandi — 2026-05-25: Brand Intelligence Profile —
+            triggers initial ingestion, presents the AI-drafted 4-section
+            profile for Accept/Edit/Flag review, gates activation on AC #4
+            (flagged sections) and AC #5 (empty claims). Same embedded
+            pattern — no own card frame. The `documents` array is the live
+            ingested list (Veeva / Claims / SharePoint / Manual upload) —
+            the profile component reads its length for the doc-count
+            confirmation (AC #1) and uses it as the source for the LLM
+            extraction call once that integration is wired. */}
+        {/* Modified by Sanju Kumari — 2026-05-29: wired onProfileChange so
+            the loaded draft's profile_id flows down to Activation. */}
+        <BrandIntelligenceProfile
+          documents={documents.filter((d) => !excludedDocIds.has(d.id))}
+          onProfileChange={(p) => setActiveProfileId(p?.profile_id || null)}
+        />
+
+        {/* US 1.4 + US 1.5 panels only render once a draft profile exists.
+            Before that, the empty hero tiles (v—, Sections reviewed —, etc.)
+            look broken to a non-technical user. We render a single quiet
+            placeholder hint instead so the page stays clean. */}
+        {activeProfileId ? (
+          <>
+            <BrandIntelligenceActivation profileId={activeProfileId} />
+            <BrandIncrementalProfile profileId={activeProfileId} />
+          </>
+        ) : (
+          <div
+            style={{
+              padding: "14px 18px",
+              margin: "12px 22px",
+              borderRadius: 10,
+              background: "#f8fafc",
+              border: "1px dashed #cbd5e1",
+              color: "#64748b",
+              fontSize: 13,
+              textAlign: "center",
+            }}
+          >
+            Run ingestion above to enable activation, version control, and
+            refresh &amp; change detection.
+          </div>
+        )}
+      </div>
+      {/* </div> */}
       {isAddOpen && (
         <div
           className="bic-modal-backdrop"
@@ -1177,5 +1486,6 @@ const filteredDocuments = documents.filter((d) => {
         </div>
       )}
     </section>
+    </ToastProvider>
   );
 }

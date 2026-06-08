@@ -1,7 +1,3 @@
-/* Author: Abhirup Nandi — 2026-05-20
- * Summary: Removed four conflicting .ihub-kpi redeclarations; added clean .ihub-kpi-grid with colored .box-* themes.
- */
-
 /* softer pill for right-side metric on Subject Lines */
 
 .ihub-pillState.soft {
@@ -40,7 +36,7 @@
 
 .ihub-infoTitle {
 
-  font-weight: 600;
+  font-weight: 500;
 
   margin-bottom: 4px;
 
@@ -52,7 +48,7 @@
 
   color: #5f6b7a;
 
-  font-size: 0.95rem;
+  font-size: 15px;
 
 }
 
@@ -69,7 +65,7 @@
 }
 
 .ihub-ghostBtn {
-
+/* 
   background: #fff;
 
   border: 1px dashed #c8d1dc;
@@ -80,14 +76,29 @@
 
   color: #344054;
 
-  cursor: pointer;
+  cursor: pointer; */
 
+  display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 12px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 12px rgba(16, 24, 40, .06);
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
 }
 
 .ihub-ghostBtn:hover {
-
-  background: #f9fafb;
-
+    box-shadow: 0 6px 18px rgba(16,24,40,.10);
+    transform: translateY(-1px);
 }
 
  
@@ -120,9 +131,12 @@
 }
 
 .ihub-pillState.soft.grey {
-  background: #f2f4f7;
+  background: #ffffff;
   color: #344054;
   border: 1px solid #eaecf0;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 /* Purple Theme for Segments Header */
@@ -139,11 +153,13 @@
 /* Trend Layout for Segments */
 .ihub-trend {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: #667085;
-  margin-top: 4px;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.85rem;
+    color: #667085;
+    margin-top: 4px;
+    font-size: 0.77rem;
+    line-height: 1rem;
 }
 
 .trend-box {
@@ -153,17 +169,17 @@
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .trend-box.blue {
-  background: #2a5bd7;
+  /* background: #2a5bd7; */
   color: white;
 }
 
 .trend-box.white {
-  background: white;
-  border: 1px solid #d0d5dd;
+  /* background: white;
+  border: 1px solid #d0d5dd; */
   color: #2a5bd7;
 }
 
@@ -174,67 +190,144 @@
   border: 1px solid #ABEFC6;
 }
 
-/* ===== KPI Grid (mirrors WebsiteIntelligence pattern) ===== */
-.ihub-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.ihub-kpi-box {
+.ihub-kpi {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 14px 8px;
-  border-radius: 10px;
-  border: 1px solid;
-  min-width: 0;
+  width: 120px; /* Adjust based on your layout */
+  padding: 10px;
+  background-color: #f0fdf4; /* Very light green background */
+  border: 1px solid #bbf7d0; /* Soft green border */
+  border-radius: 12px;
   text-align: center;
 }
 
-.ihub-kpi-box .kpi-icon {
-  width: 20px;
-  height: 20px;
-  margin-bottom: 8px;
+.ihub-kpiIcon {
+  color: #166534; /* Darker green for the icon */
+  margin-bottom: 10px;
 }
 
-.ihub-kpi-box .kpi-val {
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 2px;
-  white-space: nowrap;
+.ihub-kpiValue {
+  font-size: 1.5rem;
+  font-weight: 650;
+  color: #064e3b; /* Deep green for the percentage */
+  line-height: 1;
+  margin-bottom: 4px;
 }
 
-.ihub-kpi-box .kpi-label {
-  font-size: 12px;
+.ihub-kpiLabel {
+  font-size: 1.1rem;
   font-weight: 500;
-  white-space: nowrap;
+  color: #15803d; /* Mid-tone green for the label */
+}
+
+.ihub-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 20px;
+  background-color: #f0f7ff; /* Very light blue background */
+  border: 1px solid #cce3ff; /* Soft blue border */
+  border-radius: 12px;
   text-align: center;
 }
 
-/* Color themes — green / blue / purple / orange */
-.ihub-kpi-box.box-green  { background: #f0fdf4; border-color: #dcfce7; }
-.ihub-kpi-box.box-green  .kpi-icon,
-.ihub-kpi-box.box-green  .kpi-val   { color: #16a34a; }
-.ihub-kpi-box.box-green  .kpi-label { color: #4ade80; }
+/* Specific styling for the Blue/Info theme */
+.ihub-kpiIcon.info {
+  color: #2563eb; /* Primary blue icon color */
+  margin-bottom: 12px;
+}
 
-.ihub-kpi-box.box-blue   { background: #f0f6ff; border-color: #dbeafe; }
-.ihub-kpi-box.box-blue   .kpi-icon,
-.ihub-kpi-box.box-blue   .kpi-val   { color: #2563eb; }
-.ihub-kpi-box.box-blue   .kpi-label { color: #60a5fa; }
+.ihub-kpiValue.info {
+  font-size: 1.5rem;
+  font-weight: 6500;
+  color: #1e40af; /* Deep blue for value */
+  line-height: 1;
+  margin-bottom: 4px;
+}
 
-.ihub-kpi-box.box-purple { background: #faf5ff; border-color: #f3e8ff; }
-.ihub-kpi-box.box-purple .kpi-icon,
-.ihub-kpi-box.box-purple .kpi-val   { color: #9333ea; }
-.ihub-kpi-box.box-purple .kpi-label { color: #c084fc; }
+.ihub-kpiLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #4b5563; /* Neutral gray for the label */
+}
 
-.ihub-kpi-box.box-orange { background: #fff7ed; border-color: #ffedd5; }
-.ihub-kpi-box.box-orange .kpi-icon,
-.ihub-kpi-box.box-orange .kpi-val   { color: #d97706; }
-.ihub-kpi-box.box-orange .kpi-label { color: #fb923c; }
+/* Base KPI styles (reused) */
+.ihub-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 24px 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Specific Purple Theme for Campaigns */
+.ihub-kpi.purple {
+  background-color: #f9f5ff; /* Very light purple/lavender */
+  border: 1px solid #e9d7fe; /* Soft purple border */
+}
+
+.ihub-kpi.purple .ihub-kpiIcon {
+  color: #7f56d9; /* Medium purple icon */
+  margin-bottom: 12px;
+}
+
+.ihub-kpi.purple .ihub-kpiValue {
+  font-size: 1.5rem;
+  font-weight: 650;
+  color: #6941c6; /* Deep purple value */
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.ihub-kpi.purple .ihub-kpiLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #7f56d9; /* Purple label text */
+}
+
+/* Base KPI styles (ensure these are present) */
+.ihub-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 24px 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Specific Orange/Warn Theme for Conversion Rate */
+.ihub-kpi.warn {
+  background-color: #fff7ed; /* Very light orange background */
+  border: 1px solid #ffedd5; /* Soft orange border */
+}
+
+.ihub-kpi.warn .ihub-kpiIcon {
+  color: #f97316; /* Bright orange icon */
+  margin-bottom: 12px;
+}
+
+.ihub-kpi.warn .ihub-kpiValue {
+  font-size: 1.5rem;
+  font-weight: 6500;
+  color: #9a3412; /* Deep orange/brown for readability */
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.ihub-kpi.warn .ihub-kpiLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ea580c; /* Orange label text */
+}
 
 .ihub-ciTitle {
   display: flex;
@@ -244,19 +337,139 @@
 }
 
 .ihub-ciIcon.main-green {
-  color: #10b981;          /* The vibrant green from your screenshot */
-  margin-top: 4px;         /* Fine-tuning vertical alignment with the title */
+  color: #10b981;
+  /* margin-top: 4px; */
+  background: none;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 30px;
+  border-radius: 10px;
+  font-size: 22px;
+  /* background: #eef2ff; */
+  /* color: #1e40af; */
+  margin-top: -26px;
 }
 
 .ihub-ciName {
-  font-size: 1.5rem;       /* Larger, bold heading */
+  font-size: 1.5rem;      
   font-weight: 700;
-  color: #0f172a;          /* Dark navy/black for the title */
+  color: #0f172a;         
   line-height: 1.2;
 }
 
 .ihub-ciSubtitle {
   font-size: 0.95rem;
-  color: #64748b;          /* Muted slate gray for the subtitle */
+  color: #64748b;          
   margin-top: 2px;
+}
+
+ .ihub-web-eiName{     font-weight: 600;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-size: 1.175rem; 
+  margin-left: -3px;}
+
+ /* .ihub-card {
+    padding: 0;
+    border-radius: var(--radius);
+    overflow: visible;
+  }
+
+  .ihub-panel {
+    margin-top: 16px;
+}
+
+.ihub-tabs{display: flex;
+  gap: 33px;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  justify-content: center;
+}
+
+.ihub-tab{
+  appearance: none;
+    background: #f1f5f9;
+    color: #374151;
+    padding: 8px 12px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1rem;
+    cursor: pointer;
+    border: none;
+} */
+
+.ihub-email-tab{
+  appearance: none;
+  /* border: 1px solid #e6e8ee; */
+  background: #f1f5f9;
+  color: #374151;
+  padding: 8px 20px;
+  /* border-radius: 10px; */
+  font-weight: 500;
+  font-size: 0.875rem;
+    line-height: 1rem;
+  cursor: pointer;
+  /* transition: background .18s 
+ease, color .18s 
+ease, box-shadow .18s 
+ease, border-color .18s 
+ease; */
+  border: none;
+}
+
+/* Hover: slight lift + brighter */
+.ihub-email-tab:hover {
+  background: #edf2f9;
+  border-color: #d9dde6;
+}
+
+/* Active tab: white pill, stronger elevation */
+.ihub-email-tab.active {
+  background: #fff;
+  color: #1f2937;
+  border-color: #dbe0ea;
+  border-radius: 7px;
+  box-shadow:
+    0 1px 3px rgba(16,24,40,0.10),
+    0 6px 14px rgba(16,24,40,0.08);
+}
+
+.ihub-camp-row{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+  background-color: #f1f5f94d;
+}
+
+.ihub-sub-row{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background-color: #f1f5f94d;
+  padding: 0.75rem;
+  gap: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.ihub-sub-rowTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  /* margin: 0 0 -6px 0; */
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin-top: 3px;
 }

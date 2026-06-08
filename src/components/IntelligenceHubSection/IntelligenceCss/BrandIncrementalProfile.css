@@ -1,0 +1,819 @@
+/* ============================================================
+   Brand Intelligence Profile — Refresh & Change Detection UI
+   US 1.5 | BR-SIH-001
+   ============================================================ */
+
+/* ---------- Root & Layout ---------- */
+.bir-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #111;
+    /* max-width: 900px; */
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+  
+  /* ---------- Banners ---------- */
+  .bir-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .bir-banner--warning {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+  }
+  
+  .bir-banner--success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  
+  .bir-banner--info {
+    background: #eff6ff;
+    border: 0.5px solid #93c5fd;
+  }
+  
+  .bir-banner--flagged {
+    background: #fef3c7;
+    border: 0.5px solid #fcd34d;
+  }
+  
+  .bir-banner__icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    /* margin-top: -24px; */
+  }
+
+  .bir-banner__icon1 {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: -24px;
+  }
+  
+  .bir-banner__body {
+    flex: 1;
+  }
+  
+  .bir-banner__title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #92400e;
+    margin: 0 0 2px;
+  }
+  
+  .bir-banner__title--success {
+    color: #15803d;
+    font-size: 13px;
+    font-weight: 500;
+    padding-top: 14px;
+  }
+  
+  .bir-banner__title--info {
+    color: #1e40af;
+  }
+  
+  .bir-banner__title--flagged {
+    color: #92400e;
+  }
+  
+  .bir-banner__sub {
+    font-size: 13px;
+    color: #b45309;
+    margin: 0;
+    /* margin-top: -9px; */
+  }
+
+  .bir-banner__sub1 {
+    font-size: 13px;
+    color: #b45309;
+    margin: 0;
+    margin-top: -9px;
+  }
+  
+  .bir-banner__sub--info {
+    color: #3b82f6;
+    font-size: 12px;
+  }
+  
+  .bir-banner__note {
+    font-size: 12px;
+    color: #b45309;
+    white-space: nowrap;
+  }
+  
+  .bir-banner__note--sla {
+    color: #b45309;
+    font-weight: 500;
+  }
+  
+  /* ---------- Header ---------- */
+  .bir-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .bir-header__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .bir-header__logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #1D3FBB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  
+  .bir-header__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  
+  .bir-header__meta {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+  }
+  
+  .bir-header__actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* ---------- Buttons ---------- */
+  .btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  
+  .btn:hover {
+    opacity: 0.85;
+  }
+  
+  .btn--secondary {
+    background: #f3f4f6;
+    border: 0.5px solid #d1d5db;
+    color: #111;
+  }
+  
+  .btn--primary {
+    background: #1D3FBB;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+  
+  .btn--warning {
+    background: #92400e;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    padding: 8px 18px;
+  }
+  
+  .btn--ghost {
+    background: none;
+    border: 0.5px solid #d1d5db;
+    color: #6b7280;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12.55px;
+    cursor: pointer;
+  }
+  
+  .btn--ghost:hover {
+    background: #f3f4f6;
+  }
+  
+  .btn--pill {
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 0.5px solid #d1d5db;
+    transition: background 0.12s, color 0.12s;
+  }
+  
+  .btn--pill-active {
+    background: #1D3FBB;
+    color: #fff;
+    border-color: #1D3FBB;
+  }
+  
+  .btn--pill-inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+  
+  /* ---------- Metric Cards ---------- */
+  .bir-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .bir-metric-card {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  
+  .bir-metric-card:hover{ box-shadow: var(--shadow); transform: translateY(-1px); }
+
+  .bir-metric-card__label {
+    font-size: 12px;
+    color: #323336;
+    margin: 0 0 4px;
+  }
+  
+  .bir-metric-card__value {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+    margin: 0;
+  }
+  
+  .bir-metric-card__value--default { color: #111; }
+  .bir-metric-card__value--danger  { color: #e24b4a; }
+  .bir-metric-card__value--warning { color: #ef9f27; }
+  
+  .bir-metric-card__note {
+    font-size: 11px;
+    color: #616266;
+    margin: 4px 0 0;
+  }
+  
+  /* ---------- Timestamp Strip ---------- */
+  .bir-timestamp-strip {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .bir-timestamp-strip__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  
+  .bir-timestamp-strip__item label {
+    color: #6b7280;
+  }
+  
+  .bir-timestamp-strip__item strong {
+    font-weight: 600;
+    color: #111;
+  }
+  
+  .bir-timestamp-strip__item strong.green {
+    color: #1a7a3c;
+  }
+  
+  .bir-timestamp-strip__divider {
+    width: 1px;
+    height: 20px;
+    background: #e5e7eb;
+  }
+  
+  .bir-timestamp-strip__countdown {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .bir-timestamp-strip__countdown-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 5px;
+  }
+  
+  /* ---------- Expiry Progress Bar ---------- */
+  .expiry-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .expiry-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #f3f4f6;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .expiry-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  
+  .expiry-bar-fill--safe    { background: #639922; }
+  .expiry-bar-fill--warning { background: #ef9f27; }
+  .expiry-bar-fill--danger  { background: #e24b4a; }
+  
+  .expiry-bar-label {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 60px;
+  }
+  
+  .expiry-bar-label--safe    { color: #639922; }
+  .expiry-bar-label--warning { color: #ef9f27; }
+  .expiry-bar-label--danger  { color: #e24b4a; }
+  
+  /* ---------- Flagging Progress ---------- */
+  .bir-flagging-progress {
+    background: #eff6ff;
+    border: 0.5px solid #93c5fd;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  
+  .bir-flagging-progress__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .bir-flagging-progress__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e40af;
+  }
+  
+  .bir-flagging-progress__pct {
+    font-size: 13px;
+    color: #3b82f6;
+    font-weight: 600;
+  }
+  
+  .bir-flagging-progress__track {
+    height: 6px;
+    background: #bfdbfe;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .bir-flagging-progress__fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 3px;
+    transition: width 0.2s linear;
+  }
+  
+  .bir-flagging-progress__sub {
+    font-size: 12px;
+    color: #3b82f6;
+    margin-top: 6px;
+  }
+  
+  /* ---------- Tabs ---------- */
+  .bir-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+  }
+  
+  .bir-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.12s, border-color 0.12s;
+  }
+  
+  .bir-tab-btn--active {
+    font-weight: 600;
+    color: #1D3FBB;
+    border-bottom-color: #1D3FBB;
+  }
+  
+  .bir-tab-btn--inactive {
+    font-weight: 400;
+    color: #6b7280;
+  }
+  
+  .bir-tab-count {
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  
+  .bir-tab-count--active {
+    background: #dbeafe;
+    color: #1D3FBB;
+  }
+  
+  .bir-tab-count--inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+  
+  /* ---------- Filter Bar ---------- */
+  .bir-filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .bir-filter-bar__label {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  
+  .bir-filter-bar__divider {
+    width: 1px;
+    height: 16px;
+    background: #e5e7eb;
+  }
+  
+  /* ---------- Change Cards ---------- */
+  .bir-change-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .bir-change-card {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  
+  .bir-change-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  
+  .bir-change-card--high   { border-left: 3px solid #e24b4a; }
+  .bir-change-card--medium { border-left: 3px solid #ef9f27; }
+  .bir-change-card--low    { border-left: 3px solid #639922; }
+  
+  .bir-change-card__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .bir-change-card__category {
+    font-size: 12.75px;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  
+  .bir-change-card__field {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    flex: 1;
+  }
+  
+  .bir-change-card__atoms {
+    font-size: 12.75px;
+    color: #6b7280;
+  }
+  
+  .bir-change-card__chevron {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-left: 4px;
+  }
+  
+  .bir-change-card__diff {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+  }
+  
+  .bir-change-card__diff--two-col { grid-template-columns: 1fr 1fr; }
+  .bir-change-card__diff--one-col { grid-template-columns: 1fr; }
+  
+  .bir-diff-box {
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  
+  .bir-diff-box--previous {
+    background: #fef2f2;
+    border: 0.5px solid #fca5a5;
+  }
+  
+  .bir-diff-box--current {
+    background: #f0fdf4;
+    border: 0.5px solid #86efac;
+  }
+  
+  .bir-diff-box__label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  
+  .bir-diff-box__label--previous { color: #b91c1c; }
+  .bir-diff-box__label--current  { color: #15803d; }
+  
+  .bir-diff-box__value {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  
+  .bir-diff-box__value--previous { color: #7f1d1d; }
+  .bir-diff-box__value--current  { color: #14532d; }
+  
+  /* ---------- Severity Dot ---------- */
+  .severity-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .severity-dot--high   { background: #e24b4a; }
+  .severity-dot--medium { background: #ef9f27; }
+  .severity-dot--low    { background: #639922; }
+  
+  /* ---------- Badges ---------- */
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-block;
+  }
+  
+  .badge--added    { background: #e6f3eb; color: #1a7a3c; }
+  .badge--modified { background: #fff4e0; color: #8a5a00; }
+  .badge--removed  { background: #fceaea; color: #b91c1c; }
+  
+  /* ---------- Atom Status Badge ---------- */
+  .atom-badge {
+    font-size: 11.75px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    display: inline-block;
+  }
+  
+  .atom-badge--flagged   { background: #fceaea; color: #b91c1c; }
+  .atom-badge--reviewing { background: #fff4e0; color: #8a5a00; }
+  .atom-badge--approved  { background: #e6f3eb; color: #1a7a3c; }
+  
+  /* ---------- Atom Type Badge ---------- */
+  .type-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  .type-badge--full        { background: #ede9fe; color: #5b21b6; }
+  .type-badge--incremental { background: #e0f2fe; color: #075985; }
+  
+  /* ---------- Empty State ---------- */
+  .bir-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #9ca3af;
+    font-size: 14px;
+  }
+  
+  /* ---------- Atoms Tab ---------- */
+  .bir-atoms-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 14px;
+  }
+  
+  .bir-atom-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .bir-atom-row {
+    background: #f1f5f94d;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  
+  .bir-atom-row__id {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    min-width: 72px;
+    /* font-family: "Courier New", Courier, monospace; */
+  }
+  
+  .bir-atom-row__info {
+    flex: 1;
+    min-width: 180px;
+  }
+  
+  .bir-atom-row__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+  }
+  
+  .bir-atom-row__type {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: -7px;
+    margin-bottom: -1px;
+  }
+  
+  .bir-atom-row__time {
+    font-size: 12.75px;
+    color: #9ca3af;
+  }
+  
+  /* ---------- History Tab ---------- */
+  .bir-history-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .bir-history-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 0.5px solid #e5e7eb;
+    flex-wrap: wrap;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .bir-history-row--draft {
+    background: #fff;
+    border: 0.5px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .bir-history-row__version {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 56px;
+    color: #111;
+  }
+  
+  .bir-history-row__date {
+    font-size: 13px;
+    color: #6b7280;
+    min-width: 96px;
+  }
+  
+  .bir-history-row__changes {
+    font-size: 13px;
+    color: #6b7280;
+    flex: 1;
+  }
+  
+  .bir-history-row__approved {
+    font-size: 12.55px;
+    color: #6b7280;
+  }
+  
+  /* History status badge */
+  .history-status {
+    font-size: 11.85px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  
+  .history-status--active     { background: #e6f3eb; color: #1a7a3c; }
+  .history-status--draft      { background: #fff4e0; color: #8a5a00; }
+  .history-status--superseded { background: #f3f4f6; color: #9ca3af; }
+  
+  /* ---------- Modal Overlay ---------- */
+  .bir-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  .bir-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 440px;
+    width: 90%;
+    border: 0.5px solid #d1d5db;
+  }
+  
+  .bir-modal__title {
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 0 8px;
+    color: #111;
+  }
+  
+  .bir-modal__body {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+  
+  .bir-modal__approver {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+  }
+  
+  .bir-modal__approver-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0 0 4px;
+  }
+  
+  .bir-modal__approver-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 2px;
+  }
+  
+  .bir-modal__approver-note {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+  }
+  
+  .bir-modal__actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .bir-modal__actions .btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 13px;
+  }
+  

@@ -60,13 +60,14 @@
 }
 .bic-ctx-title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 800;
-  color: #0f172a;
   line-height: 1.2;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #101828;
 }
+
 .bic-ctx-sub {
-  margin: 4px 0 0 28px;
+  margin: 4px 0 0 3px;
   font-size: 13px;
   color: #64748b;
 }
@@ -77,10 +78,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: 0.02em;
-  color: #475569;
+  color: #1a1c1f;
   margin-bottom: 8px;
 }
 .bic-ctx-textarea {
@@ -118,12 +119,20 @@
 .bic-ctx-nl-hint svg { flex-shrink: 0; opacity: 0.7; }
 
 /* ===== Structured filters grid ===== */
-.bic-ctx-filters {
+/* .bic-ctx-filters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px 18px;
   margin-bottom: 18px;
+} */
+
+.bic-ctx-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px 18px;
+  margin-bottom: 18px;
 }
+
 .bic-ctx-filter {
   border: none;
   padding: 0;
@@ -134,10 +143,14 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  /* font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #1e293b;
+  color: #1e293b; */
+  font-size: 12.3px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #475569;
   margin-bottom: 6px;
   padding: 0;
 }
@@ -145,7 +158,7 @@
    same purple accent used by the section head icon so the four filters
    read as a clear group. */
 .bic-ctx-filter-label-icon {
-  color: #7c3aed;
+  color: #475569;
   flex-shrink: 0;
 }
 
@@ -378,8 +391,8 @@
 }
 .bic-ctx-applied-title {
   margin: 0;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: #0f172a;
 }
 .bic-ctx-edit-btn {
@@ -460,8 +473,8 @@
 .bic-ctx-veeva-icon { color: #6d28d9; flex-shrink: 0; }
 .bic-ctx-veeva-title {
   flex: 1;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
   color: #0f172a;
 }
 .bic-ctx-veeva-meta { font-size: 11px; color: #94a3b8; }
@@ -505,7 +518,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
+  padding: 12px 10px;
   border-radius: 7px;
   background: #ffffff;
   border: 1px solid #ede9fe;
@@ -518,7 +531,7 @@
 .bic-ctx-veeva-file-icon { color: #94a3b8; flex-shrink: 0; }
 .bic-ctx-veeva-name {
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;

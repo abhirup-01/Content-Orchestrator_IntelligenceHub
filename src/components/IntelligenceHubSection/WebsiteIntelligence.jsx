@@ -1,113 +1,74 @@
-// Author: Abhirup Nandi — 2026-05-20
-// Summary: Replaced inline SVGs with lucide-react icons (Globe / Clock / FileText / Users / TrendingUp).
-
-//  import React from "react";
-//  import "./IntelligenceCss/IntelligenceDashboard.css";
- 
-//  export default function WebsiteIntelligence() {
-//   return (
-//  <div className="ihub-ciCard">
-//       <div className="ihub-ciHead">
-//         <div className="ihub-ciTitle">
-//           <span className="ihub-ciIcon globe">🌐</span>
-//           <div>
-//             <div className="ihub-ciName">Website Intelligence</div>
-//             <div className="ihub-ciSubtitle">Performance insights for all visitors</div>
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="ihub-kpiRow">
-//         <div className="ihub-kpi">
-//           <div className="ihub-kpiValue primary">186s</div>
-//           <div className="ihub-kpiLabel">Avg Session</div>
-//         </div>
-//         <div className="ihub-kpi">
-//           <div className="ihub-kpiValue">0</div>
-//           <div className="ihub-kpiLabel">Pages/Session</div>
-//         </div>
-//         <div className="ihub-kpi">
-//           <div className="ihub-kpiValue">0%</div>
-//           <div className="ihub-kpiLabel">Return Rate</div>
-//         </div>
-//         <div className="ihub-kpi">
-//           <div className="ihub-kpiValue">0</div>
-//           <div className="ihub-kpiLabel">Active Pages</div>
-//         </div>
-//       </div>
-//        <div className="ihub-card ihub-panel">
-//     <div className="ihub-tabs">
-//       <button className="ihub-tab active">Top Pages</button>
-//       <button className="ihub-tab">Downloads</button>
-//       <button className="ihub-tab">Search Terms</button>
-//       <button className="ihub-tab">CTAs</button>
-//       <button className="ihub-tab">Journey</button>
-//     </div>
-
-//     <div className="ihub-panelBody empty">
-//       {/* Intentionally blank to match screenshot placeholder area */}
-//     </div>
-//   </div>
-//     </div>
-//   );
-//     }
-
-import React from "react";
-import { Globe, Clock, FileText, Users, TrendingUp } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./IntelligenceCss/IntelligenceDashboard.css";
-import "./IntelligenceCss/WebsiteIntelligence.css";
+import {  Clock, FileText, Users, TrendingUp } from 'lucide-react';
 
 export default function WebsiteIntelligence() {
-  return (
-    <div className="ihub-ciCard-exact">
-      {/* Header */}
-      <div className="ihub-header-exact">
-        <div className="ihub-title-row">
-          <Globe className="ihub-globe-icon" strokeWidth={2} />
-          <h2>Website Intelligence</h2>
-        </div>
-        <p className="ihub-subtitle-exact">Performance insights for all visitors</p>
-      </div>
 
-      {/* KPI Row */}
-      <div className="ihub-kpi-grid">
-        {/* Blue Card */}
-        <div className="ihub-kpi-box box-blue">
-          <Clock className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">186s</div>
-          <div className="kpi-label">Avg Session</div>
-        </div>
+  
+const [activeTab, setActiveTab] = useState("Top Pages");
 
-        {/* Green Card */}
-        <div className="ihub-kpi-box box-green">
-          <FileText className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">0</div>
-          <div className="kpi-label">Pages/Session</div>
-        </div>
+// 2) Tab list (easy to add/remove)
+const tabs = ["Top Pages", "Downloads", "Search Terms", "CTAs", "Journey"];
 
-        {/* Purple Card */}
-        <div className="ihub-kpi-box box-purple">
-          <Users className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">0%</div>
-          <div className="kpi-label">Return Rate</div>
-        </div>
+ return (
+<div className="ihub-web-ciCard">
+     <div className="ihub-web-ciHead">
+       <div className="ihub-web-ciTitle">
+         <span className="ihub-web-ciIcon globe">🌐</span>
+         <div>
+           <div className="ihub-web-ciName">Website Intelligence</div>
+           <div className="ihub-web-ciSubtitle">Performance insights for all visitors</div>
+         </div>
+       </div>
+     </div>
 
-        {/* Orange Card */}
-        <div className="ihub-kpi-box box-orange">
-          <TrendingUp className="kpi-icon" strokeWidth={2} />
-          <div className="kpi-val">0</div>
-          <div className="kpi-label">Active Pages</div>
-        </div>
-      </div>
+     <div className="ihub-web-kpiRow">
+       <div className="ihub-web-kpi-avg">
+        <div className='mb-2'>  <Clock size={19} className="h-1 w-1 mr-2 ihub-web-avg"/></div>
+         <div className="ihub-web-kpiValue primary">186s</div>
+         <div className="ihub-web-kpiLabel ihub-web-avg">Avg Session</div>
+       </div>
+       <div className="ihub-web-kpi-page">
+       <div className='mb-2'>  <FileText size={19} className="h-1 w-1 mr-2 ihub-web-page"/></div>
+         <div className="ihub-web-kpiValue ihub-web-page">0</div>
+         <div className="ihub-web-kpiLabel ihub-web-page">Pages/Session</div>
+       </div>
+       <div className="ihub-web-kpi-return">
+       <div className='mb-2'>  <Users size={19} className="h-1 w-1 mr-2 ihub-web-return"/></div>
+         <div className="ihub-web-kpiValue ihub-web-return">0%</div>
+         <div className="ihub-web-kpiLabel ihub-web-return">Return Rate</div>
+       </div>
+       <div className="ihub-web-kpi-active">
+       <div className='mb-2'>  <TrendingUp size={19} className="h-1 w-1 mr-2 ihub-web-active"/></div>
+         <div className="ihub-web-kpiValue ihub-web-active">0</div>
+         <div className="ihub-web-kpiLabel ihub-web-active">Active Pages</div>
+       </div>
+     </div>
+      <div className="ihub-web-card ihub-web-panel">
+   <div className="ihub-web-tabs">
+     {/* <button className="ihub-web-tab active">Top Pages</button>
+     <button className="ihub-web-tab">Downloads</button>
+     <button className="ihub-web-tab">Search Terms</button>
+     <button className="ihub-web-tab">CTAs</button>
+     <button className="ihub-web-tab">Journey</button> */}
+{tabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              className={`ihub-web-tab ${activeTab === tab ? "active" : ""}`}
+              onClick={() => setActiveTab(tab)}
+              aria-pressed={activeTab === tab}
+            >
+              {tab}
+            </button>
+          ))}
 
-      {/* Tabs */}
-      <div className="ihub-tabs-wrapper">
-        <button className="ihub-tab-btn active">Top Pages</button>
-        <button className="ihub-tab-btn">Downloads</button>
-        <button className="ihub-tab-btn">Search Terms</button>
-        <button className="ihub-tab-btn">CTAs</button>
-        <button className="ihub-tab-btn">Journey</button>
-      </div>
-    </div>
-  );
-}
+   </div>
+
+   {/* <div className="ihub-web-panelBody empty">
+    
+   </div> */}
+ </div>
+   </div>
+ );
+   }
