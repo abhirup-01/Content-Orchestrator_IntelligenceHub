@@ -600,7 +600,7 @@ function ActivateTab({ profile, onActivate, profileId, user, role, onRecordVersi
             <div>
               <div className="activate-hero__heading">
                 <span className="activate-hero__title">Activation Status</span>
-                <Badge variant={isDone ? "active" : "awaiting"} dot>
+                <Badge variant={isDone ? "active" : "awaiting"}>
                   {isDone ? "Active" : "Awaiting Activation"}
                 </Badge>
               </div>
@@ -1133,7 +1133,7 @@ export default function US14App({
         </div>
 
         <div className="us14-topbar__right">
-          <Badge variant={profile.status === "active" ? "active" : "awaiting"} dot>
+          <Badge variant={profile.status === "active" ? "active" : "awaiting"}>
             {profile.status === "active" ? "Active" : "Awaiting Activation"}
           </Badge>
           <Badge variant="neutral">{profile.version}</Badge>
