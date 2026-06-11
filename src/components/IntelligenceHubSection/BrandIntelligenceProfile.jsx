@@ -334,6 +334,11 @@ export default function BrandIntelligenceProfile({ documents = [], onProfileChan
   };
 
   const startEdit = (sectionId) => {
+    // Tone Parameters is read-only — its values are AI-derived scores that
+    // editing wouldn't meaningfully express. The button is already hidden
+    // in the UI for this section; this guard prevents any programmatic
+    // entry into edit mode.
+    if (sectionId === "tone_parameters") return;
     setEditingId(sectionId);
     setEditDraft("");
     // Clone the current items into the local working copy so per-item
@@ -677,15 +682,17 @@ export default function BrandIntelligenceProfile({ documents = [], onProfileChan
                         )}
                         <span>Accept</span>
                       </button>
-                      <button
-                        type="button"
-                        className="bip-action-btn bip-action-edit"
-                        onClick={() => startEdit(id)}
-                        disabled={isBusy}
-                      >
-                        <Pencil size={13} strokeWidth={2} />
-                        <span>Edit</span>
-                      </button>
+                      {id !== "tone_parameters" && (
+                        <button
+                          type="button"
+                          className="bip-action-btn bip-action-edit"
+                          onClick={() => startEdit(id)}
+                          disabled={isBusy}
+                        >
+                          <Pencil size={13} strokeWidth={2} />
+                          <span>Edit</span>
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="bip-action-btn bip-action-flag"

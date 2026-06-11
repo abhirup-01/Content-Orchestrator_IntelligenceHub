@@ -1,7 +1,28 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -rn \"mint-banner\\\\|\\\\\\\\.ihub-banner\" \"src/\" --include=\"*.css\")"
+      "Bash(grep -rn \"mint-banner\\\\|\\\\\\\\.ihub-banner\" \"src/\" --include=\"*.css\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} \\(%{time_total}s\\)\\\\n\" http://localhost:8001/health)",
+      "Bash(ls \"../intelligence-hub-api/app/services/\" 2>&1 | tail -10)",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/app/services/**)",
+      "PowerShell($py = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\\\\.venv\\\\Scripts\\\\python.exe\"; $root = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\"; Set-Location $root; Write-Host \"=== Try importing the app ===\"; & $py -c \"from app.main import app; print\\('IMPORT OK'\\)\" 2>&1)",
+      "Bash(cat \"../intelligence-hub-api/requirements.txt\")",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/**)",
+      "PowerShell(Write-Host \"=== Kill zombie process on port 8001 ===\"; Get-Process -Id 25808,9516 -ErrorAction SilentlyContinue | ForEach-Object { try { Stop-Process -Id $_.Id -Force; Write-Host \"Killed PID $\\($_.Id\\) \\($\\($_.Name\\)\\)\" } catch { Write-Host \"Could not kill $\\($_.Id\\): $_\" } }; Start-Sleep -Seconds 1; $still = Get-NetTCPConnection -LocalPort 8001 -ErrorAction SilentlyContinue; if \\($still\\) { Write-Host \"STILL BOUND - trying broader kill\"; Get-Process python -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $PID } | Stop-Process -Force -ErrorAction SilentlyContinue } else { Write-Host \"Port 8001 freed\" })",
+      "PowerShell($py = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\\\\.venv\\\\Scripts\\\\python.exe\"; $root = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\"; & $py -m pip install -r \"$root\\\\requirements.txt\" 2>&1 | Select-Object -Last 12)",
+      "PowerShell($py = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\\\\.venv\\\\Scripts\\\\python.exe\"; $root = \"C:\\\\Users\\\\2135336\\\\OneDrive - Cognizant\\\\Documents\\\\Content_Orchestrator\\\\intelligence-hub-api\"; Set-Location $root; & $py -c \"from app.main import app; print\\('IMPORT OK'\\); routes=[r.path for r in app.routes if hasattr\\(r,'path'\\)]; print\\(f'{len\\(routes\\)} routes registered'\\)\" 2>&1)",
+      "Bash(cd \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api\")",
+      "Bash(./.venv/Scripts/python.exe -)",
+      "Bash(cd \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI\")",
+      "Bash(ls -1 src/components/IntelligenceHubSection/*.jsx)",
+      "Bash(ls -1 src/components/IntelligenceHubSection/IntelligenceCss/)",
+      "Bash(grep -n \"export default function\" src/components/IntelligenceHubSection/BrandIntelligenceRefresh.jsx src/components/IntelligenceHubSection/BrandIntelligenceProfile.jsx)",
+      "Bash(grep -nE \"BrandIntelligenceRefresh|BrandIntelligenceProfile|BrandIncremental\" src/components/IntelligenceHubSection/BrandIntelligence.jsx)",
+      "Bash(ls \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI/src/setupProxy.js\")",
+      "Bash(cat \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI/.env\")",
+      "Bash(cat \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI/.env.local\")",
+      "Bash(git rm *)",
+      "Bash(rm -f src/setupProxy.js)"
     ]
   }
 }

@@ -446,29 +446,6 @@ export default function BrandIntelligenceContext() {
         {expanded && (
         <>
 
-        {/* Natural language input */}
-        <div className="bic-ctx-nl">
-          <label className="bic-ctx-label" htmlFor="bic-ctx-nl-input">
-            <Wand2 size={14} strokeWidth={2} />
-            <span>Describe your scope</span>
-          </label>
-          <textarea
-            id="bic-ctx-nl-input"
-            className="bic-ctx-textarea"
-            rows={3}
-            placeholder="e.g. Only approved claims from the latest label update, excluding anything expired. Or name a specific asset: MyDrug_Claims_2026."
-            value={nlContext}
-            onChange={(e) => setNlContext(e.target.value)}
-          />
-          <p className="bic-ctx-nl-hint">
-            <Database size={11} strokeWidth={2} />
-            <span>
-              Mentioning an asset name or selecting &ldquo;Claims&rdquo; below will
-              automatically fetch matching documents from Veeva Vault when you apply.
-            </span>
-          </p>
-        </div>
-
         {/* ── Structured filters — now dropdowns ── */}
         <div className="bic-ctx-filters">
           {/* Single-select */}

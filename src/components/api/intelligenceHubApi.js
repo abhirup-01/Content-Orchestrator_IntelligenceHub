@@ -283,5 +283,27 @@ export const getCanGenerate = (brand) =>
 // getDownstreamImpact's version-pinned lookup.
 export const listAtoms = (params = {}) =>
   client.get(`/atoms`, { params }).then((r) => r.data);
+
+// [US 1.8 AC #6] POST /refresh/recovery-scan
+// Backend probes previously-unavailable connectors; if any have recovered,
+// it auto-triggers /ingestion/refresh under the hood. Safe to call on every
+// hydrate — the 24h gate on the server prevents repeated upstream probes.
+//
+// returns: { brand, checked, recovered, reason, recovered_connectors,
+//            still_unavailable, last_check_at, next_check_eligible_at,
+//            new_run_id?, new_profile_id? }
+export const runRecoveryScan = (brand, triggeredBy = "system", force = false) =>
+  client
+    .post(`/refresh/recovery-scan`, null, {
+      params: {
+        ...(brand ? { brand } : {}),
+        triggered_by: triggeredBy,
+        force,
+      },
+      // Recovery scan can trigger a full /ingestion/refresh inline, so it
+      // needs the same generous timeout the manual refresh uses.
+      timeout: INGESTION_RUN_TIMEOUT_MS,
+    })
+    .then((r) => r.data);
  
  

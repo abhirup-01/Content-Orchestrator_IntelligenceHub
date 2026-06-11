@@ -196,11 +196,7 @@
   display: inline-block;
 }
 
-.badge--neutral  { background: var(--surface-b);  
-   color: var(--ink-c);  
-     border: 1px solid var(--border); 
-     margin-left: 1px;
-}
+.badge--neutral  { background: var(--surface-b);   color: var(--ink-c);    border: 1px solid var(--border); }
 .badge--active   { background: var(--green-soft);   color: var(--green);    border: 1px solid var(--green-border); }
 .badge--archived { background: var(--surface-b);    color: var(--ink-d);    border: 1px solid var(--border); }
 .badge--awaiting { background: var(--amber-soft);   color: var(--amber);    border: 1px solid var(--amber-border); }
@@ -219,7 +215,7 @@
 .badge--teal     .badge__dot { background: var(--teal); }
 
 /* ─── Button ─────────────────────────────────────────────────────────────────── */
-/* .btn {
+.btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -229,15 +225,6 @@
   cursor: pointer;
   transition: all 0.14s;
   border: 1px solid transparent;
-} */
-
-.btn {
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s;
 }
 
 .btn:disabled {
@@ -298,23 +285,11 @@
 .btn--blue:hover:not(:disabled) { background: #D9E6FC; }
 
 .btn--activate {
-  /* background: linear-gradient(135deg, #1B4FD8, #3B6EF0);
-  color: #3b6ef0;
-  border-color: var(--blue);
-  box-shadow: 0 4px 16px rgba(27, 79, 216, 0.25); */
-  color: #ffffff;
-  border-color: var(--blue);
-  box-shadow: 0 4px 16px rgba(27, 79, 216, 0.25);
-  background: #3B6EF0;
-}
-
-.btn--activate:hover{
   background: linear-gradient(135deg, #1B4FD8, #3B6EF0);
   color: #3b6ef0;
   border-color: var(--blue);
   box-shadow: 0 4px 16px rgba(27, 79, 216, 0.25);
 }
-
 .btn--activate:hover:not(:disabled) {
   background: linear-gradient(135deg, #1540B8, #2A5CE0);
 }
@@ -651,7 +626,7 @@
 }
 
 .activate-hero__metric-key {
-  font-size: 13px;
+  font-size: 12px;
   font-family: var(--font-sans);
   color: var(--ink-d);
 }

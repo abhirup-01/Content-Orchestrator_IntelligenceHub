@@ -102,20 +102,20 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #5c8df9;
+    background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 600;
-    color: #fff;
+    color: #0f172a;
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.15s, border-color 0.15s;
   }
   .bic-add-btn:hover {
-    background: #5e7ab3;
-    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    border-color: #cbd5e1;
   }
   .bic-add-icon {
     width: 14px;

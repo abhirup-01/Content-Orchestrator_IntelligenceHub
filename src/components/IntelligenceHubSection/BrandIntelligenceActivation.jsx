@@ -27,6 +27,7 @@ import {
   acknowledgePartialProfile,
   getProfile,
   getRun,
+  runRecoveryScan,
 } from "../api/intelligenceHubApi";
 import { useToast } from "./Toast";
 
@@ -600,7 +601,7 @@ function ActivateTab({ profile, onActivate, profileId, user, role, onRecordVersi
             <div>
               <div className="activate-hero__heading">
                 <span className="activate-hero__title">Activation Status</span>
-                <Badge variant={isDone ? "active" : "awaiting"}>
+                <Badge variant={isDone ? "active" : "awaiting"} dot>
                   {isDone ? "Active" : "Awaiting Activation"}
                 </Badge>
               </div>
@@ -1057,6 +1058,7 @@ export default function US14App({
   const [role, setRole]       = useState("Brand Manager");
   const [profile, setProfile] = useState({ status: "awaiting", version: "v—" });
   const [versions, setVersions] = useState([]);
+  const toast = useToast();
 
   const recordVersion = (entry) => {
     setVersions((prev) => [
@@ -1106,6 +1108,36 @@ export default function US14App({
 
   useEffect(() => { hydrate(); }, [hydrate]);
 
+  // [US 1.8 AC #6] Auto-recovery probe. After each hydrate, if the active
+  // profile is partial we ask the backend to probe the previously-failed
+  // connectors. The server enforces a 24h gate, so calling this on every
+  // mount is safe — it short-circuits to a no-op when checked recently.
+  // If recovery actually triggered a refresh, re-hydrate so the UI picks
+  // up the new is_partial=false state.
+  const recoveryScanRef = useRef(new Set());
+  useEffect(() => {
+    if (!profileId) return;
+    if (!profile?.is_partial) return;
+    if (recoveryScanRef.current.has(profileId)) return;
+    recoveryScanRef.current.add(profileId);
+    (async () => {
+      try {
+        const result = await runRecoveryScan(profile?.brand, user || "system");
+        if (result?.recovered) {
+          toast.success?.(
+            `Connector recovered: ${(result.recovered_connectors || []).join(", ")}. ` +
+            `Auto re-ingestion triggered.`
+          );
+          await hydrate();
+        }
+      } catch (err) {
+        // Recovery scan is opportunistic; we surface failures only to the
+        // console so a transient upstream blip doesn't show the user an error.
+        console.warn("[recovery-scan] failed", err);
+      }
+    })();
+  }, [profileId, profile?.is_partial, profile?.brand, user, hydrate, toast]);
+
   const handleAcknowledgePartial = useCallback(async () => {
     if (!profileId) throw new Error("No profile selected.");
     await acknowledgePartialProfile(profileId, user);
@@ -1133,7 +1165,7 @@ export default function US14App({
         </div>
 
         <div className="us14-topbar__right">
-          <Badge variant={profile.status === "active" ? "active" : "awaiting"}>
+          <Badge variant={profile.status === "active" ? "active" : "awaiting"} dot>
             {profile.status === "active" ? "Active" : "Awaiting Activation"}
           </Badge>
           <Badge variant="neutral">{profile.version}</Badge>
