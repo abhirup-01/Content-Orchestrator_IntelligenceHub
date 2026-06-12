@@ -174,12 +174,26 @@
   }
   
   .btn--secondary {
-    background: #f3f4f6;
+    /* background: #f3f4f6; */
+    background: #c4d7e5;
+    border: 0.5px solid #d1d5db;
+    color: #111;
+  }
+
+  .btn--secondary:hover{
+    background: #62a5d4;
     border: 0.5px solid #d1d5db;
     color: #111;
   }
   
   .btn--primary {
+    background: #1D3FBB;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+  }
+
+  .btn--primary:hover {
     background: #1D3FBB;
     color: #fff;
     border: none;
@@ -238,7 +252,8 @@
   }
   
   .bir-metric-card {
-    background: #f1f5f9;
+    /* background: #f1f5f9; */
+    background: #e4ebf1;
     border-radius: 8px;
     padding: 12px 14px;
   }
@@ -246,8 +261,8 @@
   .bir-metric-card:hover{ box-shadow: var(--shadow); transform: translateY(-1px); }
 
   .bir-metric-card__label {
-    font-size: 12px;
-    color: #323336;
+    font-size: 12.75px;
+    color: #000000;
     margin: 0 0 4px;
   }
   
@@ -263,8 +278,8 @@
   .bir-metric-card__value--warning { color: #ef9f27; }
   
   .bir-metric-card__note {
-    font-size: 11px;
-    color: #616266;
+    font-size: 11.75px;
+    color: #383838;
     margin: 4px 0 0;
   }
   
@@ -586,8 +601,8 @@
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.04em;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 6px 8px;
+    border-radius: 6px;
     text-transform: uppercase;
     display: inline-block;
   }

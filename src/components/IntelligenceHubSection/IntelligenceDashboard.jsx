@@ -966,7 +966,7 @@ const clearAllFilters = () => {
       </section>
 
      {/* Opportunities */}
-     <section className="ihub-card">
+     {/* <section className="ihub-card">
         <div className="ihub-card-head">
           <div className="ihub-card-title">
             <span className="bulb">💡</span> Content Opportunities
@@ -978,9 +978,7 @@ const clearAllFilters = () => {
         </p>
        
       
-      {/* --- More Opportunities (detailed cards) --- */}
-{/* <section className="ihub-card ihub-card--soft"> */}
-  {/* Opportunity #1 */}
+     
   <div className="ihub-opCard">
     <div className="ihub-opCard-left">
       <div className="ihub-opCard-titleRow">
@@ -1015,10 +1013,10 @@ const clearAllFilters = () => {
     </div>
   </div>
 
-  {/* divider */}
+
   <div className="ihub-divider"></div>
 
-  {/* Opportunity #2 */}
+
   <div className="ihub-opCard">
     <div className="ihub-opCard-left">
       <div className="ihub-opCard-titleRow">
@@ -1051,8 +1049,8 @@ const clearAllFilters = () => {
         <span>Generate from Opportunity</span>
       </button>
     </div>
-  </div>
-</section>
+  </div> 
+</section> */}
 
 <section className="ihub-card">
  {/* --- Brand Intelligence Connectors (data sources) --- */}

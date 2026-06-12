@@ -575,7 +575,7 @@ function DiagnosticLogsTab({ status, refreshSummary, runError, statusError, chan
   .high   { background:#fef2f2; color:#b91c1c; }
   .medium { background:#fef3c7; color:#b45309; }
   .low    { background:#f1f5f9; color:#475569; }
-  @media print { body { padding:0; max-width:none; } }
+  @media print { body { padding:0; max-width:none;} }
 </style></head><body>
 <h1>Brand Intelligence Refresh — Diagnostic Log</h1>
 <div class="meta">Exported: ${esc(payload.exported_at)} · Profile: ${esc(status?.profile_id)} · Brand: ${esc(status?.brand)} · Version: v${esc(status?.version_number)}</div>
@@ -667,10 +667,10 @@ ${(runError || statusError) ? `<h2>Backend Errors</h2>
 
   const Row = ({ label, value, mono }) => (
     <div style={{ display: "flex", gap: 12, padding: "3px 0" }}>
-      <div style={{ flex: "0 0 180px", fontSize: 12, color: "#64748b" }}>{label}</div>
+      <div style={{ flex: "0 0 180px", fontSize: 13, color: "#64748b" }}>{label}</div>
       <div style={{
         flex: "1 1 auto",
-        fontSize: 12,
+        fontSize: 13,
         color: "#0f172a",
         fontFamily: mono ? "ui-monospace, SFMono-Regular, Menlo, monospace" : undefined,
         wordBreak: "break-all",
@@ -780,7 +780,7 @@ ${(runError || statusError) ? `<h2>Backend Errors</h2>
         <Row label="High severity"   value={sectionBreakdown.high   || 0} />
         <Row label="Medium severity" value={sectionBreakdown.medium || 0} />
         <Row label="Low severity"    value={sectionBreakdown.low    || 0} />
-        <div style={{ marginTop: 8, fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>
+        <div style={{ marginTop: 8, fontSize: 12.5, color: "#64748b", lineHeight: 1.5 }}>
           <strong>Heuristic:</strong> document removals are HIGH (downstream content may have cited the source).
           Document additions are MEDIUM (new material, no invalidation). Modifications are MEDIUM (existing citations may point at outdated wording).
           Per-pillar item additions are LOW unless they're in Claims Inventory or Prohibited Territory, which inherit HIGH for regulatory weight.
@@ -805,16 +805,16 @@ ${(runError || statusError) ? `<h2>Backend Errors</h2>
                               d.change_status === "added"     ? "#ecfdf5" :
                                                                 "#fef3c7",
                   borderRadius: 6,
-                  fontSize: 12,
+                  fontSize: 13,
                 }}
               >
                 <div>
                   <div style={{ fontWeight: 600 }}>{d.name || d.document_id || "—"}</div>
-                  <div style={{ fontSize: 11, color: "#64748b", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                  <div style={{ fontSize: 12, color: "#64748b", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
                     {d.document_id}
                   </div>
                 </div>
-                <div style={{ color: "#475569" }}>{d.source || "—"}</div>
+                <div style={{fontSize: 13, color: "#475569"}}>{d.source || "—"}</div>
                 <div style={{
                   textTransform: "uppercase",
                   fontWeight: 700,
