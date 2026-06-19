@@ -471,7 +471,7 @@ export default function BrandIntelligenceProfile({ documents = [], onProfileChan
   // ===== Render ===========================================================
   return (
     <div className="bip-embedded" aria-label="Brand Intelligence Profile">
-      <div className="bip-divider" />
+      {/* <div className="bip-divider" /> */}
 
       {/* Header */}
       <div className="bip-head">

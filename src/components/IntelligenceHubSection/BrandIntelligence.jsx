@@ -488,6 +488,16 @@ const [docFilter, setDocFilter] = useState("all"); // "all" | "claims" | "guidel
 // `!excludedDocIds.has(d.id)` before passing it to <BrandIntelligenceProfile />.
 const [excludedDocIds, setExcludedDocIds] = useState(() => new Set());
 
+  // Top-level Brand Intelligence tab. "sources" lands first because the
+  // user must connect + ingest before any of the AI-derived sections can
+  // populate. Tab order: sources → profile → history → refresh.
+  const [tab, setTab] = useState("sources");
+
+  // Tracks whether every one of the four BIP sections is in "accepted"
+  // state. Drives the contextual "go activate" banner shown below the
+  // Profile tab. Pushed up by BrandIntelligenceProfile via onProfileChange.
+  const [allSectionsAccepted, setAllSectionsAccepted] = useState(false);
+
   // Single refresh pass — used by both the auto-interval and the click handler.
   //
   // Drives connector status by ingestion outcome:
@@ -1045,6 +1055,51 @@ const filteredDocuments = documents.filter((d) => {
       {/* <div className="bic-outer-card"> */}
       <div className="bic-section-label">Brand Intelligence</div>
 
+      {/* Top-level Brand Intelligence tabs. Reuses the .us14-tabbar /
+          .us14-tab-btn styles already defined in
+          BrandIntelligenceActivation.css — no new CSS introduced.
+          Order matches the natural workflow: connect+ingest → review
+          sections → watch for changes → audit history. */}
+      <div className="us14-tab-btn" role="tablist" aria-label="Brand Intelligence">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "sources"}
+          className={`us14-tab${tab === "sources" ? " us14-tab-btn--active" : ""}`}
+          onClick={() => setTab("sources")}
+        >
+          Sources
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "profile"}
+          className={`us14-tab${tab === "profile" ? " us14-tab-btn--active" : ""}`}
+          onClick={() => setTab("profile")}
+        >
+          Profile
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "history"}
+          className={`us14-tab${tab === "history" ? " us14-tab-btn--active" : ""}`}
+          onClick={() => setTab("history")}
+        >
+          History &amp; Audit
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "refresh"}
+          className={`us14-tab${tab === "refresh" ? " us14-tab-btn--active" : ""}`}
+          onClick={() => setTab("refresh")}
+        >
+          Refresh &amp; Changes
+        </button>
+      </div>
+
+      <div style={{ display: tab === "sources" ? "block" : "none" }}>
       <div className="bic-card">
         {/* Header */}
         <div className="bic-card-head">
@@ -1306,11 +1361,15 @@ const filteredDocuments = documents.filter((d) => {
                 label: d.contentType,
                 cls: "bic-doc-pill-reference",
               };
+              const isExcluded = excludedDocIds.has(d.id);
               return (
                 <div
-                  className={`bic-doc-row ${
-                    excludedDocIds.has(d.id) ? "bic-doc-row--excluded" : ""
-                  }`}
+                  className="bic-doc-row"
+                  // Use plain opacity to indicate "not included in next ingestion".
+                  // We deliberately do NOT apply .bic-doc-row--excluded, which
+                  // strikes the text through — that read as "deleted" to users.
+                  // A faded look matches the user's "looks disabled" expectation.
+                  style={isExcluded ? { opacity: 0.45 } : undefined}
                   key={d.id}
                 >
                   {/* Card-style row matching the design mockup:
@@ -1360,32 +1419,138 @@ const filteredDocuments = documents.filter((d) => {
             section label + card wrapper were stripped inside the component
             so it slots in cleanly with just a divider separating the two. */}
         <BrandIntelligenceContext />
+      </div>
 
-        {/* Added by Abhirup Nandi — 2026-05-25: Brand Intelligence Profile —
-            triggers initial ingestion, presents the AI-drafted 4-section
-            profile for Accept/Edit/Flag review, gates activation on AC #4
-            (flagged sections) and AC #5 (empty claims). Same embedded
-            pattern — no own card frame. The `documents` array is the live
-            ingested list (Veeva / Claims / SharePoint / Manual upload) —
-            the profile component reads its length for the doc-count
-            confirmation (AC #1) and uses it as the source for the LLM
-            extraction call once that integration is wired. */}
-        {/* Modified by Sanju Kumari — 2026-05-29: wired onProfileChange so
-            the loaded draft's profile_id flows down to Activation. */}
+      {/* Contextual footer — only shown once at least one document is
+          actually ingested. Points the user at the next step (Profile
+          tab) instead of leaving them guessing. Inline styled so no CSS
+          file is touched. */}
+      {documents.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-start",
+            padding: "16px 16px 10px",
+            margin: "8px 22px 16px",
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            borderRadius: 8,
+            fontSize: "13.75px",
+            color: "#065f46",
+            lineHeight: 1.5,
+            paddingTop:"16px"
+          }}
+        >
+          <span style={{ fontSize: 16, lineHeight: 1.3 }}>✓</span>
+          <div style={{ flex: 1, marginTop:"1px" }}>
+            <strong>{documents.length - excludedDocIds.size}</strong> document
+            {documents.length - excludedDocIds.size === 1 ? "" : "s"} ready for
+            ingestion. Open the <strong>Profile</strong> tab and click
+            <em> Run Initial Ingestion</em> to extract the four sections.
+          </div>
+          <button
+            type="button"
+            onClick={() => setTab("profile")}
+            style={{
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#fff",
+              background: "#059669",
+              border: "none",
+              borderRadius: 6,
+              cursor: "pointer",
+            }}
+          >
+            Go to Profile →
+          </button>
+        </div>
+      )}
+      </div>
+
+      {/* ── Tab 2 · Profile ───────────────────────────────────────────────
+          Brand Intelligence Profile — triggers initial ingestion when no
+          draft exists yet, then presents the four AI-extracted sections
+          (Messaging Pillars / Tone / Claims / Prohibited) for review.
+          Always mounted, hidden when inactive, so the user doesn't lose
+          in-flight ingestion state when switching tabs. */}
+      <div style={{ display: tab === "profile" ? "block" : "none" }}>
         <BrandIntelligenceProfile
           documents={documents.filter((d) => !excludedDocIds.has(d.id))}
-          onProfileChange={(p) => setActiveProfileId(p?.profile_id || null)}
+          onProfileChange={(p) => {
+            setActiveProfileId(p?.profile_id || null);
+            // Compute "all 4 sections accepted" so the contextual banner
+            // below can prompt the user to activate. Pending / edited /
+            // flagged states all keep this false.
+            const SECTION_KEYS = [
+              "messaging_pillars",
+              "tone_parameters",
+              "claims_inventory",
+              "prohibited_territory",
+            ];
+            const ok =
+              !!p &&
+              SECTION_KEYS.every(
+                (k) => p?.sections?.[k]?.state === "accepted"
+              );
+            setAllSectionsAccepted(ok);
+          }}
         />
 
-        {/* US 1.4 + US 1.5 panels only render once a draft profile exists.
-            Before that, the empty hero tiles (v—, Sections reviewed —, etc.)
-            look broken to a non-technical user. We render a single quiet
-            placeholder hint instead so the page stays clean. */}
+        {/* Contextual footer — only shown when every one of the four
+            sections has been accepted. Points the user at the next step
+            (History & Audit tab) where the Activate button lives. */}
+        {allSectionsAccepted && (
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "flex-start",
+              padding: "12px 16px",
+              margin: "8px 22px 16px",
+              background: "#ecfdf5",
+              border: "1px solid #a7f3d0",
+              borderRadius: 8,
+              fontSize: 13,
+              color: "#065f46",
+              lineHeight: 1.5,
+            }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }}>✓</span>
+            <div style={{ flex: 1 }}>
+              <strong>All four sections accepted.</strong> Open the
+              <strong> History &amp; Audit</strong> tab and click
+              <em> Activate Profile</em> to snapshot an immutable version.
+            </div>
+            <button
+              type="button"
+              onClick={() => setTab("history")}
+              style={{
+                padding: "6px 14px",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#fff",
+                background: "#059669",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+              }}
+            >
+              Go to History &amp; Audit →
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Tab 3 · History & Audit ───────────────────────────────────────
+          US 1.4 activation panel — Activation status, Version History,
+          Insights, and the audit log are nested as sub-tabs inside this
+          component. Always mounted so its internal tab + hydrate state
+          survive top-level tab switching. */}
+      <div style={{ display: tab === "history" ? "block" : "none" }}>
         {activeProfileId ? (
-          <>
-            <BrandIntelligenceActivation profileId={activeProfileId} />
-            <BrandIncrementalProfile profileId={activeProfileId} />
-          </>
+          <BrandIntelligenceActivation profileId={activeProfileId} />
         ) : (
           <div
             style={{
@@ -1399,8 +1564,34 @@ const filteredDocuments = documents.filter((d) => {
               textAlign: "center",
             }}
           >
-            Run ingestion above to enable activation, version control, and
-            refresh &amp; change detection.
+            Activate a profile from the <strong>Profile</strong> tab to
+            populate version history and audit trail.
+          </div>
+        )}
+      </div>
+
+      {/* ── Tab 4 · Refresh & Changes ─────────────────────────────────────
+          US 1.5 incremental refresh + 90-day countdown + per-section
+          change rollup + auto-recovery scan status. */}
+      <div style={{ display: tab === "refresh" ? "block" : "none" }}>
+        {activeProfileId ? (
+          <BrandIncrementalProfile profileId={activeProfileId} />
+        ) : (
+          <div
+            style={{
+              padding: "14px 18px",
+              margin: "12px 22px",
+              borderRadius: 10,
+              background: "#f8fafc",
+              border: "1px dashed #cbd5e1",
+              color: "#64748b",
+              fontSize: 13,
+              textAlign: "center",
+            }}
+          >
+            Run ingestion from the <strong>Sources</strong> tab and review
+            the <strong>Profile</strong> tab to unlock refresh &amp; change
+            detection.
           </div>
         )}
       </div>
