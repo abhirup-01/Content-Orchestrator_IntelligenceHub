@@ -537,6 +537,8 @@ import RepEnabledIntelligence  from "./RepEnabledIntelligence";
 import CrossChannelInsights from "./CrossChannelInsights";
 import AdditionalIntelligence from "./AdditionalIntelligence";
 import BrandIntelligence from "./BrandIntelligence";
+import CompetitiveIntelligence from "./CompetitiveIntelligence";
+import CompetitorInventory from "./CompetitorInventory";
 import {  ArrowLeft, Funnel, TrendingUp, Mail, Share2, Sparkles, Lightbulb, Layers } from 'lucide-react';
 // Modified by Abhirup Nandi — 2026-05-25: BrandIntelligenceContext is now
 // rendered inside <BrandIntelligence /> as a continuation of the Ingested
@@ -801,25 +803,15 @@ const clearAllFilters = () => {
      <section className="ihub-card">
         <div className="ihub-card-title1">
         <svg
-
     width="20"
-
     height="20"
-
     viewBox="0 0 24 24"
-
     fill="none"
-
     stroke="#00CFFF"
-
     strokeWidth="2"
-
     strokeLinecap="round"
-
     strokeLinejoin="round"
-
     style={{ marginRight: '1px' }}
-
   >
 
     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -1056,7 +1048,16 @@ const clearAllFilters = () => {
  {/* --- Brand Intelligence Connectors (data sources) --- */}
  <BrandIntelligence />
  </section>
-
+ <section className="ihub-card">
+{/* --- Competitive Intelligence --- */}
+{/* <section className="ihub-card"> */}
+  <CompetitiveIntelligence />
+{/* </section> */}
+{/* --- Competitor Inventory --- */}
+<section className="ihub-card">
+  <CompetitorInventory />
+</section>
+</section>
    {/* </section> */}
 {/* --- Channel Intelligence --- */}
 <section className="ihub-card">
