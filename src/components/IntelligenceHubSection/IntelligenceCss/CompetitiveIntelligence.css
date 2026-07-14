@@ -229,6 +229,9 @@ margin-top: -15px;}
 .cr-err-type{font-size:12px;font-weight:600;color:var(--red);display:block}
 .cr-err-since{font-size:11px;color:#EF4444;opacity:.8;margin-top:1px;display:block}
 
+/* Sanju changes - 29th June 2026 — last-refreshed / ingest-result stamp under the connector name */
+.cr-refreshed{font-size:11px;color:var(--gray4);margin-top:6px}
+
 /* ── Fetch result drawer (expands below row) ── */
 .fetch-drawer{
   border-top:1px solid var(--blue-bd);

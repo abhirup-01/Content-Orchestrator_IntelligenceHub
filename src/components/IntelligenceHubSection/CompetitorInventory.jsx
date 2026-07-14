@@ -7,6 +7,10 @@ import {
   getPendingItems,
   getQuarantine,
   triggerIngestion,
+  // Sanju changes - 29th June 2026 — extra CI endpoints (Ask AI + Run Log)
+  askCompetitor,
+  getRunLogs,
+  downloadRunLog,
 } from "../api/competitiveIntelligenceApi";
 import "./IntelligenceCss/CompetitorInventory.css";
 
@@ -36,6 +40,18 @@ const TREND_ICONS = {
   Stable:     { label: "→ Stable",     cls: "trend-flat" },
   Unknown:    { label: "— Unknown",    cls: "trend-flat" },
 };
+
+/* Sanju changes - 29th June 2026 — render every timestamp in India Standard
+   Time (Asia/Kolkata). formatIST = date + time (+ " IST"); formatISTDate = date only.
+   Keeps the existing en-GB display format, only the time zone changes. */
+function formatIST(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("en-GB", { timeZone: "Asia/Kolkata" }) + " IST";
+}
+function formatISTDate(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" });
+}
 
 /* ─────────────────────────────────────────────────────────
    SUB-COMPONENTS
@@ -103,18 +119,36 @@ function ItemDetailDrawer({ item }) {
     { label: "Geography",       value: item.geography || "—" },
     { label: "Source",          value: item.source_name },
     { label: "Cycle ID",        value: item.ingestion_cycle_id },
-    { label: "Detected",        value: item.detected_date ? new Date(item.detected_date).toLocaleString("en-GB", { timeZone: "UTC" }) : "—" },
+    // Sanju changes - 29th June 2026 — IST
+    { label: "Detected",        value: formatIST(item.detected_date) },
     { label: "Reliability",     value: item.reliability },
     { label: "Layer 4 Routed",  value: item.layer4_routed ? "Yes" : "No" },
-    ...(cat === "APPROVAL_RECORD"   ? [{ label: "Approval Type", value: item.approval_type }, { label: "Authority", value: item.authority }, { label: "App No.", value: item.application_num || "—" }] : []),
-    ...(cat === "TRIAL_RECORD"      ? [{ label: "Trial ID", value: item.trial_id }, { label: "Phase", value: item.trial_phase || "—" }, { label: "Status", value: item.trial_status || "—" }, { label: "Change", value: item.change_type || "—" }] : []),
-    ...(cat === "COMPETITOR_CLAIM"  ? [{ label: "Claim Type", value: item.claim_type || "—" }, { label: "Confidence", value: `${item.confidence_score}/100` }] : []),
-    ...(cat === "COMPETITOR_NARRATIVE" ? [{ label: "Evidence Items", value: (item.evidence_item_ids || []).join(", ") || "—" }, { label: "Confidence", value: `${item.confidence_score}/100` }] : []),
+    // Sanju changes - 29th June 2026 — added Confidence / provenance / messaging
+    // fields per Data Category (extra logic from reference build).
+    ...(cat === "APPROVAL_RECORD"   ? [{ label: "Approval Type", value: item.approval_type }, { label: "Authority", value: item.authority }, { label: "App No.", value: item.application_num || "—" }, { label: "Confidence", value: item.confidence_score != null ? `${item.confidence_score}/100` : "—" }] : []),
+    ...(cat === "TRIAL_RECORD"      ? [{ label: "Trial ID", value: item.trial_id }, { label: "Phase", value: item.trial_phase || "—" }, { label: "Status", value: item.trial_status || "—" }, { label: "Change", value: item.change_type || "—" }, { label: "Confidence", value: item.confidence_score != null ? `${item.confidence_score}/100` : "—" }] : []),
+    ...(cat === "COMPETITOR_CLAIM"  ? [
+      { label: "Claim Type", value: item.claim_type || "—" },
+      { label: "Confidence", value: `${item.confidence_score}/100` },
+      // Sanju changes - 29th June 2026 — provenance for claims mined by the
+      // Competitor Signal Agent from a non-claim source.
+      ...(item.signal_source ? [{ label: "Mined From", value: item.signal_source }] : []),
+      ...(item.extracted_by ? [{ label: "Extracted By", value: "Competitor Signal Agent (AI)" }] : []),
+    ] : []),
+    ...(cat === "COMPETITOR_NARRATIVE" ? [
+      // Sanju changes - 29th June 2026 — pieces analysed count.
+      { label: "Pieces Analysed", value: item.evidence_count != null ? `${item.evidence_count} (AI read ≥5)` : `${(item.evidence_item_ids || []).length}` },
+      { label: "Evidence Items", value: (item.evidence_item_ids || []).join(", ") || "—" },
+      { label: "Confidence", value: `${item.confidence_score}/100` },
+    ] : []),
     ...(cat === "AD_ACTIVITY_RECORD" ? [
       { label: "Channels",        value: (item.channels || []).join(", ") },
       { label: "Observations",    value: item.observation_count?.toLocaleString() || "—" },
       { label: "Prior 30d",       value: item.observation_count_prior_30d?.toLocaleString() || "—" },
       { label: "Trend",           value: `${item.trend_direction || "—"}${item.trend_pct_change != null ? ` (${item.trend_pct_change > 0 ? "+" : ""}${item.trend_pct_change}%)` : ""}` },
+      // Sanju changes - 29th June 2026 — confidence + observed messaging.
+      { label: "Confidence",      value: item.confidence_score != null ? `${item.confidence_score}/100` : "—" },
+      ...(item.observed_messaging ? [{ label: "Observed Messaging", value: item.observed_messaging }] : []),
     ] : []),
   ];
 
@@ -198,23 +232,38 @@ function InventoryItem({ item }) {
           <div className="item-tags">
             <CategoryBadge category={item.data_category} />
             <ReliabilityBadge reliability={item.reliability} />
-             {/* {item.data_category === "COMPETITOR_CLAIM" && item.confidence_score != null && (
-              <ConfidenceBar score={item.confidence_score} flagged={item.low_confidence_flag} />
+            {/* Sanju changes - 29th June 2026 — show the "⚡ Signal · <SOURCE>" chip
+                on EVERY inventory row, using signal_source (guaranteed by
+                getInventory: signal_source ?? source_type ?? source_name). This is
+                the origin feed each intelligence signal came from (REGULATORY /
+                CONGRESS / SOCIAL / ADINTEL) and pairs with the Category + Reliability
+                badges and the confidence score to match the reference UI row. */}
+            {(item.signal_source || item.source_name) && (
+              <span className="inv-badge bdg-claim" title="Competitor intelligence signal — origin feed">
+                ⚡ Signal · {String(item.signal_source || item.source_name).toUpperCase()}
+              </span>
             )}
-            {item.data_category === "COMPETITOR_NARRATIVE" && item.confidence_score != null && (
-              <ConfidenceBar score={item.confidence_score} />
-            )} 
+            {/* Narrative piece count — use the explicit evidence_count when present,
+                otherwise fall back to the number of evidence items the AI cited. */}
+            {item.data_category === "COMPETITOR_NARRATIVE" &&
+              (item.evidence_count != null || (item.evidence_item_ids || []).length > 0) && (
+              <span className="inv-badge bdg-narrative" title="Synthesised after the AI read ≥5 content pieces">
+                {item.evidence_count != null ? item.evidence_count : (item.evidence_item_ids || []).length} pieces
+              </span>
+            )}
+            {/* Inline confidence score bar removed per request — the confidence
+                value still appears in the expanded item detail drawer. */}
             {item.data_category === "AD_ACTIVITY_RECORD" && item.trend_direction && (
               <span className={TREND_ICONS[item.trend_direction]?.cls || "trend-flat"}>
                 {TREND_ICONS[item.trend_direction]?.label}
                 {item.trend_pct_change != null ? ` ${item.trend_pct_change > 0 ? "+" : ""}${item.trend_pct_change}%` : ""}
               </span>
-            )} */}
+            )}
           </div>
         </div>
         <div className="item-right">
           <div className="item-date">
-            {item.detected_date ? new Date(item.detected_date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+            {item.detected_date ? new Date(item.detected_date).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric" }) : "—"}
           </div>
           <span style={{ fontSize: 11, color: "var(--gray4)" }}>{item.source_name}</span>
         </div>
@@ -226,7 +275,6 @@ function InventoryItem({ item }) {
 
 function CyclePanel({ cycle }) {
   if (!cycle) return null;
-  const counts = cycle.item_counts || {};
   const statusColor = cycle.status === "completed" ? "#16A34A" : cycle.status === "partial" ? "#D97706" : "#DC2626";
 
   return (
@@ -240,27 +288,24 @@ function CyclePanel({ cycle }) {
           </div>
         </div>
         <div style={{ fontSize: 12, color: "var(--gray3)", textAlign: "right" }}>
-          <div>Started: {new Date(cycle.started_at).toLocaleString("en-GB", { timeZone: "UTC" })}</div>
-          {cycle.completed_at && <div>Completed: {new Date(cycle.completed_at).toLocaleString("en-GB", { timeZone: "UTC" })}</div>}
+          {/* Sanju changes - 29th June 2026 — IST */}
+          <div>Started: {formatIST(cycle.started_at)}</div>
+          {cycle.completed_at && <div>Completed: {formatIST(cycle.completed_at)}</div>}
         </div>
       </div>
 
-      <div className="cycle-kpi-row">
-        {DATA_CATEGORIES.filter(c => c.id !== "ALL").map(cat => (
-          <div key={cat.id} className="cycle-kpi">
-            <div className="cycle-kpi-label">{cat.label.replace("Records", "").replace("Competitor ", "").trim()}</div>
-            <div className="cycle-kpi-value" style={{ color: cat.color }}>{counts[cat.id] || 0}</div>
-            <div className="cycle-kpi-sub">items</div>
-          </div>
-        ))}
-      </div>
+      {/* Sanju changes - 29th June 2026 — removed the per-cycle KPI row. It used
+          cycle.item_counts (NEW items this cycle only), so on a partial cycle it
+          showed 0 for Competitor Claims / Trial Records even though the inventory
+          has 9 / 10. The category totals now come solely from the backend-driven
+          stat cards (stats.by_category), matching the reference build. */}
 
       {cycle.connector_failures?.length > 0 && cycle.connector_failures.map((f, i) => (
         <div key={i} className="failure-strip">
           <span>⚠</span>
           <div>
             <span className="failure-name">{f.connector_name}</span>
-            <span className="failure-err">{f.error_type} · {new Date(f.timestamp).toLocaleString("en-GB", { timeZone: "UTC" })}</span>
+            <span className="failure-err">{f.error_type} · {formatIST(f.timestamp)}</span>{/* Sanju changes - 29th June 2026 — IST */}
           </div>
         </div>
       ))}
@@ -284,7 +329,7 @@ function AdSummaryPanel({ summaries }) {
           <div className="ad-summary-header">
             <div>
               <div className="ad-summary-competitor">{s.competitor_name}</div>
-              <div style={{ fontSize: 11, color: "var(--gray3)" }}>{s.cycle_id} · {new Date(s.generated_at).toLocaleDateString("en-GB")}</div>
+              <div style={{ fontSize: 11, color: "var(--gray3)" }}>{s.cycle_id} · {formatISTDate(s.generated_at)}</div>
             </div>
             <span className={TREND_ICONS[s.trend_direction]?.cls || "trend-flat"} style={{ fontSize: 13 }}>
               {TREND_ICONS[s.trend_direction]?.label}
@@ -334,7 +379,7 @@ function PendingPanel({ items, onResolve }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{p.raw_text?.slice(0, 120)}…</div>
-              <div style={{ fontSize: 11.5, color: "var(--gray3)", marginBottom: 6 }}>{p.source_name} · {new Date(p.detected_date).toLocaleDateString("en-GB")}</div>
+              <div style={{ fontSize: 11.5, color: "var(--gray3)", marginBottom: 6 }}>{p.source_name} · {formatISTDate(p.detected_date)}</div>
               <div style={{ fontSize: 11.5, color: "var(--amber)" }}>⚠ {p.reason}</div>
             </div>
             <button className="inv-btn inv-btn--outline inv-btn--sm" onClick={() => onResolve(p.pending_id)}>
@@ -369,10 +414,205 @@ function QuarantinePanel({ items }) {
             AE keywords: {(q.ae_keywords || []).join(", ")}
           </div>
           <div style={{ fontSize: 11, color: "var(--gray3)" }}>
-            {q.competitor_name} · {new Date(q.detected_date).toLocaleDateString("en-GB")} · Routed to: {q.routed_to}
+            {q.competitor_name} · {formatISTDate(q.detected_date)} · Routed to: {q.routed_to}
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* Sanju changes - 29th June 2026 — Ask AI panel. Asks the agent about a tracked
+   competitor; grounded only on the classified inventory (no spend/budget). */
+function AskAIPanel() {
+  const [name,     setName]     = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer,   setAnswer]   = useState(null);
+  const [loading,  setLoading]  = useState(false);
+  const [err,      setErr]      = useState(null);
+
+  const SUGGESTED = [
+    "What channels is this competitor running ads on?",
+    "What does their ad copy emphasise?",
+    "Has their ad frequency increased recently?",
+    "How much are they spending on advertising?",   // demonstrates the spend guardrail
+  ];
+
+  async function ask(q) {
+    const theQuestion = q ?? question;
+    if (!name.trim() || !theQuestion.trim()) {
+      setErr("Enter a competitor name and a question.");
+      return;
+    }
+    setLoading(true); setErr(null); setAnswer(null);
+    try {
+      const res = await askCompetitor(name.trim(), theQuestion);
+      setQuestion(theQuestion);
+      setAnswer(res);
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="ask-ai-panel">
+      <div className="ask-ai-note" style={{ fontSize: 12.5, color: "var(--gray3)", marginBottom: 12 }}>
+        The agent answers only from the classified inventory. It can describe ad channels, messaging,
+        activity duration, and frequency trends — but never ad spend or budget. Spend questions are declined.
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        <input
+          className="filter-input"
+          placeholder="Competitor name (e.g. CompetitorA)"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          style={{ minWidth: 220 }}
+        />
+        <input
+          className="filter-input"
+          placeholder="Ask a question…"
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && ask()}
+          style={{ flex: 1, minWidth: 260 }}
+        />
+        <button className="inv-btn inv-btn--teal" onClick={() => ask()} disabled={loading}>
+          {loading ? "Asking…" : "Ask AI"}
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+        {SUGGESTED.map(q => (
+          <button key={q} className="inv-btn inv-btn--outline inv-btn--sm" onClick={() => ask(q)} disabled={loading}>
+            {q}
+          </button>
+        ))}
+      </div>
+
+      {err && (
+        <div className="failure-strip" style={{ marginBottom: 12 }}>
+          <span>⚠</span><div><span className="failure-err">{err}</span></div>
+        </div>
+      )}
+
+      {answer && (
+        <div
+          className="source-text-box"
+          style={{
+            background: answer.refused ? "#FEF2F2" : "#F0FDF4",
+            borderColor: answer.refused ? "#FECACA" : "#BBF7D0",
+          }}
+        >
+          <div className="source-text-label" style={{ color: answer.refused ? "#991B1B" : "#166534" }}>
+            {answer.refused ? "🛡 Guardrail — spend data withheld" : "🤖 Agent response"}
+            <span style={{ fontWeight: 400, marginLeft: 8, fontSize: 11, color: "var(--gray3)" }}>
+              {answer.generated_by === "ai" ? "AI-generated" : "rule-based"}
+            </span>
+          </div>
+          <div className="source-text-body" style={{ color: answer.refused ? "#991B1B" : "#166534" }}>
+            {answer.answer}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--gray3)", marginTop: 8 }}>
+            Grounded on — approvals: {answer.grounded_on?.approvals ?? 0} ·
+            claims: {answer.grounded_on?.claims ?? 0} ·
+            trials: {answer.grounded_on?.trials ?? 0} ·
+            narratives: {answer.grounded_on?.narratives ?? 0} ·
+            ad summaries: {answer.grounded_on?.ad_summaries ?? 0}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Sanju changes - 29th June 2026 — Ingestion Run Log.
+   Every run (successful, partial, or failed) with cycle ID, item counts per
+   Data Category, totals, and each connector failure's reason + timestamp. */
+function RunLogPanel({ logs, onDownload, downloading }) {
+  const statusColor = s =>
+    s === "completed" ? "#16A34A" : s === "partial" ? "#D97706" : "#DC2626";
+
+  return (
+    <div>
+      {/* Sanju changes - 30th June 2026 — removed the Download PDF / Download JSON
+          buttons from the Run Log toolbar (download stays available via the
+          "Download Log (PDF)" button in the top bar). */}
+      <div className="inv-toolbar">
+        <span style={{ fontSize: 12.5, color: "var(--gray3)" }}>
+          {logs.length} run(s) logged — successful and failed.
+        </span>
+        <div className="toolbar-spacer" />
+      </div>
+
+      {!logs.length ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">🗒️</div>
+          <h3>No ingestion runs logged yet</h3>
+          <p>Run an ingestion cycle — every run is recorded here.</p>
+        </div>
+      ) : (
+        logs.map(run => {
+          const counts = run.item_counts || {};
+          const failures = run.connector_failures || [];
+          return (
+            <div key={run.cycle_id} className="cycle-panel" style={{ marginBottom: 12 }}>
+              <div className="cycle-panel-header">
+                <div>
+                  <div className="cycle-panel-title">
+                    {run.cycle_id}
+                    <span style={{ color: statusColor(run.status), fontWeight: 600, marginLeft: 8, textTransform: "uppercase", fontSize: 12 }}>
+                      {run.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--gray3)", marginTop: 2 }}>
+                    {run.triggered_by} · {run.total_items} new item(s) · {run.pending_count || 0} pending · {run.quarantined_count || 0} quarantined
+                  </div>
+                </div>
+                <div style={{ fontSize: 11.5, color: "var(--gray3)", textAlign: "right" }}>
+                  {/* Sanju changes - 29th June 2026 — IST */}
+                  <div>Started: {formatIST(run.started_at)}</div>
+                  {run.completed_at && <div>Completed: {formatIST(run.completed_at)}</div>}
+                </div>
+              </div>
+
+              {/* Per-run counts shown as a compact line — the big KPI blocks
+                  live only in the top stat cards. Sanju changes - 29th June 2026. */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12, color: "var(--gray2)", margin: "2px 0 8px" }}>
+                {DATA_CATEGORIES.filter(c => c.id !== "ALL").map(cat => (
+                  <span key={cat.id}>
+                    <span style={{ color: "var(--gray3)" }}>{cat.label.replace("Records", "").replace("Competitor ", "").trim()}:</span>
+                    <b style={{ color: cat.color, marginLeft: 4 }}>{counts[cat.id] || 0}</b>
+                  </span>
+                ))}
+              </div>
+
+              {run.failure_reason && (
+                <div className="failure-strip">
+                  <span>⚠</span>
+                  <div><span className="failure-name">Run failure</span><span className="failure-err">{run.failure_reason}</span></div>
+                </div>
+              )}
+
+              {failures.length > 0
+                ? failures.map((f, i) => (
+                    <div key={i} className="failure-strip">
+                      <span>✗</span>
+                      <div>
+                        <span className="failure-name">{f.connector_name} · {f.error_type}</span>
+                        <span className="failure-err">
+                          {f.error_detail} · {formatIST(f.timestamp)}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                : <div style={{ fontSize: 11.5, color: "var(--gray3)", padding: "2px 2px 4px" }}>No connector failures.</div>}
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }
@@ -393,11 +633,13 @@ export default function CompetitorInventory() {
   const [adSummaries,   setAdSummaries]   = useState([]);
   const [pendingItems,  setPendingItems]  = useState([]);
   const [quarantine,    setQuarantine]    = useState([]);
+  const [runLogs,       setRunLogs]       = useState([]); // Sanju changes - 29th June 2026
   const [total,         setTotal]         = useState(0);
 
   const [ingesting,     setIngesting]     = useState(false);
   const [loading,       setLoading]       = useState(false);
   const [refreshing,    setRefreshing]    = useState(false);
+  const [downloadingLog, setDownloadingLog] = useState(false); // Sanju changes - 29th June 2026
   const [error,         setError]         = useState(null);
 
   // Fetch inventory
@@ -413,6 +655,9 @@ export default function CompetitorInventory() {
       });
       setInventory(data.items || []);
       setTotal(data.total || 0);
+      setError(null);   // Sanju changes - 30th June 2026 — clear any stale error
+                        // banner once a fetch succeeds (it used to persist forever
+                        // after a transient failure, e.g. during a backend reload).
     } catch (e) {
       setError(e.message);
     } finally {
@@ -423,18 +668,20 @@ export default function CompetitorInventory() {
   // Fetch stats + cycle summary
   const fetchMeta = useCallback(async () => {
     try {
-      const [statsData, cycleData, adsData, pendingData, qData] = await Promise.allSettled([
+      const [statsData, cycleData, adsData, pendingData, qData, logsData] = await Promise.allSettled([
         getInventoryStats(),
         getLatestCycleSummary(),
         getAdSummaries(),
         getPendingItems(),
         getQuarantine(),
+        getRunLogs(), // Sanju changes - 29th June 2026
       ]);
       if (statsData.status === "fulfilled") setStats(statsData.value);
       if (cycleData.status === "fulfilled") setCycle(cycleData.value?.cycle || null);
       if (adsData.status  === "fulfilled") setAdSummaries(adsData.value?.summaries || []);
       if (pendingData.status === "fulfilled") setPendingItems(pendingData.value?.items || []);
       if (qData.status === "fulfilled") setQuarantine(qData.value?.items || []);
+      if (logsData.status === "fulfilled") setRunLogs(logsData.value?.logs || []); // Sanju changes - 29th June 2026
     } catch (_) {}
   }, []);
 
@@ -453,6 +700,19 @@ export default function CompetitorInventory() {
       setError(e.message);
     } finally {
       setIngesting(false);
+    }
+  }
+
+  // Download the ingestion run log (pdf | json). Sanju changes - 29th June 2026.
+  async function handleDownloadLog(format = "pdf") {
+    setDownloadingLog(true);
+    setError(null);
+    try {
+      await downloadRunLog(format);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setDownloadingLog(false);
     }
   }
 
@@ -489,6 +749,11 @@ export default function CompetitorInventory() {
               Running ingestion cycle…
             </div>
           )}
+          {/* Sanju changes - 29th June 2026 — Download Log (PDF) button beside Run Ingestion Cycle */}
+          <button className="inv-btn inv-btn--outline" onClick={() => handleDownloadLog("pdf")} disabled={downloadingLog}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            {downloadingLog ? "Preparing…" : "Download Log (PDF)"}
+          </button>
           <button className="inv-btn inv-btn--teal" onClick={handleTriggerIngestion} disabled={ingesting}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             Run Ingestion Cycle
@@ -565,13 +830,12 @@ export default function CompetitorInventory() {
             </p>
           </div>
 
-          {/* Stat cards */}
+          {/* Stat cards — display only (filtering is done via the toolbar filter). */}
           <div className="stat-cards">
             {DATA_CATEGORIES.filter(c => c.id !== "ALL").map(cat => (
               <div
                 key={cat.id}
-                className={`stat-card ${activeCategory === cat.id ? "active" : ""}`}
-                onClick={() => { setActiveCategory(cat.id); setActiveTab("inventory"); }}
+                className="stat-card stat-card--static"
               >
                 <div className="sc-label">{cat.label}</div>
                 <div className="sc-count" style={{ color: cat.color }}>{catCounts[cat.id] || 0}</div>
@@ -579,6 +843,21 @@ export default function CompetitorInventory() {
               </div>
             ))}
           </div>
+
+          {/* Sanju changes - 29th June 2026 — "Last Cycle" summary moved out of the
+              (removed) sidebar to sit above the Inventory tabs. Reuses the existing
+              sidebar-heading / cycle-info classnames. */}
+          {cycle && (
+            <div className="inv-lastcycle">
+              <div className="sidebar-heading">Last Cycle</div>
+              <div className="cycle-info">
+                <div className="cycle-info-label">Cycle ID</div>
+                <div className="cycle-info-value">{cycle.cycle_id}</div>
+                <div className="cycle-info-sub">{cycle.status} · {cycle.total_items} items</div>
+                <div className="cycle-info-sub">{formatIST(cycle.started_at)}</div>
+              </div>
+            </div>
+          )}
 
           {/* Cycle panel */}
           <CyclePanel cycle={cycle} />
@@ -608,6 +887,14 @@ export default function CompetitorInventory() {
             <button className={`tab-btn ${activeTab === "quarantine" ? "active" : ""}`} onClick={() => setActiveTab("quarantine")}>
               Quarantine
               {quarantineCount > 0 && <span className="tab-badge tab-badge--alert">{quarantineCount}</span>}
+            </button>
+            {/* Sanju changes - 29th June 2026 — Ask AI + Run Log tabs (same tab-btn styling) */}
+            <button className={`tab-btn ${activeTab === "askAI" ? "active" : ""}`} onClick={() => setActiveTab("askAI")}>
+              Ask AI
+            </button>
+            <button className={`tab-btn ${activeTab === "runLog" ? "active" : ""}`} onClick={() => setActiveTab("runLog")}>
+              Run Log
+              <span className="tab-badge">{runLogs.length}</span>
             </button>
           </div>
 
@@ -670,6 +957,9 @@ export default function CompetitorInventory() {
           {activeTab === "adSummaries"  && <AdSummaryPanel summaries={adSummaries} />}
           {activeTab === "pending"      && <PendingPanel items={pendingItems} onResolve={id => console.log("resolve", id)} />}
           {activeTab === "quarantine"   && <QuarantinePanel items={quarantine} />}
+          {/* Sanju changes - 29th June 2026 — Ask AI + Run Log panels */}
+          {activeTab === "askAI"        && <AskAIPanel />}
+          {activeTab === "runLog"       && <RunLogPanel logs={runLogs} onDownload={handleDownloadLog} downloading={downloadingLog} />}
         </main>
       </div>
     </div>

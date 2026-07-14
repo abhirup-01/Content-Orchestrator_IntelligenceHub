@@ -2205,7 +2205,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../App.css";
 import { getProject, updateProjectMeta, markPhaseComplete, computeProgress } from '../lib/progressStore';
 import { usePhaseNavigation } from "./PhaseNav.jsx";
-import { buildRegulatoryCompliancePrompt } from '../prompts/regulatoryCompliancePrompt';
+// Sanju changes 2026-07-10 — no longer prompting Azure directly from the UI; the
+// backend agent builds the prompt now, so buildRegulatoryCompliancePrompt is unused.
+// import { buildRegulatoryCompliancePrompt } from '../prompts/regulatoryCompliancePrompt';
+// Sanju changes 2026-07-10 — bridge to Regulatory-Backend AI agent (POST /regulatory).
+import { runRegulatoryCompliance } from './api/regulatoryComplianceApi';
+import { jsPDF } from "jspdf";
 import "./css/Regulatory.css";
 import {
   ArrowLeft, Save, ArrowRight, Flag, Upload, FileText, CheckCircle2, Maximize2, BarChart3, FileDown,
@@ -2512,6 +2517,7 @@ export default function RegulatoryComplianceHub({
       .map((seg, i) => {
         const index = typeof seg.index === "number" ? seg.index : i + 1;
         const source = String(seg.source ?? "");
+        const draft = String(seg.translated ?? seg.draft ?? ""); // phase 2 Smart TM draft translation
         const adapted = String(seg.adapted ?? seg.culturallyAdapted ?? seg.translated ?? ""); // phase 3 result if present
         const compliant = String(seg.compliant ?? ""); // phase 4 will fill this
         const words =
@@ -2523,6 +2529,7 @@ export default function RegulatoryComplianceHub({
           id: seg.id ?? `seg-${index}`,
           index,
           source,
+          draft,     // Smart TM draft translation (Phase 2)
           adapted,   // shown under "Culturally Adapted Text (Phase 3)"
           compliant, // shown under "Regulatory Compliant Text"
           words,
@@ -2934,61 +2941,69 @@ const isAcceptGroup = decisionGroup === "accept";
     });
 
     try {
-      // ── Azure OpenAI call (replaces n8n /regulatory webhook) ──────────────
-      // Posts the same conceptual payload to Azure with the regulatory prompt.
-      // Response is wrapped as `[{ output: { critical_issue, recommendation1,
-      // recommendation2 } }]` so the existing parseN8nShape_CritAndRecs parser
-      // works unchanged.
-      const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
-      const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
-      const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
-      const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
-
-      const azureRes = await fetch(azureUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
-        },
-        body: JSON.stringify({
-          max_completion_tokens: 4096,
-          response_format: { type: "json_object" },
-          messages: [{ role: "user", content: buildRegulatoryCompliancePrompt(payload) }],
-        }),
+      // Sanju changes 2026-07-10 — route through the Regulatory-Backend AI agent
+      // (POST /regulatory) instead of calling Azure OpenAI directly from the
+      // browser. The backend loads the rules/ folder, matches against the
+      // target market (country) and returns the STRICT JSON
+      // { critical_issue, recommendation1, recommendation2 }.
+      const parsedRegulatory = await runRegulatoryCompliance({
+        adaptedText: payload.adaptedText,
+        country: payload.country,
+        projectName: payload.projectName,
+        therapyArea: payload.therapyArea,
       });
 
-      if (!azureRes.ok) {
-        let errBody = "";
-        try { errBody = await azureRes.text(); } catch (_) {}
-        console.error("[Azure regulatory non-OK]", azureRes.status, errBody);
-        throw new Error(`Regulatory analysis failed (HTTP ${azureRes.status})`);
-      }
-
-      const azureData = await azureRes.json();
-      const choice = azureData.choices?.[0];
-      const finishReason = choice?.finish_reason;
-      const rawText = choice?.message?.content;
-
-      if (finishReason === "content_filter") {
-        console.error("[Azure content filter on regulatory]", choice?.content_filter_results);
-        throw new Error("Azure content filter blocked the regulatory analysis. Check console.");
-      }
-      if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
-        throw new Error(`Regulatory analysis returned empty content (finish_reason=${finishReason ?? "unknown"})`);
-      }
-
-      let parsedRegulatory;
-      try {
-        parsedRegulatory = JSON.parse(rawText.trim());
-      } catch (e) {
-        const match = rawText.match(/\{[\s\S]*\}/);
-        if (match) {
-          parsedRegulatory = JSON.parse(match[0]);
-        } else {
-          console.error("[Regulatory: no JSON found]", rawText);
-          throw new Error("Regulatory analysis response was not valid JSON");
-        }
-      }
+      // ── Legacy direct Azure OpenAI call (kept for reference; disabled) ─────
+      // const azureEndpoint = (process.env.REACT_APP_AZURE_OPENAI_ENDPOINT || "").replace(/\/+$/, "");
+      // const azureDeployment = process.env.REACT_APP_AZURE_OPENAI_DEPLOYMENT;
+      // const azureApiVersion = process.env.REACT_APP_AZURE_OPENAI_API_VERSION || "2024-10-21";
+      // const azureUrl = `${azureEndpoint}/openai/deployments/${azureDeployment}/chat/completions?api-version=${azureApiVersion}`;
+      //
+      // const azureRes = await fetch(azureUrl, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "api-key": process.env.REACT_APP_AZURE_OPENAI_API_KEY,
+      //   },
+      //   body: JSON.stringify({
+      //     max_completion_tokens: 4096,
+      //     response_format: { type: "json_object" },
+      //     messages: [{ role: "user", content: buildRegulatoryCompliancePrompt(payload) }],
+      //   }),
+      // });
+      //
+      // if (!azureRes.ok) {
+      //   let errBody = "";
+      //   try { errBody = await azureRes.text(); } catch (_) {}
+      //   console.error("[Azure regulatory non-OK]", azureRes.status, errBody);
+      //   throw new Error(`Regulatory analysis failed (HTTP ${azureRes.status})`);
+      // }
+      //
+      // const azureData = await azureRes.json();
+      // const choice = azureData.choices?.[0];
+      // const finishReason = choice?.finish_reason;
+      // const rawText = choice?.message?.content;
+      //
+      // if (finishReason === "content_filter") {
+      //   console.error("[Azure content filter on regulatory]", choice?.content_filter_results);
+      //   throw new Error("Azure content filter blocked the regulatory analysis. Check console.");
+      // }
+      // if (!rawText || typeof rawText !== "string" || rawText.trim() === "") {
+      //   throw new Error(`Regulatory analysis returned empty content (finish_reason=${finishReason ?? "unknown"})`);
+      // }
+      //
+      // let parsedRegulatory;
+      // try {
+      //   parsedRegulatory = JSON.parse(rawText.trim());
+      // } catch (e) {
+      //   const match = rawText.match(/\{[\s\S]*\}/);
+      //   if (match) {
+      //     parsedRegulatory = JSON.parse(match[0]);
+      //   } else {
+      //     console.error("[Regulatory: no JSON found]", rawText);
+      //     throw new Error("Regulatory analysis response was not valid JSON");
+      //   }
+      // }
 
       // Wrap in the n8n response shape so parseN8nShape_CritAndRecs handles it
       const raw = [{ output: parsedRegulatory }];
@@ -3362,28 +3377,100 @@ decisionType: "defer",      // sanju_01_04
   const totalChanges = changedCount;
 const overallComplianceScoreFromModal = analysisData?.score ?? null; // number | null
 
-  /* ================= Export Report (simple .txt) ================= */
+  /* ================= Export Report (PDF – full workflow log) =================
+     Produces a log-style PDF documenting every phase that was done per segment:
+     Smart TM (draft translation), Cultural Adaptation, and Regulatory Compliance. */
   const exportReport = () => {
-    const lines = [
-      `Project: ${projectName}`,
-      `Therapy Area: ${therapyArea}`,
-      `Generated: ${new Date().toLocaleString()}`,
-      "",
-      "Final Regulatory-Compliant Translation",
-      "======================================",
-      "",
-      ...segments.map((seg) => {
-        const adapted = (seg.adapted || "").trim() ? seg.adapted : "— No adapted text —";
-        return `Segment ${seg.index}\n${adapted}\n`;
-      }),
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${projectName.replace(/\s+/g, "_")}_Compliance_Report.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    const contentW = pageW - margin * 2;
+    let y = margin;
+
+    const ensureSpace = (needed) => {
+      if (y + needed > pageH - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    // Write a wrapped block of text, paginating as needed.
+    const writeText = (text, { size = 10, style = "normal", color = [40, 40, 40], gap = 4 } = {}) => {
+      doc.setFont("helvetica", style);
+      doc.setFontSize(size);
+      doc.setTextColor(color[0], color[1], color[2]);
+      const lines = doc.splitTextToSize(String(text || ""), contentW);
+      const lineH = size * 1.35;
+      lines.forEach((ln) => {
+        ensureSpace(lineH);
+        doc.text(ln, margin, y);
+        y += lineH;
+      });
+      y += gap;
+    };
+
+    // A labelled log line: "[PHASE] Label" followed by its value.
+    const writeStage = (tag, label, value) => {
+      writeText(`[${tag}] ${label}`, { size: 9, style: "bold", color: [90, 90, 90], gap: 1 });
+      writeText((value || "").trim() || "— not available —", { size: 10, style: "normal", color: [30, 30, 30], gap: 8 });
+    };
+
+    // ===== Header =====
+    writeText("Glocalization Workflow – Export Report", { size: 16, style: "bold", color: [17, 24, 39], gap: 6 });
+    writeText(`Project: ${projectName}`, { size: 10, gap: 2 });
+    writeText(`Therapy Area: ${therapyArea}`, { size: 10, gap: 2 });
+    writeText(`Generated: ${new Date().toLocaleString()}`, { size: 10, gap: 2 });
+    writeText(
+      `Segments: ${segments.length}  •  Approved: ${approvedCount}/${totalCount}  •  Avg Compliance: ${overallComplianceScoreFromModal != null ? `${overallComplianceScoreFromModal}%` : "—"}`,
+      { size: 10, color: [90, 90, 90], gap: 10 }
+    );
+
+    // Divider
+    ensureSpace(12);
+    doc.setDrawColor(210, 210, 210);
+    doc.line(margin, y, pageW - margin, y);
+    y += 14;
+
+    if (segments.length === 0) {
+      writeText("No segments found.", { size: 11, style: "italic", color: [120, 120, 120] });
+    }
+
+    // ===== Per-segment activity log across all three phases =====
+    segments.forEach((seg) => {
+      const o = segOverrides[seg.id] || {};
+      const status = String(o.status ?? seg.status ?? "Pending");
+      const score = scoreById[seg.id] ?? seg.complianceScore;
+      const draft = seg.draft;
+      const adapted = seg.adapted;
+      const compliant =
+        (compliantById[seg.id] && compliantById[seg.id].trim()) ||
+        (o.compliantText && o.compliantText.trim()) ||
+        (seg.compliantText && seg.compliantText.trim()) ||
+        (seg.compliant && seg.compliant.trim()) ||
+        "";
+
+      ensureSpace(28);
+      writeText(
+        `Segment ${seg.index}  ·  ${seg.words} words  ·  Status: ${status}${
+          typeof score === "number" ? `  ·  Score: ${score}/100` : ""
+        }`,
+        { size: 11, style: "bold", color: [17, 24, 39], gap: 6 }
+      );
+
+      writeStage("SMART TM", "Source Text", seg.source);
+      writeStage("SMART TM", "Draft Translation", draft);
+      writeStage("CULTURAL", "Adapted Translation", adapted);
+      writeStage("REGULATORY", "Regulatory-Compliant Text", compliant);
+
+      // segment separator
+      ensureSpace(10);
+      doc.setDrawColor(235, 235, 235);
+      doc.line(margin, y, pageW - margin, y);
+      y += 12;
+    });
+
+    doc.save(`${String(projectName).replace(/\s+/g, "_")}_Workflow_Report.pdf`);
   };
 
   /** Heuristic score (still available for manual Run Compliance Check button) */

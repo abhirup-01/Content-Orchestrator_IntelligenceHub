@@ -1,0 +1,120 @@
+/* ─────────────────────────────────────────────────────────
+   US 2.5 — Competitive Alert Dashboard
+   Uniquely prefixed (cad-) class names. Reuses the shared design
+   tokens (--blue, --teal, --bdr, …) declared in CompetitorInventory.css.
+───────────────────────────────────────────────────────── */
+
+.cad-page {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-xl);
+  padding: 20px 24px;
+  margin: 18px 8px;
+  font-family: var(--font);
+  color: var(--gray);
+}
+
+/* ── Hero ── */
+.cad-hero {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.cad-hero h1 { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.cad-sla {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  padding: 4px 10px; border-radius: 100px; white-space: nowrap;
+  background: var(--red-lt); color: var(--red); border: 1px solid var(--red-bd);
+}
+
+/* ── Alert banner ── */
+.cad-banner {
+  background: var(--red-lt); border: 1px solid var(--red-bd);
+  border-radius: var(--r-lg); padding: 18px 20px; margin-bottom: 16px;
+}
+.cad-banner h2 { font-size: 16px; font-weight: 600; margin: 10px 0 6px; }
+.cad-banner p  { font-size: 12.5px; color: var(--gray2); line-height: 1.55; }
+
+.cad-top-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; font-size: 11.5px; color: var(--gray3);
+}
+.cad-badge {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+  padding: 2px 8px; border-radius: 100px;
+}
+.cad-regulatory { background: var(--red); color: #fff; }
+
+/* Detail grid */
+.cad-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px; margin: 14px 0;
+}
+.cad-grid > div {
+  background: var(--white); border: 1px solid var(--red-bd);
+  border-radius: var(--r-sm); padding: 8px 11px;
+}
+.cad-grid b { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--gray4); }
+.cad-grid p { font-size: 12.5px; font-weight: 500; color: var(--gray2); margin-top: 2px; }
+
+/* Assessment + prediction blocks */
+.cad-assessment, .cad-prediction, .cad-suggestions {
+  background: var(--white); border: 1px solid var(--bdr);
+  border-radius: var(--r-md); padding: 12px 14px; margin-top: 12px;
+}
+.cad-assessment h3, .cad-prediction h3, .cad-suggestions h3 {
+  font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 8px;
+}
+.cad-assessment p { font-size: 12.5px; color: var(--gray2); line-height: 1.55; }
+.cad-suggestions ul { margin: 0; padding-left: 18px; }
+.cad-suggestions li { font-size: 12.5px; color: var(--gray2); line-height: 1.6; }
+
+.cad-chip {
+  display: inline-block; font-size: 11px; font-weight: 500;
+  padding: 3px 9px; border-radius: 100px; margin: 0 6px 6px 0;
+  background: var(--amber-lt); color: var(--amber); border: 1px solid var(--amber-bd);
+}
+
+/* Re-run status */
+.cad-rerun { font-size: 12.5px; color: var(--gray3); margin-top: 12px; }
+.cad-pending {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+  padding: 2px 8px; border-radius: 100px;
+  background: var(--amber-lt); color: var(--amber); border: 1px solid var(--amber-bd);
+}
+
+/* Buttons */
+.cad-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.cad-buttons button {
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  padding: 8px 14px; border-radius: var(--r-sm);
+  border: 1px solid var(--bdr2); background: var(--white); color: var(--gray2);
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.cad-buttons button:hover { background: var(--bg); }
+.cad-buttons button:first-child { background: var(--blue); color: #fff; border-color: transparent; }
+.cad-buttons button:first-child:hover { background: #162E72; }
+
+.cad-audit {
+  font-size: 12px; font-weight: 500; color: var(--teal);
+  background: var(--teal-lt); border: 1px solid var(--teal-bd);
+  border-radius: var(--r-sm); padding: 8px 12px; margin-top: 12px;
+}
+
+/* ── Notification + audit panels ── */
+.cad-notification-card, .cad-audit-panel {
+  background: var(--white); border: 1px solid var(--bdr);
+  border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 14px; overflow-x: auto;
+}
+.cad-notification-card h3, .cad-audit-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.cad-notification-card p { font-size: 12.5px; color: var(--gray2); margin-bottom: 4px; }
+
+.cad-audit-panel table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.cad-audit-panel th {
+  text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--gray4);
+  padding: 10px 12px; background: var(--bg); border-bottom: 1px solid var(--bdr);
+}
+.cad-audit-panel td { padding: 10px 12px; border-bottom: 1px solid var(--bdr); color: var(--gray2); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) { .cad-hero { flex-direction: column; align-items: flex-start; } }

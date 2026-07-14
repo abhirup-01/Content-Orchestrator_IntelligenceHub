@@ -1,0 +1,166 @@
+/* ─────────────────────────────────────────────────────────
+   Comparative Claims Analysis (US 2.3)
+   Uniquely prefixed (cc-) class names so nothing collides with
+   CompetitorInventory / global styles. Reuses the shared design
+   tokens (--blue, --teal, --bdr, …) declared in CompetitorInventory.css.
+───────────────────────────────────────────────────────── */
+
+.cc-container {
+  background: var(--white);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r-xl);
+  padding: 20px 24px;
+  margin: 18px 8px;
+}
+
+/* ── Header ── */
+.cc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+}
+.cc-header h1 {
+  font-size: 22px; font-weight: 600; letter-spacing: -.025em;
+  color: var(--gray);
+}
+.cc-export-btn {
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: var(--r-sm);
+  border: 1px solid var(--bdr2); background: var(--white); color: var(--gray2);
+  cursor: pointer; transition: all .12s; white-space: nowrap;
+}
+.cc-export-btn:hover:not(:disabled) { background: var(--bg); }
+.cc-export-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── Input panel ── */
+.cc-input-panel {
+  display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+  background: var(--bg); border: 1px solid var(--bdr);
+  border-radius: var(--r-lg); padding: 14px 16px; margin-bottom: 14px;
+}
+.cc-filter-group { display: flex; flex-direction: column; gap: 5px; }
+.cc-filter-group label {
+  font-size: 10px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--gray4);
+}
+.cc-filter-group select,
+.cc-text-input,
+.cc-textarea {
+  font-family: var(--font); font-size: 12.5px;
+  padding: 7px 10px; border: 1px solid var(--bdr2);
+  border-radius: var(--r-sm); background: var(--white); color: var(--gray2);
+  outline: none; transition: border-color .12s;
+}
+.cc-filter-group select { cursor: pointer; }
+.cc-textarea { resize: vertical; line-height: 1.5; min-height: 76px; }
+.cc-filter-group select:focus,
+.cc-text-input:focus,
+.cc-textarea:focus { border-color: var(--blue-mid); }
+
+.cc-analyze-btn {
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  padding: 8px 18px; border-radius: var(--r-sm);
+  border: 1px solid transparent; background: var(--blue); color: #fff;
+  cursor: pointer; transition: background .12s; white-space: nowrap;
+}
+.cc-analyze-btn:hover:not(:disabled) { background: #162E72; }
+.cc-analyze-btn:disabled { opacity: .45; cursor: not-allowed; }
+/* The button that is actually running stays full-colour with a "busy" cursor,
+   so only the other (idle) button greys out while an analysis is in flight. */
+.cc-analyze-btn.cc-running:disabled { opacity: 1; cursor: progress; }
+
+/* ── Error + meta ── */
+.cc-error {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--red-lt); border: 1px solid var(--red-bd);
+  color: var(--red); font-size: 12.5px; font-weight: 500;
+  padding: 9px 12px; border-radius: var(--r-md); margin-bottom: 12px;
+}
+.cc-meta { font-size: 12.5px; color: var(--gray3); margin-bottom: 12px; }
+.cc-meta b { color: var(--gray); }
+.cc-genby {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .04em; padding: 2px 8px; border-radius: 100px;
+  background: var(--blue-lt); color: var(--blue); border: 1px solid var(--blue-bd);
+}
+
+/* ── Filters ── */
+.cc-filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+
+/* ── Summary cards ── */
+.cc-summary-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 18px;
+}
+.cc-card {
+  border: 1px solid var(--bdr); border-radius: var(--r-lg);
+  padding: 14px 16px; background: var(--white);
+}
+.cc-card h3 {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--gray3); margin-bottom: 6px;
+}
+.cc-card p { font-size: 26px; font-weight: 700; line-height: 1; }
+.cc-safety      { background: var(--teal-lt);   border-color: var(--teal-bd); }
+.cc-safety p      { color: var(--teal); }
+.cc-efficacy    { background: var(--blue-lt);   border-color: var(--blue-bd); }
+.cc-efficacy p    { color: var(--blue); }
+.cc-performance { background: var(--purple-lt); border-color: var(--purple-bd); }
+.cc-performance p { color: var(--purple); }
+
+/* ── Comparison table ── */
+.cc-table-wrapper {
+  background: var(--white); border: 1px solid var(--bdr);
+  border-radius: var(--r-xl); overflow: hidden; overflow-x: auto;
+  margin-bottom: 18px;
+}
+.cc-table-wrapper table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.cc-table-wrapper thead th {
+  text-align: left; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--gray4);
+  padding: 11px 14px; background: var(--bg); border-bottom: 1px solid var(--bdr);
+  white-space: nowrap;
+}
+.cc-table-wrapper tbody td {
+  padding: 11px 14px; border-bottom: 1px solid var(--bdr);
+  color: var(--gray2); vertical-align: top; line-height: 1.5;
+}
+.cc-table-wrapper tbody tr:last-child td { border-bottom: none; }
+.cc-table-wrapper tbody tr:hover { background: #FAFAFA; }
+
+/* ── Gap-severity badges ── */
+.cc-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 100px; letter-spacing: .03em;
+  text-transform: uppercase; white-space: nowrap; display: inline-block;
+}
+.cc-high-gap   { background: var(--red-lt);   color: var(--red);   border: 1px solid var(--red-bd); }
+.cc-medium-gap { background: var(--amber-lt); color: var(--amber); border: 1px solid var(--amber-bd); }
+.cc-low-gap    { background: var(--teal-lt);  color: var(--teal);  border: 1px solid var(--teal-bd); }
+
+/* ── Gap assessment ── */
+.cc-assessment { margin-top: 4px; }
+.cc-assessment h2 {
+  font-size: 15px; font-weight: 600; color: var(--gray); margin-bottom: 12px;
+}
+.cc-assessment-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.cc-assessment-block {
+  background: var(--white); border: 1px solid var(--bdr);
+  border-radius: var(--r-lg); padding: 14px 16px;
+}
+.cc-assessment-block h3 {
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  margin-bottom: 8px;
+}
+.cc-assessment-block ul { margin: 0; padding-left: 18px; }
+.cc-assessment-block li {
+  font-size: 12.5px; color: var(--gray2); line-height: 1.55; margin-bottom: 5px;
+}
+.cc-assessment-empty { font-size: 12.5px; color: var(--gray4); font-style: italic; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .cc-summary-cards { grid-template-columns: 1fr; }
+}

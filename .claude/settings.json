@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/Competitive-intelligence-backend/routers/\")",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/Competitive-intelligence-backend/routers/**)",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/Competitive-intelligence-backend/models/**)"
+    ]
+  }
+}

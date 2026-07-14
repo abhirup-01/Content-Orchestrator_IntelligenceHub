@@ -156,6 +156,11 @@ body {
 .cycle-info-value { font-size: 12px; font-weight: 500; color: var(--gray2); }
 .cycle-info-sub   { font-size: 11px; color: var(--gray4); margin-top: 2px; }
 
+/* Sanju changes - 29th June 2026 — "Last Cycle" box above the Inventory tabs
+   (sidebar removed). Reuses .cycle-info; just constrains width + spacing. */
+.inv-lastcycle { max-width: 280px; margin: 0 0 16px; }
+.inv-lastcycle .cycle-info { margin-bottom: 0; }
+
 .alert-badge {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 10px; border-radius: var(--r-md); margin-bottom: 6px;
@@ -221,6 +226,9 @@ body {
   cursor: pointer; transition: box-shadow .12s, border-color .12s;
 }
 .stat-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.07); border-color: var(--bdr2); }
+/* Display-only stat cards — not clickable, no hover affordance. */
+.stat-card--static { cursor: default; }
+.stat-card--static:hover { box-shadow: none; border-color: var(--bdr); }
 .stat-card.active { border-color: var(--blue-bd); background: var(--blue-lt); }
 .sc-label { font-size: 11px;
   font-weight: 600;
@@ -425,6 +433,12 @@ body {
   transition: color .12s; margin-bottom: -1px;
   display: flex; align-items: center; gap: 6px; */
   appearance: none;
+    /* Sanju changes - 29th June 2026 — center tab label (incl. wrapped ones like "Ask AI") */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
     /* border: 1px solid #e6e8ee; */
     background: #f1f5f9;
     color: #374151;

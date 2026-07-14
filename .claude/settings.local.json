@@ -22,7 +22,9 @@
       "Bash(cat \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI/.env\")",
       "Bash(cat \"c:/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/Orchestrator_UI/.env.local\")",
       "Bash(git rm *)",
-      "Bash(rm -f src/setupProxy.js)"
+      "Bash(rm -f src/setupProxy.js)",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/Competitive-intelligence-backend/**)",
+      "Read(//c/Users/2135336/OneDrive - Cognizant/Documents/Content_Orchestrator/intelligence-hub-api/Competitive-intelligence-backend/models/**)"
     ]
   }
 }

@@ -1053,10 +1053,6 @@ const clearAllFilters = () => {
 {/* <section className="ihub-card"> */}
   <CompetitiveIntelligence />
 {/* </section> */}
-{/* --- Competitor Inventory --- */}
-<section className="ihub-card">
-  <CompetitorInventory />
-</section>
 </section>
    {/* </section> */}
 {/* --- Channel Intelligence --- */}
