@@ -862,13 +862,6 @@ export default function CompetitorInventory() {
           {/* Cycle panel */}
           <CyclePanel cycle={cycle} />
 
-          {/* Error */}
-          {error && (
-            <div className="failure-strip" style={{ marginBottom: 16 }}>
-              <span>⚠</span>
-              <div><span className="failure-name">API Error</span><span className="failure-err">{error}</span></div>
-            </div>
-          )}
 
           {/* Tabs */}
           <div className="tabs">
